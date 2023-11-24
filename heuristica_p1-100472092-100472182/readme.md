@@ -3,4 +3,4 @@ In this project it is pretended to model a problem of call assignations. There a
 
 # Collaborators 
 - CLopMan
-- [100472182](https://github.com/100472182)https://github.com/100472182)
+- [100472182](https://github.com/100472182)
