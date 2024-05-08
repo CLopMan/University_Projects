@@ -1,7 +1,7 @@
 # IA-belman
 Optimization of heat system using belman equations.
 
-course: second
+course: second (2022-2023)
 
 # Authors 
 - [CLopMan](https://github.com/CLopMan)
