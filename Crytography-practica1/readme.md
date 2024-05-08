@@ -1,7 +1,7 @@
 # Cryptography project
 In this project it is aimed to develop a simple app using encryption algorithms through [cryptography](https://cryptography.io/en/latest/) module. 
 
-course: third
+course: third (2023-2024)
 
 # Execution instructions
 For this project you need python 3.10 or superior. Python 3.11 is recommended.
