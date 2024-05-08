@@ -2,7 +2,7 @@
 
 Program a given fluid simulation model minimizing execution time.
 
-course: third
+course: third (2023-2024)
 
 ## Authors 
 - [100472175](https://github.com/100472175)
