@@ -3,7 +3,9 @@ In this project it is pretended to model 2 different problems, whitch are separa
 
 The first part of the project consist of modeling a constraint satisfaction problem as a constraint network using python. 
 
-The second parte consist of solving a search problem via a* search algorithm. 
+The second part consist of solving a search problem via a* search algorithm. 
+
+Course: third (2023-2024)
 
 # Collaborators 
 - CLopMan
