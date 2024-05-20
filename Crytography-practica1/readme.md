@@ -12,3 +12,5 @@ For this project you need python 3.10 or superior. Python 3.11 is recommended.
 This project was developed by: 
 - [CLopMan](https://github.com/CLopMan)
 - [PaulaUC3M](https://github.com/PaulaUc3m)
+
+**Original repository:** [Cryptography-practica1](https://github.com/100472092/Crytography-practica1)
