@@ -1,0 +1,111 @@
+.BackButtonContainer {
+    margin: 30px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.BackButtonContainer > .Back {
+    width: 40vw;
+    min-width: 350px;
+}
+
+#progress {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-around;
+    align-items: stretch;
+}
+    #progress > .circle {
+        flex-shrink: 0;
+        border-radius: 50%;
+        background-color: lightgray;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 15px;
+        font-size: 24px;
+        height: 150px;
+        width: 150px;
+    }
+
+    #progress > .trans {
+        height: 10px;
+        background-color: lightgray;
+        flex: 1 1 auto;
+        align-self: center;
+    }
+
+#list-prods-order > .Item {
+    overflow: hidden;
+    padding-left: 0;
+    height: 150px;
+    margin-bottom: 15px;
+}
+
+#list-prods-order > .Item { align-items: stretch; }
+
+#list-prods-order > .Item > .SplitContainer { flex-grow: 1; }
+
+#list-prods-order > .Item > .SplitContainer > *:first-child {
+    flex-grow: 1;
+    padding-right: 10px;
+}
+
+#list-prods-order > .Item > .SplitContainer > *:not(:first-child) {
+    flex-shrink: 1;
+    text-align: right;
+}
+
+#list-prods-order .ImagePreview {
+    width: 20%;
+    margin-right: 15px;
+}
+
+#sending-form {margin-bottom: 15px; }
+
+#step > .success {
+    margin-top: 2.5%;
+    margin-bottom: 2.5%;
+    align-items: center;
+    text-align: center;
+}
+    .success > .message {
+        align-items: center;
+        margin-top: 2.5%;
+        margin-bottom: 2.5%;
+    }
+        .message > p {
+            text-align: center;
+            font-size: calc(0.9em + 1vw);
+        }
+
+    .gif > img{
+        border-radius: 50%;
+        overflow: hidden;
+        max-width: 50%;
+        max-height: 50%;
+    }
+
+    #clock {
+        margin-bottom: 5%;
+        transform: scale(120%);
+    }
+
+@media screen and (max-width: 768px) {
+    #progress > .circle {
+        height: 100px;
+        width: 100px;
+        font-size: 16px;
+    }
+}
+
+/*Breakpoint for movilephones*/
+@media only screen and (max-width: 600px) {
+    #list-prods-order .ProductName {
+        font-size: 20px;
+    }
+    .ItemText > .ProductCost {
+        padding-left: 5px;
+    }
+}

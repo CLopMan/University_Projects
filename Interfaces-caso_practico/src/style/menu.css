@@ -1,0 +1,159 @@
+.hidden {
+    display: none;
+}
+
+.DisplayContainer .ItemText {
+    font-weight: bold;
+}
+
+.ItemText.NumberValue { padding: 0 25px; }
+
+.ProductPrice {
+    font-size: 14px;
+    color: var(--marron-base);
+}
+
+#menu > header, #pedido > header {
+    border-bottom: 2px solid var(--marron-base);
+    padding: 25px 0 10px;
+    margin-bottom: 25px;
+    font-family: Newsreader;
+    font-size: 64px;
+    font-weight: initial;
+}
+
+.ImagePreview {
+    object-fit: cover;
+}
+
+
+#types {
+    display: flex;
+    align-items: center;
+    flex-flow: row wrap;
+}
+
+    #types > .buttons {
+        flex: 1 1 auto;
+        display: flex;
+        justify-content: space-evenly;
+    }
+
+    #types > .buttons > .but {
+        flex: 0 0 8%;
+        padding: 10px;
+        margin: 0 10px;
+        box-shadow: 0 5px 7px 0 grey;
+        font-weight: bold;
+        border-radius: 50px;
+        background-color: var(--producto-bg);
+    }
+
+    #types > .buttons > .but:hover {
+        background-color: lightgrey;
+    }
+
+
+#menu > div, .prodDiv {
+    padding: 0;
+}
+
+.prodDiv > .prods {
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+}
+
+.product {
+    padding: 0;
+    margin: 25px;
+    flex-direction: column;
+    overflow: hidden;
+    align-items: stretch;
+}
+    .product > .ImagePreview {
+        overflow: hidden;
+        max-height: 250px;
+    }
+    .product > .ImagePreview > img {
+        height: auto;
+        width: 100%;
+    }
+
+    .product > .Content {
+        flex-grow: 1;
+        padding: 25px
+    }
+    .product > .Content > .title > *:first-child { flex-grow: 1; }
+
+    .product > .Content > .price > .ingredients { flex-grow: 1; }
+    .product > .Content > .price > .ingredients > img {
+        height: 30px;
+        object-fit: contain;
+    }
+
+    .product .ProductPrice {
+        font-size: 20px;
+        font-weight: bold;
+        padding-right: 15px;
+    }
+
+    .product > .Content > .description {
+        font-size: 16px;
+        color: black;
+        margin-top: 10px;
+    }
+
+#TotalProducts > span { font-size: 24px; }
+
+#list-prods .Item > .ItemText:first-child {
+    padding-right: 10px;
+    text-align: left;
+}
+
+#list-prods .Item > .ItemText:not(:first-child) { text-align: right; }
+
+.ItemText > .ProductCost { padding-left: 30px; }
+
+#Carrito .Item.ResizableHeight {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+#subtotal { 
+    margin-top: 25px;
+}
+
+#subtotal > * {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/*Extra breakpoint for reubicating the small cart*/
+@media only screen and (max-width: 1500px){
+    [class*="col-"] {
+        width: 100%;
+    }
+
+    #carrito {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .prodDiv > .prods {
+        grid-template-columns: auto;
+    }
+
+    .product {
+        margin-right: 0;
+        margin-left: 0;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    #types > .buttons > .but {
+        margin: 0 5px;
+    }
+}
