@@ -1,0 +1,15 @@
+(setq i 0)  
+(defun main () 
+(setq main_control 1)  
+(loop while (< main_control 10) do
+(setf main_control (* main_control 2))
+)
+(loop while (> 3 10) do
+(print "Esto no se va a ejecutar")
+)
+(loop while (not i) do
+(print "una iteracion")
+(setf i (= (mod 40 2) 0))
+)
+)
+ (main)
