@@ -1,0 +1,182 @@
+\documentclass[]{article}
+\usepackage{graphicx}
+\usepackage[spanish]{babel}
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=3cm]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+
+
+\lstset{
+  language=C,
+  basicstyle=\ttfamily\small,
+  commentstyle=\color{gray},
+  keywordstyle=\color{blue},
+  stringstyle=\color{green},
+  numberstyle=\tiny\color{gray},
+  stepnumber=1,
+  showspaces=false,
+  showstringspaces=false,
+  tabsize=2,
+  breaklines=true, captionpos=false,
+}
+
+%title
+\title{Práctica 1} 
+
+\author{Adrián Ferández Galán y César López Mantecón}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+   \includegraphics[width=0.9\textwidth]{uc3m.jpg} 
+    {\Huge Universidad Carlos III\\
+    
+     \Large Sistemas Distribuídos\\
+     \vspace{0.5cm}
+     Curso 2023-24}
+    \vspace{2cm}
+
+    {\Huge \textbf{Práctica 3} \par}
+    \vspace{0.5cm}
+    {\Large RPC \par}
+    \vspace{8cm}
+
+   \textbf{Ingeniería Informática, Tercer curso}\\
+    \vspace{0.2cm} 
+    Adrián Fernández Galán (NIA: 100472182, e-mail: 100472182@alumnos.uc3m.es) \\
+    César López Mantecón   (NIA: 100472092, e-mail: 100472092@alumnos.uc3m.es)
+    \vspace{0.5cm}
+
+   
+    \textbf{Prof .} Félix García Caballeira y Alejandro Calderón Mateos\\
+    
+    \textbf{Grupo: } 81   
+    
+\end{titlepage}
+\newpage
+
+\renewcommand{\contentsname}{\centering Índice}
+\tableofcontents
+
+\newpage
+
+\section{Introducción}
+\label{sec:introduccion}
+El desarrollo de este proyecto consiste en implementar una aplicación cliente-servidor, donde los diferentes clientes podrán guardar información en tuplas a través del servidor, de forma transparente. La comunicación entre el cliente y el servidor se dará a través de \textbf{llamadas a procedimientos remotos}. Los mensajes transmitidos deben ser independientes del lenguaje de programación. 
+
+\section{Diseño}
+\label{sec:disenno}
+La aplicación constará de dos partes diferenciadas: los clientes y el servidor.
+
+\subsection{Cliente}
+\label{subsec:cliente}
+Siguiendo la misma aproximación que en el ejercicio anterior, el cliente no ha necesitado de cambios ya que la única parte afectada por los requisitos de este ejercicio es la comunicación. La comunicación entre el cliente y el servidor está completamente encapsulada en la biblioteca dinámica \textit{libclaves.so}. Por esto, se han utilizado los ficheros proporcionados por \textit{rpcgen} como plantilla, que sirven como código fuente de la biblioteca dinámica.
+
+\subsection{Servidor}
+\label{subsec:servidor}
+En el servidor se encuentran las funcionalidades que se encargan de la comunicación con el cliente, en el fichero \textit{src/servidor.c}, y la implementación de los servicios para las tuplas, en el fichero \textit{src/imp\_clave.c}. De nuevo, el único archivo que necesitó de modificaciones es \textit{servidor.c} en la que se adaptan los contenidos de la plantilla dada por \textit{rpcgen}. 
+
+\subsubsection{Implementación en el servidor}
+\label{subsec:implementacion_servidor}
+
+La implementación de los servicios requeridos está contenida en el fichero \textit{src/imp\_claves.c}. Dado que los servicios coinciden exáctamente con los del ejercicio anterior, este fichero no ha sufrido ningún cambio. Se compilará junto con el servidor. 
+
+Siguiendo la misma idea que en la práctica anterior, guardaremos las tuplas en ficheros dado su caracter permanente entre sesiones y las facilidades que presentan para la gestión de la concurrencia.
+
+\subsubsection{Concurrencia del Servidor}
+\label{subsec::concurrencia_servidor}
+A través de \textit{rpc} no se puede asegurar la concurrencia, ni la creación de hilos; pero la posible existencia de dos clientes concurrentes nos obliga a utilizar un código sin condiciones de carrera. Para ello no es necesario utilizar ningún mecanismo de sincronización dado que en la implementación se usan ficheros con tamaños más pequeños que una página, por lo que el sistema operativo nos asegura la inexistencia de condiciones de carrera.
+
+\subsection{Comunicación}
+\label{subsec:comunicacion}
+La comunicación, tal y como especificamos anteriormente, se realiza a través de \textbf{llamadas a procedimientos remotos}. Este mecanismo permite comunicar dos procesos cualesquiera en la misma red, independientemente de la arquitectura de la máquina que los ejecuta o el lenguaje de programación en el que esté escrita la aplicación. El código proporcionado por \textit{rpcgen} incluye \textit{marshaling} y \textit{unmarshaling}, por lo que no debemos preocuparnos por estos menesteres. 
+\subsubsection{Interfaz.x}
+\label{subsec:interfaz.x}
+Para especificar la interfaz en lenguaje XDR se ha analizado cada operación para especificar sus argumentos de entrada y salida. Pese al parecido que tiene este lenguaje con lenguaje C, caben destacar algunas particularidades y decisiones de diseño tomadas para el desarrollo de la práctica. 
+
+En cuanto a las operaciones, \textit{init} no recibe argumentos, \textit{delete\_key}, \textit{exist} y \textit{get\_value} reciben únicamente un valor entero y \textit{set\_value} y \textit{modify\_value} reciben 2 punteros (value1 y value2) y un valor entero. Todas las funciones devuelven únicamente un argumento de salida, un valor entero que indica si se ha realizado exitosamente, a excepción de \textit{get\_value} que devuelve además los valores almacenados en una tupla (i.e. un array de caracteres, un número entero y un array de 32 números en coma flotante de doble precisión). 
+
+Con esto en mente, se ha especificado la interfaz de la siguiente forma. 
+\begin{center}
+\begin{lstlisting}[caption=Compiación de biblioteca dinámica]
+typedef double vector_value2<>;
+struct get_exit_args {
+    char value1[256];
+    int N_value2;
+    double value2[32];
+    int result;
+
+};
+
+
+program CLAVES {
+    version CLAVESVER {
+        int rpc_init() = 0;
+        int rpc_set_value(int key, string value1, int N_value2, vector_value2 value2) = 1;
+        get_exit_args rpc_get_value(int key) = 2;
+        int rpc_modify_value(int key, string value1, int N_value2, vector_value2 value2) = 3;
+        int rpc_delete_key(int key) = 4; 
+        int rpc_exist(int key) = 5; 
+    } = 1;
+} = 99; 
+
+\end{lstlisting}
+\end{center}
+
+Para los arrays hemos utilizado una construcción que nos permite inicializarlos como memoria estática. De esta forma hemos evitado tener que gestionar memoria dinámica en la implementación. Los argumentos de salida de la función \textit{get\_value} se han encapsulado en una estructura.  
+
+\subsubsection{Modificación de la plantilla}
+\label{subsec::modificacion_plantilla}
+
+\textit{Rpc} nos ha proporcionado una plantilla dada la interfaz antes mencionada. De esta plantilla hemos desechado del lado cliente el fichero \textit{claves\_rpc\_client.c} para generar un \textit{cliente.c} y \textit{claves.c}. En esta segunda nos hemos servido de \textit{rpcgen} para implementar la interfaz del cliente. En cada una de las implementaciones de las funciones se utilizan los argumentos dado para llamar a la función creada por \textit{rpc} propia de cada función, la cual realiza el correspondiente \textit{marshalling/unmarshalling} y vuelca el contenido en la red.
+Respecto a la plantilla del lado servidor se ha renombrado el fichero \textit{claves\_rpc\_server.c} a \textit{servidor.c} y en cada una de las funciones proporcionadas se invoca a las funciones de la implementación.
+
+\section{Compilación}
+\label{sec:compilacion}
+En esta sección se describe la forma de compilar el proyecto para generar dos ejecutables: cliente y servidor.
+
+Todos los comandos que se exponen a continuación quedan recogidos en un archivo \textit{Makefile.claves\_rpc} encargado de generar ambos ejecutables, así cómo de compilar la biblioteca dinámica. Este archivo parte de la plantilla generada por \textit{rpcgen} y ha sido modificado para adaptarlo a las exigencias de la práctica.  
+
+\subsection{Biblioteca Dinámica}
+\label{subsec:biblioteca}
+La compilación de la biblioteca dinámica ha cambiado respecto a las prácticas anteriores. Esto es porque debemos incluir los ficheros generados por \textit{rpcgen} y adaptarnos al \textit{Makefile} que nos otorga como plantilla.
+
+A continuación, se adjunta el código empleado para la compilación de la biblioteca dinámica. Este se ha incluído justo antes de la generación del ejecutable \textit{cliente}. 
+\begin{center}
+\begin{lstlisting}[caption=Compiación de biblioteca dinámica]
+gcc $(LDLIBS) -shared -o libclaves.so $(OBJECTS_CLNT)
+	gcc -c -o $(SRC)cliente.o $(SRC)cliente.c
+	gcc -L. -Wl,-rpath=. -o $(CLIENT) $(SRC)cliente.o -lclaves $(LDLIBS)
+
+\end{lstlisting}
+\end{center}
+
+Con estos comandos generamos un fichero \textit{libclaves.so} y lo enlazamos con el ejecutable \textit{cliente}. Cabe destacar que para poder mantener la compatibilidad con versiones de \textit{gcc} anteriores a la 13 se deben incluir las bibliotecas (i.e. -lclaves y LDLIBS) al final del comando. También ha sido necesario modificar la plantilla para que todos los ficheros objetos se compilen con la opción \textit{-fPIC}, para hacer el código independiente de la posición de memoria. 
+
+\subsection{Cliente}
+\label{subsec:cliente}
+El código fuente del cliente está contenido en el archivo \textit{cliente.c}. Este se compila con el comando especificado en el apartado anterior. La única modificación de la plantilla ha sido su compilación por separado para enlazarlo con la biblioteca dinámica. 
+
+\subsection{Servidor}
+\label{subsec:compile_server}
+La compilación del servidor viene dada en la plantilla generada por \textit{rpcgen}. La única modificación necesaria ha sido añadir nuestro módulo \textit{imp\_clave.c} como fichero fuente del servidor para compilarlo junto con el resto de ficheros. 
+
+\section{Descripción de pruebas}
+\label{sec:descripcion_de_pruebas}
+Para validar el correcto funcionamiento del sistema, hemos realizado dos bloques de pruebas. 
+
+El primero, encargado de comprobar la implementación y concurrencia del sistema, reutiliza las pruebas desarrolladas para la práctica anterior. El resultado de estas pruebas es exitoso, tal y como esperábamos ya que no hemos modificado la implementación de los servicios.
+
+Para el segundo bloque, encargado de comprobar la comunicación y correcta serialización de los datos, hemos conectado dos máquinas distintas (una lanzando el servidor y otra varios clientes) en una misma red LAN. El resultado de estas pruebas también ha sido exitoso.
+
+\section{Conclusiones}
+\label{sec:conclusiones}
+Este ejercicio nos ha permitido explorar una nueva aproximación para el desarrollo de aplicaciones distribuídas, la llamada a procedimientos remotos. Esta forma de desarrollo nos permite una mayor abstracción, ayudándonos de herramientas de generación de código automático. 
+
+La herramienta utilizada, aunque algo tosca, nos ofrece las mismas ventajas que el desarrollo con sockets pero con una sintaxis más sencilla y reduciendo el tiempo de codificación. Sin embargo, esto no quita la necesidad de revisar el código generado y adaptarlo a las necesidades concretas de la aplicación. Además, debido a particularidades de nuestros equipos el comando \textit{rpcgen} presentó problemas que complicaron el desarrollo. 
+
+El desarrollo de esta práctica, junto con las dos anteriores, nos ha permitido explorar diversos mecanismos de comunicación, cada uno con sus particularidades. Esto nos ha permitido afianzar las bases en la programación de aplicaciones distribuídas, dándonos las herramientas suficientes para afrontar el desarrollo de la práctica final. 
+
+\end{document}
