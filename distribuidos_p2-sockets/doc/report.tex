@@ -1,0 +1,177 @@
+\documentclass[]{article}
+\usepackage{graphicx}
+\usepackage[spanish]{babel}
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=3cm]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+
+
+\lstset{
+  language=C,
+  basicstyle=\ttfamily\small,
+  commentstyle=\color{gray},
+  keywordstyle=\color{blue},
+  stringstyle=\color{green},
+  numberstyle=\tiny\color{gray},
+  stepnumber=1,
+  showspaces=false,
+  showstringspaces=false,
+  tabsize=2,
+  breaklines=true, captionpos=false,
+}
+
+%title
+\title{Práctica 1} 
+
+\author{Adrián Ferández Galán y César López Mantecón}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+   \includegraphics[width=0.9\textwidth]{uc3m.jpg} 
+    {\Huge Universidad Carlos III\\
+    
+     \Large Sistemas Distribuídos\\
+     \vspace{0.5cm}
+     Curso 2023-24}
+    \vspace{2cm}
+
+    {\Huge \textbf{Práctica 2} \par}
+    \vspace{0.5cm}
+    {\Large Sockets \par}
+    \vspace{8cm}
+
+   \textbf{Ingeniería Informática, Tercer curso}\\
+    \vspace{0.2cm} 
+    Adrián Fernández Galán (NIA: 100472182, e-mail: 100472182@alumnos.uc3m.es) \\
+    César López Mantecón   (NIA: 100472092, e-mail: 100472092@alumnos.uc3m.es)
+    \vspace{0.5cm}
+
+   
+    \textbf{Prof .} Félix García Caballeira\\
+    \textbf{Grupo: } 81   
+    
+\end{titlepage}
+\newpage
+
+\renewcommand{\contentsname}{\centering Índice}
+\tableofcontents
+
+\newpage
+
+\section{Introducción}
+\label{sec:introduccion}
+El desarrollo de este proyecto consiste en implementar una aplicación cliente-servidor, donde los diferentes clientes podrán guardar información en tuplas a través del servidor, de forma transparente. La comunicación entre el cliente y el servidor se dará a través de una interaz de Sockets. Los mensajes transmitidos deben ser independientes del lenguaje de programación. 
+
+Cabe destacar que el tratamiento de peticiones en el lado del servidor será de forma concurrente, mediante el uso de procesos ligeros. 
+
+\section{Diseño}
+\label{sec:disenno}
+La aplicación constará de dos partes diferenciadas: los clientes y el servidor.
+
+\subsection{Cliente y Biblioteca dinámica}
+\label{subsec:cliente_biblioteca}
+Siguiendo la misma aproximación que en el ejercicio anterior, el cliente no ha necesitado de cambios ya que la única parte afectada por los requisitos de este ejercicio es la comunicación. La comunicación entre el cliente y el servidor está completamente encapsulada en la biblioteca dinámica \textit{libclaves.so}. Por esto, el único archivo modificado será \textit{src/claves.c}, que sirve como código fuente de la bibliteca dinámica.
+
+
+\subsection{Servidor}
+\label{subsec:servidor}
+En el servidor se encuentran las funcionalidades que se encargan de la comunicación con el cliente, en el fichero \textit{src/servidor.c}, y la implementación de los servicios para las tuplas, en el fichero \textit{src/imp\_clave.c}. De nuevo, el único archivo que necesitó de modificaciones es \textit{servidor.c} para adaptar el código a la comunicación mediante Sockets. 
+
+\subsubsection{Estructura del Servidor}
+\label{subsec::estructura_servidor}
+El servidor debe realizar dos acciones principales: aceptar la comunicación con un cliente y lanzar un hilo para gestionar dicha petición. Para la primera acción, el servidor debe estar alojado en un puerto que recibirá como argumento de programa. En dicho puerto esperará hasta recibir una petición de conexión con algún cliente. Para la segunda acción, usamos la interfaz ofrecida por \textit{pthread.h} para lanzar un hilo independientemente que tratará la petición y comunicará al cliente la respuesta. 
+
+\subsubsection{Implementación en el servidor}
+\label{subsec::implementacion_servidor}
+
+La implementación de los servicios requeridos está contenida en el fichero \textit{src/imp\_claves.c}. Dado que los servicios coinciden exáctamente con los del ejercicio anterior, este fichero no ha sufrido ningún cambio. Se compilará junto con el servidor. 
+
+Siguiendo la misma idea que en la práctica anterior, guardaremos las tuplas en ficheros dado su caracter permanente entre sesiones y las facilidades que presentan para la gestión de la concurrencia.
+
+\subsubsection{Concurrencia del Servidor}
+\label{subsec::concurrencia_servidor}
+
+Seguiremos un esquema de hilos bajo demanda. Es decir, crearemos un hilo por cada petición recibida para su gestión. 
+
+El servidor contará con un hilo principal (más adelante referido como \textit{main}) encargado de escuchar y recibir peticiones y crear nuevos hilos \textit{detached} para la gestión de dichas peticiones. 
+Cada uno de los hilos creados por \textit{main} ejecutará la función \texttt{tratar\_peticion()}. En esta función, copiará el socket del cliente (protegiendo la copia por un \textit{mutex} para resolver la condición de carrera) y se llamará al servicio adecuado según el código de operación de la petición. Después, se enviará la respuesta al cliente y se cerrará la conexión. 
+
+\subsection{Comunicación}
+\label{subsec:comunicacion}
+La comunicación, tal y como especificamos anteriormente, se realiza a través de Sockets. Este mecanismo permite comunicar dos procesos cualesquiera en la misma red, independientemente de la arquitectura de la máquina que los ejecuta o el lenguaje de programación en el que esté escrita la aplicación. Es por esto que es importante que la información transmitida por las partes cliente y servidor de nuestro sistema sea también independiente de estos menesteres. 
+
+\subsubsection{Uso de cadenas de texto}
+\label{subsec:cadenas-texto}
+Para hacer los mensajes independientes del lenguaje de programación o arquitectura de la máquina, transmitiremos la información como cadenas de texto. Además, los mensajes serán transmitidos byte a byte para evitar la problemática presentada por la diferencia entre  arquitecturas \textit{little-endian} y \textit{big-endian}.
+
+\subsubsection{Funciones auxiliares para la comunicación}
+\label{subsec:funciones}
+Para facilitar la implementación de la comunicación mediante Sockets se han implementado una serie de funciones auxiliares recogidas en el fichero \textit{src/common.c}. Estas implementan acciones repetidas tanto en el lado cliente y servidor, así como gestión de errores y envío y recepción de mensajes adaptados a las necesidades del sistema. 
+
+\begin{itemize}
+    \item \texttt{serverSocket()}: crea y devuelve un \textit{socket} para el servidor en un número de puerto dado. Además, se ejecuta la llamada \texttt{listen()} para permitir al servidor aceptar conexiones más adelante. 
+    \item \texttt{serverAccept()}: esta función permite al servidor aceptar una conexión con un cliente. 
+    \item \texttt{clientSocket()}: crea y devuelve un socket para un cliente en el sistema. Además, este \textit{socket} estará conectado al servidor. 
+    \item \texttt{sendMessage()}: envía un mensaje contenido en un \textit{buffer} a través de un \textit{socket}. 
+    \item \texttt{recvMessage()}: recibe un mensaje y lo almacena en n \textit{buffer} dado. 
+    \item \texttt{writeline()}: se apoya de la función \texttt{sendMessage()} para enviar un mensaje hasta el final. 
+    \item \texttt{readLine()}: se apoya de \texttt{recvMessage()} para recibir un menesaje hasta el final de la cadena de texto. 
+\end{itemize}
+
+\section{Compilación}
+\label{sec:compilacion}
+En esta sección se describe la forma de compilar el proyecto para generar dos ejecutables cliente y servidor. Todos los comandos que se exponen a continuación quedan recogidos en un archivo \textit{Makefile} encargado de generar ambos ejecutables. 
+
+\subsection{Biblioteca Dinámica}
+\label{subsec:biblioteca}
+Tal y cómo hemos descrito anteriormente, el código fuente de la biblioteca dinámica está contenido en el archivo \textit{claves.c}. Para compilarlo como una biblioteca dinámica se han empleado los siguientes comandos.
+
+\begin{center}
+\begin{lstlisting}[caption=Compiación de biblioteca dinámica]
+# código objeto
+gcc -c -fPIC claves.c
+# biblioteca dinámica
+gcc -shared -o libclaves.so claves.o
+\end{lstlisting}
+\end{center}
+
+Con estos comandos generamos un archivo de código para enlazar con otro ejecutable. Este código será independiente de la posición. 
+
+\subsection{Cliente}
+\label{subsec:cliente}
+El código fuente del cliente está contenido en el archivo \textit{cliente.c}. Este se compila enlazándolo con la biblioteca dinámica a través de los siguientes comandos: 
+
+\begin{center}
+\begin{lstlisting}[caption=Compiación de biblioteca dinámica]
+# generacion del objeto
+gcc -c cliente.c
+
+# generar ejecutable con biblioteca dinámica
+gcc -L. -Wl,-rpath=. -lclaves -o cliente cliente.o
+\end{lstlisting}
+\end{center}
+
+\subsection{Servidor}
+\label{subsec:servidor}
+
+
+\section{Descripción de pruebas}
+\label{sec:descripcion_de_pruebas}
+Para validar el correcto funcionamiento del sistema, hemos realizado dos bloques de pruebas. 
+
+El primero, encargado de comprobar la implementación y concurrencia del sistema, reutiliza las pruebas desarrolladas para la primera parte. El resultado de estas pruebas es exitoso, tal y como esperábamos ya que no hemos modificado la implementación de los servicios.
+
+Para el segundo bloque, encargado de comprobar la comunicación y correcta serialización de los datos, hemos conectado dos máquinas distintas (una lanzando el servidor y otra varios clientes) en una misma red LAN. El resultado de estas pruebas también ha sido exitoso.
+
+\section{Conclusiones}
+\label{sec:conclusiones}
+Este ejercicio ha servido como introducción al desarrollo de aplicaciones distribuídas mediante el uso de Sockets. Destacamos la importancia de diseñar un sistema modular, dado a que gracias a esta aproximación en el ejercicio 1, hemos necesitado muy pocas modificaciones a la hora de realizar esta segunda práctica. 
+
+El uso de Sockets, junto con una correcta codificación de la información por parte del programador, es una herramienta muy potente para el desarrollo de sistemas distribuídos. Esto es porque ya no estamos limitados a una única arquitectura o sistema operativo, sino que nos permiten ejecutar y comunicar procesos en distintos ordenadores con especificaciones variadas. 
+
+Además, el desarrollo de esta práctica no solo nos ha permitido consolidar los conocimientos adquiridos en la asignatura de Sistemas Distribuídos; sino que también nos ha incentivado a rescatar conceptos presentados en la asignatura de Redes de Ordenadores. Es importante, a la par que satisfactorio, ver como los conocimientos adquiridos en asignaturas previas nos sirven de base para nuestro desarrollo como informáticos según avanzamos en nuestro aprendizaje. 
+
+\end{document}

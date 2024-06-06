@@ -1,0 +1,11 @@
+.vscode
+*.log
+*.aux
+*.out
+*.toc
+*.swp
+*.so
+*.o
+cliente
+servidor
+tuples/*
