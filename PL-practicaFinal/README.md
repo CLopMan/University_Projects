@@ -30,6 +30,3 @@ The execution of the tests using these scripts also tries to evaluate the output
 # Authors 
 - [CLopMan](https://github.com/CLopMan)
 - [PaulaUc3m](https://github.com/PaulaUc3m)
-
-# Original respository
-You can access the original repo clicking [here](https://github.com/CLopMan/PL-practicaFinal)
