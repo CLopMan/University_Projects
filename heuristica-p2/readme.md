@@ -10,3 +10,5 @@ Course: third (2023-2024)
 # Collaborators 
 - [CLopMan](https://github.com/CLopMan)
 - [100472182](https://github.com/100472182)
+
+**Original repository**: https://github.com/CLopMan/heuristica-p2
