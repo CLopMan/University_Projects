@@ -1,0 +1,10 @@
+.vscode
+*.o
+*.out
+*.log
+*.aux
+*.toc
+cliente
+servidor
+*.tuple
+*.servidor
