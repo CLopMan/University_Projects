@@ -8,6 +8,8 @@ Some of this projects have their own repository. You can find the link to them i
 | Project | Languages | Description | Course |
 | ------- | --------- | ----------- | ------ |
 | [MurioBrothers](https://github.com/CLopMan/University_Projects/tree/main/FinalProject-FirstYear) | Python | Adaptation of the first level of Mario Bros in python | 2021-22 |
+| [EECC-p1](https://github.com/CLopMan/University_Projects/tree/main/EECC-p1) | assembly | Programming in Risc-v assembly language | 2022-23 |
+| [EECC-p2](https://github.com/CLopMan/University_Projects/tree/main/EECC-p2) | microcode, assembly | Developing microcode and assembly functions | 2022-23 |
 | [Sistemas Operativos](https://github.com/CLopMan/University_Projects/tree/main/Sistemas%20Operativos) | C | 3 Exercises implementing system calls, a minishell and solving a concurrent-programming problem | 2022-23 |
 | [IA-belman](https://github.com/CLopMan/University_Projects/tree/main/IA-belman) | Python | Optimization of heat system using belman equations | 2022-23 |
 | [Interfaces-caso_practico](https://github.com/CLopMan/University_Projects/tree/main/Interfaces-caso_practico) | JS, HTML5, CSS | Development of a web prototype for a cat-themed café | 2023-24 |
