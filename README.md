@@ -12,7 +12,10 @@ This is where I dump my projects from college.
 | [Cryptography](https://github.com/CLopMan/University_Projects/tree/main/Crytography-practica1) | Python | Develop a simple app using encryption algorithms | 2023-24 |
 | [AC_Lab1](https://github.com/CLopMan/University_Projects/tree/main/AC_ProgramacionOrientadaAlRendimiento) | C++, bash | Simulating fluid dynamics in a closed container with a focus on minimizing execution time | 2023-24 |
 | [PL-PracticaFinal](https://github.com/CLopMan/University_Projects/tree/main/PL-practicaFinal) | Yacc/bison, C, bash, Lisp, Forth | Traductor from C to Forth, using Lisp as intermediate language | 2023-24 |
-| [distribuídos-p1](https://github.com/CLopMan/University_Projects/tree/main/distribuidos_p1-colasposix) | C | Distributed data storage using POSIX queues | 2023-24|
-| [distribuidos-p2](https://github.com/CLopMan/University_Projects/tree/main/distribuidos_p2-sockets) | C | Distributed data storage using sockets | 2023-24 |
- 
+| [distribuidos-p1](https://github.com/CLopMan/University_Projects/tree/main/distribuidos_p1-colasposix) | C, bash | Distributed data storage using POSIX queues | 2023-24|
+| [distribuidos-p2](https://github.com/CLopMan/University_Projects/tree/main/distribuidos_p2-sockets) | C, bash | Distributed data storage using sockets | 2023-24 |
+| distribuidos-p3](https://github.com/CLopMan/University_Projects/tree/main/distribuidos_p3-rpc) | C, bash | Distribute data storage using rpc aproximation | 2023-24 | 
+| [distribuidos-final](https://github.com/CLopMan/University_Projects/tree/main/distribuidos_final) | C, Python, bash | Peer to peer system coordinated by a central server | 2023-24 |
+| [SSIIUU-final](https://github.com/CLopMan/University_Projects/tree/main/SSIIUU-final) | JS, HTML5, CSS | Web application for gamifying the purchasing process | 2023-24 |
+
 

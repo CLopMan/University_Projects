@@ -1,7 +1,9 @@
 # Distirbuidos-final
 Este ejercicio implementa una aplicacion distrbuída para compartir ficheros entre clientes en un sistema p2p, coordinado a través de un servidor central.
 
-## Æutores
+Para información más detallada consulte la [memoria](https://github.com/CLopMan/University_Projects/blob/main/distribuidos_final/doc/memoria.pdf) del proyecto.
+
+## Autores
 - [100472182](https://github.com/Adri-Extremix)
 - [CLopMan](https://github.com/CLopMan)
 
