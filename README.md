@@ -12,6 +12,9 @@ Some of this projects have their own repository. You can find the link to them i
 | [EECC-p2](https://github.com/CLopMan/University_Projects/tree/main/EECC-p2) | microcode, assembly | Developing microcode and assembly functions | 2022-23 |
 | [Sistemas Operativos](https://github.com/CLopMan/University_Projects/tree/main/Sistemas%20Operativos) | C | 3 Exercises implementing system calls, a minishell and solving a concurrent-programming problem | 2022-23 |
 | [IA-belman](https://github.com/CLopMan/University_Projects/tree/main/IA-belman) | Python | Optimization of heat system using belman equations | 2022-23 |
+| [FFBBDD-p1](https://github.com/CLopMan/University_Projects/tree/main/FFBBDD_p1) | SQL | Reorganize a given data base | 2022-23 |
+| [FFBBDD-p2](https://github.com/CLopMan/University_Projects/tree/main/FFBBDD_p2) | SQL | Develop queries, functions, packages and triggers for a data base | 2022-23 |
+| [FFBBDD-p3](https://github.com/CLopMan/University_Projects/tree/main/FFBBDD_p3) | SQL | Optimizing a database | 2022-23 |
 | [Interfaces-caso_practico](https://github.com/CLopMan/University_Projects/tree/main/Interfaces-caso_practico) | JS, HTML5, CSS | Development of a web prototype for a cat-themed café | 2023-24 |
 | [heuristica-p1](https://github.com/CLopMan/University_Projects/tree/main/heuristica_p1-100472092-100472182) | AMPL | Model a call assignment problem where calls from various districts are to be attended by designated parkings | 2023-24 |
 | [heuristica-p2](https://github.com/CLopMan/University_Projects/tree/main/heuristica-p2) | C++, bash | Solve a constraint satisfaction problem and a seach problem. | 2023-24 |
