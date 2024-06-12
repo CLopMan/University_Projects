@@ -3,7 +3,7 @@ This is where I dump my projects from college.
 
 ## Projects
 
-Some of this projects have its own repository. You can find the link to them inside each readme.
+Some of this projects have their own repository. You can find the link to them inside each readme.
 
 | Project | Languages | Description | Course |
 | ------- | --------- | ----------- | ------ |
