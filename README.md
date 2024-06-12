@@ -1,6 +1,10 @@
 # University_Projects
 This is where I dump my projects from college. 
 
+## Projects
+
+Some of this projects have its own repository. You can find the link to them inside each readme.
+
 | Project | Languages | Description | Course |
 | ------- | --------- | ----------- | ------ |
 | [MurioBrothers](https://github.com/CLopMan/University_Projects/tree/main/FinalProject-FirstYear) | Python | Adaptation of the first level of Mario Bros in python | 2021-22 |
@@ -14,7 +18,7 @@ This is where I dump my projects from college.
 | [PL-PracticaFinal](https://github.com/CLopMan/University_Projects/tree/main/PL-practicaFinal) | Yacc/bison, C, bash, Lisp, Forth | Traductor from C to Forth, using Lisp as intermediate language | 2023-24 |
 | [distribuidos-p1](https://github.com/CLopMan/University_Projects/tree/main/distribuidos_p1-colasposix) | C, bash | Distributed data storage using POSIX queues | 2023-24|
 | [distribuidos-p2](https://github.com/CLopMan/University_Projects/tree/main/distribuidos_p2-sockets) | C, bash | Distributed data storage using sockets | 2023-24 |
-| distribuidos-p3](https://github.com/CLopMan/University_Projects/tree/main/distribuidos_p3-rpc) | C, bash | Distribute data storage using rpc aproximation | 2023-24 | 
+| [distribuidos-p3](https://github.com/CLopMan/University_Projects/tree/main/distribuidos_p3-rpc) | C, bash | Distribute data storage using rpc aproximation | 2023-24 | 
 | [distribuidos-final](https://github.com/CLopMan/University_Projects/tree/main/distribuidos_final) | C, Python, bash | Peer to peer system coordinated by a central server | 2023-24 |
 | [SSIIUU-final](https://github.com/CLopMan/University_Projects/tree/main/SSIIUU-final) | JS, HTML5, CSS | Web application for gamifying the purchasing process | 2023-24 |
 
