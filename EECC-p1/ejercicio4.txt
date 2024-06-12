@@ -1,0 +1,17 @@
+Ejercicio4:
+
+String_compare, tal y cómo está implementada, deja de ejecutarse en cuanto detecta un carácter que
+no es igual en las cadenas de texto que obtiene como parámetros. esto presenta una vulnerabilidad, ya
+que tardará más en procesar una cadena cuantos más caracteres correctos presente (idea utilizada en el
+ejercicio anterior para descubrir una contraseña).
+Para que sea imposible atacar a string_compare de esta manera, las comparaciones siempre tienen que
+durar lo mismo, ya sea una cadena correcta o no. Una posible solución sería que string_compare
+siempre recorra toda la cadena de password, aunque no coincida algún carácter. Si hay alguno que no
+coincide, cambiará el valor de a0 a 0, pero seguirá comparando. De esta forma, las cadenas correctas e
+incorrectas tardarían lo mismo en ser procesadas, haciendo imposible descubrir la contraseña por este
+método. Además, en el caso de detectar un carácter correcto tendrá que realizar el mismo número de
+operaciones que si no lo fuera. Solo saldrá de este bucle al llegar al carácter vacío de la cadena
+A(password).
+
+Paula Subías Serrano (100472119)
+César López Mantecón (100472092)
