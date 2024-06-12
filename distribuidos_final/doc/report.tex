@@ -1,0 +1,420 @@
+\documentclass[]{article}
+\usepackage{graphicx}
+\usepackage[spanish]{babel}
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=3cm]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstdefinestyle{mystyle} {
+    commentstyle=\color{gray},
+    keywordstyle=\color{blue},
+    numberstyle=\color{yellow},
+    stringstyle=\color{brown},
+    breaklines=true,
+    breakatwhitespace=false,
+    captionpos=b,
+    keepspaces=true,
+    numbers=none,
+    numbersep=5pt,
+    showspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+%title
+\title{Práctica 1} 
+
+\author{Adrián Ferández Galán y César López Mantecón}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+   \includegraphics[width=0.9\textwidth]{uc3m.jpg} 
+    {\Huge Universidad Carlos III\\
+    
+     \Large Sistemas Distribuidos\\
+     \vspace{0.5cm}
+     Curso 2023-24}
+    \vspace{2cm}
+
+    {\Huge \textbf{Práctica Final} \par}
+    \vspace{0.5cm}
+    {\Large Diseño e implementación de un sistema peer-to-peer \par}
+    \vspace{8cm}
+
+   \textbf{Ingeniería Informática, Tercer curso}\\
+    \vspace{0.2cm} 
+    Adrián Fernández Galán (NIA: 100472182, e-mail: 100472182@alumnos.uc3m.es) \\
+    César López Mantecón   (NIA: 100472092, e-mail: 100472092@alumnos.uc3m.es)
+    \vspace{0.5cm}
+
+   
+    \textbf{Prof .} Félix García Caballeira y Alejandro Calderón Mateos\\
+    
+    \textbf{Grupo: } 81   
+    
+\end{titlepage}
+\newpage
+
+\renewcommand{\contentsname}{\centering Índice}
+\tableofcontents
+
+\newpage
+
+\section{Introducción}
+\label{sec:introduccion}
+En este documento se recoge el desarrollo de la práctica final de Sistemas Distribuidos. Para esta práctica hemos desarrollado una aplicación distribuida que cuenta con 2 servidores desarrollados en lenguaje C, un código cliente desarrollado en Python y un servicio web desarrollado igualmente en Python. A continuación describiremos el diseño e implementación de cada una de las partes del sistema. 
+\section{Diseño original}
+\label{sec:disenno}
+La aplicación constará de dos partes diferenciadas: los clientes y el servidor.
+
+\subsection{Cliente}
+\label{subsec:cliente}
+Los servicios proporcionados por la aplicación se podrán utilizar a través de los clientes programados en \textit{Python}.
+Para ello los clientes tendrán una interfaz de comandos con la que podrán acceder a las distintas funcionalidades:
+\begin{itemize}
+  \item \textbf{REGISTER}: Este mandato permitirá al usuario crearse una nueva cuenta en nuestra aplicación
+  \item \textbf{UNREGISTER}: Este mandato permitirá al usuario borrar su cuenta de nuestra aplicación
+  \item \textbf{CONNECT}: Este mandato permitirá al usuario conectarse a la aplicación, por lo que dispondrá del resto de funcionalidades
+  \item \textbf{DISCONNECT}: Este mandato permitirá al usuario desconectarse de la aplicación, perdiendo el acceso al resto de funcionalidades
+  \item \textbf{PUBLISH}: Este mandato permitirá al usuario publicar un archivo para que sea visible al resto de clientes. Para ello proporcionará un \textit{path} absoluto del fichero
+  \item \textbf{DELETE}: Este mandato permitirá al usuario borrar un archivo publicado anteriormente
+  \item \textbf{LIST\_USERS}: Este mandato permitirá al usuario conocer cuales son los usuarios que están conectados
+  \item \textbf{LIST\_CONTENT}: Este mandato permitirá al usuario conocer los archivos publicados por el usuario proporcionado
+  \item \textbf{GET\_FILE}: Este mandato permitirá al usuario obtener un archivo publicado por otro usuario
+\end{itemize}
+
+Cabe destacar que al realizar el comando \textbf{CONNECT} se creará un nuevo hilo por parte del cliente para atender peticiones de otros clientes sobre los ficheros publicados. De esta manera el cliente tendrá un hilo que siga utilizando la interfaz de comandos mientras que otro hilo dará soporte a las peticiones de otros clientes.
+
+\subsection{Servidor}
+\label{subsec:servidor}
+El servidor implementa los servicios necesarios para la coordinación de clientes. Para esto se apoya en una estructura de implementación propia especialmente diseñada para las particularidades de la práctica. 
+
+\subsubsection{Implementación en el servidor}
+\label{subsec:implementacion_servidor}
+Se ha implementado una estructura de datos para representar la lista de usuarios registrados en el sistema. Para cada usuario se almacena su nombre, los archivos que tiene publicados, su ip, su puerto y si está o no conectado. La estructura empleada es la siguiente: 
+
+\begin{lstlisting}[language=C, caption=Estructura de datos para el servidor]
+#define CHARSIZE 512
+
+typedef struct {
+    char name[CHARSIZE];
+    char description[CHARSIZE];
+
+} file;
+
+typedef struct {
+    char name[CHARSIZE];
+    file* contents;
+    int contentsLen;
+    int contentsMaxLen;
+    int conected;
+    int port;
+    char ip[32];
+
+} user;
+
+typedef struct {
+    int size;
+    int max_size;
+    user* users;
+} __user_list;
+
+typedef __user_list* user_list;
+
+\end{lstlisting}
+
+Dado que pueden haber un número indefinido de usuarios registrados, y que cada usuario puede tener publicados un número cualquiera de ficheros, se ha optado porque la estructura doble su tamaño cada vez que sea necesario relocalizar la memoria.
+
+Para el manejo de la estructura se ha implementado la siguiente interfaz de funciones: 
+
+\begin{itemize}
+  \item \texttt{createUserList()}: Esta función crea una lista de usuarios vacía.
+  \item \texttt{searchUser()}: Esta función busca un usuario en la lista.
+  \item \texttt{addUser()}: Esta función añade un nuevo usuario en el caso de que no exista ya.
+  \item \texttt{removeUser()}: Esta función borra al usuario si existe en la lista.
+  \item \texttt{addContent()}: Esta función añade nuevo contenido a un usuario existente.
+  \item \texttt{removeContent()}: Esta función borra contenido a un usuario existente.
+  \item \texttt{destroyList()}: Esta función borra la lista de usuarios por completo, liberando la memoria empleada para almacenar la misma.
+\end{itemize}
+
+\subsubsection{Concurrencia del Servidor}
+\label{subsec::concurrencia_servidor}
+El servidor atiende clientes de manera concurrente. Para esto hemos optado por una aproximación de hilos bajo demanda. Es decir, cada vez que el servidor recibe una petición creará y lanzará un hilo \textit{detached} para el tratamiento de la misma. Con esto, son necesarios dos requisitos: detener al hilo principal para que no reciba una nueva petición hasta que el hilo haya copiado la anterior y asegurar el acceso exclusivo a la estructura definida en el apartado anterior. 
+
+Para lo primero, al igual que en la práctica dos, hacemos uso de un mutex y una condición que bloqueal al hilo principal hasta que el hilo haya copiado el descriptor, ip y puerto del cliente conectado. 
+
+Para asegurar el acceso exclusivo a la estructura de datos y, así, evitar condiciones de carrera, hacemos uso de un segundo mutex que protege cualqueir sección de código que acceda a la lista de usuarios. 
+
+\subsection{Comunicación}
+\label{subsec:comunicacion}
+La comunicación entre los distintos clientes y el servidor ocurre de manera independiente a las distintas máquinas que se conectan a nuestro servicio a través de sockets. Para conseguir esto hemos codificado todas las comunicaciones en cadeanas de caracterres, a excepción del valor de retorno de las operaciones. Además, para evitar problemas ocasionados por el ordenamiento de bytes enviamos un único carácter a la vez. 
+
+La comunicación será una comunicación por petición, por lo que se abrirá la conexión con el servidor para realizar la petición correspondiente que se cerrará al final de la misma.
+
+\subsubsection{Funciones auxiliares para la comunicación}
+\label{subsec:funciones}
+Para facilitar la implementación de la comunicación mediante \textit{sockets} se han implementado una serie de funciones auxiliares recogidas en el fichero \textit{src/servidor/common.c}. Estas implementan acciones repetidas en el lado servidor, así como gestión de errores y envío y recepción de mensajes adaptados a las necesidades del sistema. 
+
+\begin{itemize}
+    \item \texttt{serverSocket()}: crea y devuelve un \textit{socket} para el servidor en un número de puerto dado. Además, se ejecuta la llamada \texttt{listen()} para permitir al servidor aceptar conexiones más adelante. 
+    \item \texttt{serverAccept()}: esta función permite al servidor aceptar una conexión con un cliente. 
+    \item \texttt{clientSocket()}: crea y devuelve un socket para un cliente en el sistema. Además, este \textit{socket} estará conectado al servidor. 
+    \item \texttt{sendMessage()}: envía un mensaje contenido en un \textit{buffer} a través de un \textit{socket}. 
+    \item \texttt{recvMessage()}: recibe un mensaje y lo almacena en n \textit{buffer} dado. 
+    \item \texttt{writeline()}: se apoya de la función \texttt{sendMessage()} para enviar un mensaje hasta el final de cadena.
+    \item \texttt{readLine()}: se apoya de \texttt{recvMessage()} para recibir un menesaje hasta el final de la cadena de texto.
+\end{itemize}
+
+\section{Servicio web}
+\label{sec:web_service}
+Se ha desarrollado un servcio web en \textit{Python} que proporciona la fecha y la hora en la que se realizó la petición al servicio web.
+Este servicio web se llamará desde el lado del cliente, a través de la librería \textit{zeep}, cada vez que se quiera realizar un llamada a algún servicio de la aplicación, y se mandarán al servidor junto al resto de datos necesarios.
+En el lado cliente se asume que el servidor web se encuentra en la ip \textit{localhost}.
+
+El servicio web se encontrará alojado en un servidor que hará uso de la librería \textit{spyne} para implementar una única función. Esta función obtendrá la fecha actual del dispostivo a través \textit{time} y la devolverá.
+\section{Integración del servidor RPC}
+\label{sec:rpc}
+En esta sección describimos cómo hemos abordado la implementación de un servidor (desde este momento referido como \textit{servidor rpc}) que recibe una cadena de carácteres y la imprime por pantalla. El proceso que actuará de cliente en esta comunicación es el servidor desarrollado para la aplicación distribuída de compartición de ficheros. 
+
+Lo primero, hemos descrito la interfaz necesaria utilizando el lenguaje XDR. En este caso necesitaremos una única función que reciba una cadena de texto. 
+
+\begin{lstlisting}[language=C, caption=Interfaz XDR]
+program PRINT {
+    version PRINTVER {
+        int rpc_print(string impresion) = 0;
+    } = 1;
+} = 99;
+\end{lstlisting}
+
+Esta interfaz nos permite generar 4 ficheros de código que implementan la funcionalidad deseada en una función \texttt{rpc\_print\_1}. Esto lo hacemos a través del comando \texttt{rpcgen}.
+
+Para que el proceso cliente conozca la dirección IP del servidor rpc hemos decidido utilizar una variable de entorno \textit{RPC\_IP}. Para su consulta hemos desarrollado una función \texttt{get\_ip}, implementada en el fichero \textit{server.c}. Por último, hemos implementado una función que encapsula la construcción y envío de la cadena de texto exigida por el enunciado al servidor rpc. 
+
+\section{Compilación}
+\label{sec:compilacion}
+En esta sección nos centraremos en la forma de compilar los servidores, ya que son la única parte del código escrita en un lenguaje compilado. La compilación del proyecto está contenida en un fichero \textit{Makefile} situado en la raíz del proyecto, de forma que a través del comando \texttt{make} se generen todos los ejecutables necesarios para levantar el sistema.  
+
+El código necesario para el servidor está distribuido en varios ficheros. Primero, el código encargado de la gestión de la comunicación con los clientes Python y la ejecución de los servicios se encuentra contenido en el fichero \textit{src/servidor/server.c}; segundo, el código que encapsula la funcionalidad de la estructura de datos se encuentra en el fichero \textit{src/servidor/server\_storage.c}; y, por último, el código para la invocación de los procesos remotos se encuentra en el fichero \textit{print\_clnt.c} generado a través del comando \texttt{rpcgen}.Para generar el ejecutable correctamente hemos compilado cada uno de estos ficheros por separado con las opciones de compilación adecuadas para crear varios ficheros objeto; después hemos enlazado estos ficheros en la generación del ejecutable \textit{servidor}.
+
+El código del servidor RPC está contenido exclusivamente en los ficheros \textit{print\_svc.c} y \textit{print\_server.c}. De nuevo, compilaremos estos dos ficheros de manera separada para luego enlazarlos.
+
+A continuación se muestran los comandos necesarios para generar los ficheros objeto:
+
+\begin{lstlisting}[caption=Compilación de ficheros en ficheros objetos, language=bash]
+# generacion de objeto de la implementacion
+gcc -c src/servidor/server_storage.c
+
+# generacion de objeto de funciones auxiliares
+gcc -c src/servidor/common.c
+
+# generacion de objetos de archivos rpc
+gcc -g -I/usr/include/tirpc -D_REENTRANT -o print_clnt.o -c src/rpc/print_clnt.c
+gcc -g -I/usr/include/tirpc -D_REENTRANT -o print_svc.o -c src/rpc/print_svc.c
+
+# generacion de objeto de servidores
+gcc -c server.c
+gcc -g -I/usr/include/tirpc -c src/rpc/print_server.c
+
+\end{lstlisting}
+
+Y con el siguiente fragmento del fichero \textit{Makefile} se enlazan los ficheros y se generan ambos ejecutables con los nombres \textit{servidor} y \textit{servidor\_rpc}:
+
+\begin{lstlisting}[caption=Generación de ejecutables, language=bash]
+# generacion de ejecutable del servidor
+gcc -g -Wall -lrt -o servidor servidor.o server_storage.o common.o print_clnt.o -lnsl -lpthread -ldl -ltirpc
+
+# generacion de ejecutable del servidor rpc
+gcc -g -Wall -lrt -o servidor_rpc print_server.o print_svc.o -lnsl -lpthread -ldl -ltirpc
+
+\end{lstlisting}
+
+
+\section{Ejecución del proyecto}
+\label{sec:exec}
+Con todo lo anterior, la forma de ejecutar el proyecto pasa por lanzar 3 servidores y, al menos, un cliente. Además, en el caso del primer servidor desarrollado, encargado de la coordinación de clientes en la aplicación distirbuida, se deberá definir una variable de entorno a través (por ejemplo) del comando \texttt{env}.
+
+\begin{lstlisting}[caption=Ejemplo de ejecucion con los servidores en background y en local, language=bash]
+    # suponiendo que este en la raiz del proyecto
+    
+    # servidores
+    env RPC_IP=localhost ./servidor -p 4500 &
+    ./servidor_rpc & 
+    python src/servicio_web/timestamp.py &
+
+    # cliente
+    python src/cliente/client.py -s localhost -p 4500
+
+\end{lstlisting}
+
+\section{Descripción de pruebas}
+\label{sec:descripcion_de_pruebas}
+Los requisitos de la aplicación nos dificultan el desarrollo de pruebas de manera reproducible, por lo que se ha optado por realizar las pruebas manualmente en local y analizar los resultados. No obstante, en el entregable se incluye un pequeño script en python que permite generar los ficheros necesarios para las pruebas y la entrada de las distintas terminales para cada test para facilitar la ejecución de las mismas.
+
+\begin{lstlisting}[caption=Generar/limpiar ficheros de prueba y entradas de terminal, language=bash]
+    python3 tests/setup_clean.py 0 # generacion de ficheros
+    python3 tests/setup_clean.py 1 # limpieza de ficheros
+    
+\end{lstlisting}
+
+Las pruebas se realizarán a través de la ejecución de varios procesos en distintos terminales para la correcta visualización de las distintas impresiones. Al principio de cada prueba se iniciarán el servidor, el servidor RPC y el servidor web; y al final de estás se cerrarán estos servidores.
+\subsection{Implementación}
+\label{subsec:imp}
+Hemos desarrollado un pequeño código que prueba la implementación de la estructura desarrollada para almacenar la lista de clientes. Este código realiza inserciones y borrados en dicha lista, imprimiendo su estado por pantalla en cada punto, de forma que podemos analizar el comportamiento de la estructura de datos. Las pruebas están contenidas en el fichero \textit{tests\_userList.c} y se pueden compilar y ejecutar a través del comando \texttt{make testing}. 
+
+Para la ejecución de estas pruebas, se ha modificado el código de la estructura de forma que se inicialice con una capacidad menor a la que usamos en el sistema. Esto nos ha permitido comprobar que la estructura aumenta de capacidad correctamente.
+
+\subsection{Un solo cliente}
+\label{subsection:1_cliente}
+Se realizará una prueba donde no exista concurrencia. Con tan solo un cliente se probará el correcto funcionamiento de la comunicación del cliente con el servidor, del cliente con el servicio web y del servidor con el servicio rpc.
+El cliente ejecutará las siguientes operaciones
+\begin{lstlisting}[caption=Operaciones a realizar por el cliente]
+    REGISTER A
+    REGISTER B
+    CONNECT C
+    CONNECT A
+    CONNECT B
+    CONNECT A
+    PUBLISH HOLA HOLA 
+    LIST_USERS
+    LIST_CONTENT B
+    LIST_CONTENT A
+    QUIT
+\end{lstlisting}
+
+\subsubsection{Resultados}
+\label{subsubsection:resultados_1_cliente}
+Los resultados obtenidos en cada una de las terminales muestran el correcto comportamiento del sistema.
+\begin{lstlisting}[caption=Resultados obtenidos en el cliente]
+    c> REGISTER A
+    REGISTER OK
+    c> REGISTER B
+    REGISTER OK
+    c> CONNECT C
+    CONNECT FAIL, USER DOES NOT EXIST
+    c> CONNECT A
+    CONNECT OK
+    c> CONNECT B
+    CONNECT FAIL
+    c> CONNECT A
+    CONNECT FAIL
+    c> PUBLISH HOLA HOLA
+    PUBLISH OK 
+    c> LIST_USERS
+    LIST_USERS OK
+    c> LIST_CONTENT B
+    LIST_CONTENT FAIL, USER NOT CONNECTED
+    c> LIST_CONTENT A
+    HOLA HOLA
+    LIST_CONTENT OK
+    c>QUIT
+    DISCONNECT OK
+    +++ FINISHED +++
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Impresiones del servidor RPC]
+    A	REGISTER	11-05-2024 08:32:41
+    B	REGISTER	11-05-2024 08:32:46
+    C	CONNECT	    11-05-2024 08:32:51
+    A	CONNECT	    11-05-2024 08:32:55
+    A	PUBLISH HOLA	11-05-2024 08:33:18
+    A	LIST_USERS	11-05-2024 08:33:22
+    A	LIST_CONTENT	11-05-2024 08:35:56
+    A	LIST_CONTENT	11-05-2024 08:36:25
+    A	DISCONNECT	11-05-2024 08:36:44
+\end{lstlisting}
+
+\subsection{Comunicación entre dos clientes}
+\label{subsection:2_clientes}
+Para probar el correcto funcionamiento de la comunicación entre clientes se tendrán dos clientes que realizarán distintas operaciones: el primero publicará un archivo y el segundo se lo pedirá.
+De esta manera ambos clientes tendrán su propio hilo para atender peticiones y el servidor podrá aprovechar la concurrencia para atender a los dos clientes.
+
+Los clientes ejecutarán las siguientes operaciones
+\begin{lstlisting}[caption=Operaciones a realizar por el cliente A]
+    REGISTER A
+    CONNECT A
+    PUBLISH /tmp/ficheroA.txt HOLA MUNDO
+    QUIT
+\end{lstlisting}
+\begin{lstlisting}[caption=Operaciones a realizar por el cliente B]
+    REGISTER B
+    CONNECT B
+    GET_FILE A /tmp/ficheroA.txt /tmp/fileA.txt
+    QUIT
+\end{lstlisting}
+
+\subsubsection{Resultados}
+\label{subsubsection:resultados_2_clientes}
+El resultado obtenido coincide con el resultado esperado. Ambos clientes son capaces de acceder a la estructura concurrentemente sin condiciones de carrera y conectarse entre ellos para la transferencia de un archivo. El resultado obtenido en las terminales de ambos clientes y del servidor rpc es parecido al del test anterior, por lo que no será incluído en la memoria. 
+
+\begin{lstlisting}[caption=Resultado de la transferencia del archivo, language=bash]
+    # antes de la ejecucion de get_file
+    [@localhost]$ ls /tmp/ | grep .txt
+    ficheroA.txt
+    [@localhost]$ cat /tmp/ficheroA.txt
+    HOLA MUNDO DESDE CLIENTE A
+    # despues de la ejecucion de get_file
+    [@localhost]$ ls /tmp/ | grep .txt
+    ficheroA.txt
+    fileA.txt
+    [@localhost]$ cat /tmp/fileA.txt
+    HOLA MUNDO DESDE CLIENTE A
+\end{lstlisting}
+
+\subsection{Prueba de estrés para el servidor}
+\label{subsec:estres}
+Con el objetivo de probar la concurrencia del servidor, y su capacidad para atender a muchos clientes, se utilizarán 5 clientes (con los nombres de la A a la E) que se conectarán al servicio, publicarán un fichero, realizarán un listado de contenido y obtendrán el fichero publicado por el siguiente cliente.
+Para ello todos los clientes ejecutarán un código similar al siguiente
+\begin{lstlisting}[caption=Operaciones a realizar por cada cliente i]
+    REGISTER i
+    CONNECT i
+    PUBLISH /tmp/ficheroPrueba_i
+    LIST_CONTENT i+1 
+    GET_FILE i+1 /tmp/ficheroPrueba_i+1 <dir_actual>/obtenido_i
+\end{lstlisting}
+
+\subsubsection{Resultados}
+\label{subsubsection:resultados_5_clientes}
+Para la ejecución de este test es necesario ejecutar de manera concurrente 5 clientes. Para ello nos hemos apoyado de un pequeño script de bash que se adjunta a continuación. Dado el funcionamiento de los mandatos en \textit{background}, cada cliente se ejecutará en una subterminal propia, asegurándonos la ejecución simultánea de todos los procesos. 
+
+\begin{lstlisting}[caption=Script para la ejecucion concurrente de 5 clientes, language=bash]
+#!/bin/bash
+
+function set_server () {
+    printf "\033[0;33mSETUP SERVERS\033[0m\n"
+    env RPC_IP=localhost ./servidor -p 4500 > svc_$1.log &
+    ./servidor_rpc > rpc_$1.log &
+    python3 src/servicio_web/timestamp.py > tmstmp_$1.log &
+}
+
+function kill_server () {
+    killall -s INT servidor
+    echo "kill server"
+    killall -s KILL servidor_rpc
+    echo "kill python3"
+    killall -s KILL python3
+}
+
+
+set_server "concurrencia"
+python3 src/cliente/client.py -s localhost -p 4500 < test_stressA.in &
+python3 src/cliente/client.py -s localhost -p 4500 < test_stressB.in &
+python3 src/cliente/client.py -s localhost -p 4500 < test_stressC.in &
+python3 src/cliente/client.py -s localhost -p 4500 < test_stressD.in &
+python3 src/cliente/client.py -s localhost -p 4500 < test_stressE.in &
+sleep 5
+kill_server
+
+\end{lstlisting}
+
+El resultado de este test es el esperado. Cada cliente ha podido ejecutarse sin problemas, obteniendo en el directorio actual el fichero solicitado al siguiente cliente. Además, la estructura de datos no ha presentado ningún tipo de condición de carrera. 
+
+\section{Conclusiones}
+\label{sec:conclusiones}
+Este ejercicio combina casi todas las tecnologías que se nos han presentado durante el curso en un sistema completo que pretende aproximarse a una aplicación distribuída. Esto nos ha permitido afianzar los conocimientos adquiridos en la asignatura y desarrollar nuestras competencias para la programación de servicios distribuidos. 
+
+Además, esta práctica nos presenta por primera vez la necesidad de integrar nuevos servicios basados en otra tecnología sobre un sistema ya funcional. Esta es una aptitud verdaderamente interesante y valiosa de cara a nuestro desarrollo como informáticos.
+\end{document}
