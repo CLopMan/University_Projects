@@ -1,0 +1,369 @@
+* {
+    border: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: "Jersey 10", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 2rem;
+    user-select: none;
+}
+
+body {
+    touch-action: none;
+}
+
+#modal_tetris {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    z-index: 9999;
+    display: none;
+}
+
+#inventario {
+    background-image: url("imagenes/fondo.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: none;
+    height: 100vh;
+    width: 100vw;
+}
+
+header {
+    height: 6vh;
+    text-align: center;
+}
+
+#log-out {
+    position: absolute;
+    background-color: #59301a;
+    color: white;
+    top: 15%;
+    left: 34%;
+    border-radius: 35%;
+    border: none;
+    width: 5.5vh;
+    height: 5.5vh;
+    font-size: 1.5rem;
+    display: none;
+}
+
+#Scan {
+    position: absolute;
+    background-color: #59301a;
+    color: white;
+    top: 15%;
+    right: 34%;
+    border-radius: 35%;
+    border: none;
+    width: 5.5vh;
+    height: 5.5vh;
+    font-size: 1.5rem;
+    align-items: center;
+    align-self: center;
+    justify-content: center;
+    display: none;
+}
+
+#h2-container {
+    display: flex;
+    align-items: center;
+    align-self: center;
+    justify-content: center;
+    padding-top: 5vh;
+}
+
+h2 {
+    margin-left: 3%;
+    color: #e8e9ff;
+    font-size: 3rem;
+    text-align: center;
+    background-color: #8d5430;
+    border: none;
+    border-radius: 25px;
+    padding: 1%;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.75);
+}
+
+#info-div {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background-color: #f8ede6;
+    display: none;
+    top: 0%;
+    grid-template-rows: 1fr 5fr;
+    z-index: 2000;
+}
+#info_close_button {
+    width: 20vw;
+    height: 6vh;
+    border: none;
+    border-radius: 25px;
+    background-color: black;
+    color: white;
+
+    bottom: 16%;
+    left: 40%;
+    font-size: 2rem;
+    position: absolute;
+}
+#info_next_button {
+    width: 20vw;
+    height: 6vh;
+    border: none;
+    border-radius: 25px;
+    background-color: black;
+    color: white;
+    bottom: 9%;
+    left: 40%;
+    font-size: 2rem;
+    position: absolute;
+}
+#info1 {
+    background-image: url("imagenes/tutorial1.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: none;
+    height: 100vh;
+    width: 100vw;
+}
+#info2 {
+    background-image: url("imagenes/tutorial2.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: none;
+    height: 100vh;
+    width: 100vw;
+}
+#info3 {
+    background-image: url("imagenes/tutorial3.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: none;
+    height: 100vh;
+    width: 100vw;
+}
+
+#botones {
+    width: 100vw;
+    height: 10vh;
+    margin-top: 10%;
+    display: grid;
+    grid-template-columns: 2fr 2fr 2fr;
+}
+
+#qr_duel_button {
+    width: 8vh;
+    height: 8vh;
+    border-radius: 35%;
+    border: none;
+    background-color: #131318;
+    color: white;
+    font-size: 1.5em;
+    margin: auto;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.75); /* Añade esta línea */
+}
+
+#add_button {
+    width: 8vh;
+    height: 8vh;
+    border-radius: 50%;
+    border: none;
+    background-color: #24242e;
+    color: #caad9e;
+    font-size: 2rem;
+    margin: auto;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.75); /* Añade esta línea */
+}
+
+#reglas_duelo {
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.9);
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    z-index: 99999;
+    display: none;
+}
+
+#reglas_duelo_p {
+    padding: 5%;
+    font-size: 1.8rem;
+}
+
+#reglas_duelo_aceptar {
+    width: 80vw;
+    height: 10vh;
+    margin-left: 10vw;
+    margin-right: 10vw;
+    border-radius: 25px;
+    border: none;
+    background-color: #ffc300;
+}
+
+#reglas_duelo_cbox {
+    height: 10vh;
+    width: 6vw;
+    margin-left: 47vw;
+}
+
+#reglas_duelo_label {
+    margin-left: -28%;
+}
+
+#scan_duel_button {
+    width: 8vh;
+    height: 8vh;
+    border-radius: 35%;
+    border: none;
+    background-color: #131318;
+    color: white;
+    font-size: 1.5rem;
+    margin: auto;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.75); /* Añade esta línea */
+}
+
+#qr_duel_div {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.9);
+    display: none;
+    top: 0%;
+    grid-template-rows: 1fr 5fr;
+    z-index: 2000;
+}
+
+#qr_duel_close_button {
+    width: 20vw;
+    height: 6vh;
+    border: none;
+    border-radius: 25px;
+    background-color: black;
+    color: white;
+    margin-left: 40vw;
+    margin-top: 5%;
+    font-size: 2rem;
+}
+
+#qr_duel canvas,
+img {
+    width: 512px;
+    height: 512px;
+    margin: 23vw;
+    margin-top: 5vh;
+}
+
+#qr_duel img {
+    margin: auto;
+}
+
+#duel_scanner_div {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.9);
+    display: none;
+    top: 0%;
+    z-index: 2000;
+}
+
+#html5-qrcode-button-camera-permission,
+#html5-qrcode-button-camera-start {
+    border: none;
+    border-radius: 25px;
+    color: white;
+    background-color: black;
+    width: 26vw;
+    height: 6vh;
+    margin: 1%;
+    font-size: 1.5rem;
+}
+
+#close_duel_scanner {
+    position: absolute;
+    top: 5%;
+    left: 5%;
+    border: none;
+    border-radius: 25px;
+    color: white;
+    background-color: red;
+    width: 12vw;
+    height: 6vh;
+    font-size: 1.5rem;
+    z-index: 1000;
+}
+
+.closeButton {
+    position: absolute;
+    top: 5%;
+    left: 5%;
+    border: none;
+    border-radius: 25px;
+    color: white;
+    background-color: red;
+    width: 12vw;
+    height: 6vh;
+    font-size: 1.5rem;
+    z-index: 1000;
+}
+
+.star {
+    width: 5vw;
+    height: 5vw;
+    background-color: transparent;
+    border: 2px solid black;
+    margin: auto;
+}
+
+.star p {
+    width: 100%;
+    height: 10%;
+    margin-top: 0%;
+    text-align: center;
+}
+
+@keyframes appear_star {
+    from {
+        background-color: transparent;
+    }
+    to {
+        background-color: yellow;
+        transform: rotate(-720deg);
+    }
+}
+
+@keyframes disappear_star {
+    from {
+        background-color: yellow;
+    }
+    to {
+        background-color: transparent;
+        transform: rotate(720deg);
+    }
+}
+
+#grid-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 25%;
+}
+#grid {
+    display: grid;
+    grid-template-columns: repeat(8, 11vw);
+    grid-template-rows: repeat(10, 11vw);
+    background-color: #3c2012;
+}
+.cell {
+    width: 10vw;
+    height: 10vw;
+    border: 5px solid #c4b188;
+    display: block;
+}
