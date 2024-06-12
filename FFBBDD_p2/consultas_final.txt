@@ -1,0 +1,24 @@
+select * from (select pair as pairTrack, sequ, writer from Tracks) join (select * from ((select band, musician from involvement) join Albums on(band = performer))) on(pairTrack = pair); 
+
+-- Totales
+
+select performer, count('x') as TOTAL from (select pair, seq, performer from (select * from (select pair, seq, writer from Tracks) natural join (select * from ((select band, name from involvement) join Albums on(band = performer))) using(pair))) group by (performer); 
+
+-- tracks_propias
+
+select * from (select pair, seq, writer from Tracks) natural join (select * from ((select band, name from involvement) join Albums on(band = performer))) using(pair) where writer = name; 
+
+-- num_tracks propias
+
+select performer, count('x') as numPropias from (select * from (select pair, seq, writer from Tracks) natural join (select * from ((select band, name from involvement) join Albums on(band = performer))) using(pair) where writer = name) group by (performer)
+
+-- tracks_union
+
+select * from select performer, count('x') as numPropias from (select * from (select pair, seq, writer from Tracks) natural join (select * from ((select band, name from involvement) join Albums on(band = performer))) using(pair) where writer = name) group by (performer) natural join select performer, count('x') as TOTAL from (select pair, seq, performer from (select * from (select pair, seq, writer from Tracks) natural join (select * from ((select band, name from involvement) join Albums on(band = performer))) using(pair))) group by (performer) using (performer)
+
+-- result1
+
+select performer, (numPropias/TOTAL)*100 as percetTracks from 
+select * from select performer, count('x') as numPropias from (select * from (select pair, seq, writer from Tracks) natural join (select * from ((select band, name from involvement) join Albums on(band = performer))) using(pair) where writer = name) group by (performer) natural join select performer, count('x') as TOTAL from (select pair, seq, performer from (select * from (select pair, seq, writer from Tracks) natural join (select * from ((select band, name from involvement) join Albums on(band = performer))) using(pair))) group by (performer) using (performer)
+
+

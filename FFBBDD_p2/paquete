@@ -1,0 +1,53 @@
+create or replace package melopack as 
+    interprete_actual varchar2(50);
+    procedure interprete_actual_innit(valor varchar2(50));
+    procedure new_track(pair char(15), 
+                        format char(1),
+                        title varchar(50),
+                        rel_date date,
+                        publisher varchar2(25),
+                        manager number(9),
+                        sequ number(3),
+                        title_track varchar2(50),
+                        writer char(14),
+                        duration number(4),
+                        rec_date date,
+                        studio varchar2(50),
+                        engineer varchar(50));
+    
+    procedure del_track(pair char(15),
+                        sequ number(3));
+    procedure informe;
+end melopack;
+/
+create or replace package body melopack as 
+    
+    procedure interprete_actual_innit(valor varchar2(50)) is 
+        null_var exception;
+        begin
+        
+            select name into interprete_actual from Performers where name = valor; 
+            if interprete_actual is NULL;
+                raise null_var;
+            end if;
+        exception
+             when null_var dbms_output.put_line("ERROR: INTERPRETE NO EXISTE");
+        end; 
+end melopack; 
+
+
+
+create or replace package melopack as 
+    interprete_actual varchar2(50);
+    procedure interprete_actual_innit (valor varchar2);
+end melopack;
+/
+create or replace package body melopack as
+    procedure interprete_actual_innit(valor varchar2) is
+    begin
+        select name into interprete_actual from Performers where name = valor;
+        dbms_output.put_line(interprete_actual);
+    exception
+        when no_data_found then dbms_output.put_line('ERROR: INTERPRETE NO EXISTE');
+    end;
+end melopack;

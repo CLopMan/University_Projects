@@ -1,0 +1,27 @@
+drop table songs_aux; 
+
+create table songs_aux (
+    title varchar2(50),
+    writer_aux char(14),
+    cowriter_aux char(14)
+); 
+
+create or replace trigger ins_songs
+    before insert on songs
+    for each row
+    begin
+        insert into songs_aux values(:new.title, :new.writer, :new.cowriter);
+        
+    end;
+/
+create or replace trigger ins_songs2
+    after insert on songs 
+    begin 
+        for fila in (select * from (songs_aux join songs using(title))) loop
+            if fila.writer = fila.cowriter_aux and fila.cowriter = fila.writer_aux then
+                dbms_output.put_line('pillado');
+                delete from songs where title = fila.title and writer = fila.writer_aux and cowriter = fila.cowriter_aux;
+            end if;
+        end loop;
+        delete from songs_aux;
+    end;

@@ -1,0 +1,176 @@
+create or replace package melopack as 
+    interprete_actual varchar2(50);
+    procedure interprete_actual_innit (valor varchar2);
+    procedure new_track(ipair char, 
+                        iformat char,
+                        ititle varchar,
+                        irel_date date,
+                        ipublisher varchar2,
+                        imanager number,
+                        isequ number,
+                        ititle_track varchar2,
+                        iwriter char,
+                        iduration number,
+                        irec_date date,
+                        istudio varchar2,
+                        iengineer varchar);
+    function return_interprete return varchar2;
+    procedure del_track(ipair char, isequ number);
+end melopack;
+/
+create or replace package body melopack as
+    procedure interprete_actual_innit(valor varchar2) is
+    begin
+        select name into interprete_actual from Performers where name = valor;
+        dbms_output.put_line(interprete_actual);
+    exception
+        when no_data_found then dbms_output.put_line('ERROR: INTERPRETE NO EXISTE');
+    end;
+	
+    procedure del_track(ipair char, isequ number) is
+        n number(6);
+        begin 
+            select count('x') into n from tracks where pair = ipair;
+            delete from tracks where pair = ipair and sequ = isequ;
+            if n = 1 then
+                delete from albums where pair = ipair;
+            end if;
+        exception
+            when no_data_found then dbms_output.put_line('ERROR: no existe el dato solicitado');
+        end;
+        
+    procedure new_track(ipair char, 
+                        iformat char,
+                        ititle varchar,
+                        irel_date date,
+                        ipublisher varchar2,
+                        imanager number,
+                        isequ number,
+                        ititle_track varchar2,
+                        iwriter char,
+                        iduration number,
+                        irec_date date,
+                        istudio varchar2,
+                        iengineer varchar) is
+        aux varchar2(50);
+        type aux_type is record (title varchar2(50), writer char(14));
+        aux2 aux_type;
+        aux3 number(9);
+        begin 
+            
+            select name into aux from publishers where name = ipublisher; 
+            select title, writer into aux2 from songs where title = ititle_track and writer = iwriter;
+            select name into aux from studios where name = istudio;
+            select mobile into aux3 from managers where mobile = imanager;
+            
+            begin
+                select pair into aux from albums where pair = ipair;
+            
+            exception
+                when no_data_found then insert into Albums (Pair, performer, format, title, rel_date, publisher, manager) values(ipair, interprete_actual, iformat, ititle, irel_date, ipublisher, imanager);
+            end;
+            insert into tracks (pair, sequ, writer, title, rec_date, studio, engineer, duration) values(ipair, isequ, iwriter, ititle_track, irec_date, istudio, iengineer, iduration);
+        exception 
+            when no_data_found then dbms_output.put_line('ERROR: DATA NOT FOUND (FK error)');
+        end;
+            
+    function return_interprete return varchar2 is 
+	begin
+	    return interprete_actual;
+	end;
+
+end melopack;
+
+-- Pruebas interprete_actual_innit():
+--- Prueba1: interprete que exista
+execute melopak.inteprete_actual_innit('Vigilia');
+----- expected: 'Vigilia'
+--- Prueba2:interprete que no exista
+execute melopak.interprete_actual_innit('mi primo chico');
+----- expecte: 'ERROR: INTERPRETE NO EXISTE)
+
+-- Pruebas new_track;
+--- Prueba1: album que no exista 
+insert into songs (title, writer) values ('pigstep', 'SE>>0972009840');
+begin
+    melopack.interprete_actual_innit('Vigilia');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 555299599, 1, 'pigstep', 'SE>>0972009840', 600, sysdate, 'Jurado Studios', 'Ingeniero');
+end;
+select * from albums where pair = '000000000000000';
+select * from tracks where pair = '000000000000000';
+
+--- prueba2: album que si exista
+rollback;
+insert into songs (title, writer) values ('Pinocho se fue a pescar', 'SE>>0972009840');
+insert into songs (title, writer) values ('Al rio Guadalquivir', 'SE>>0972009840');
+begin
+    melopack.interprete_actual_innit('Vigilia');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 555299599, 1, 'Pinocho se fue a pescar', 'SE>>0972009840', 17, sysdate, 'Jurado Studios', 'Pablo Andrés Unamuno López Alonso');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 555299599, 2, 'Al rio Guadalquivir', 'SE>>0972009840', 23, sysdate, 'Jurado Studios', 'Carla Esther Sabina Aparicio Ruiz');
+end;
+select * from albums where pair = '000000000000000';
+select * from tracks where pair = '000000000000000';
+
+--- Prueba3: songs que no exista
+rollback;
+begin
+    melopack.interprete_actual_innit('Vigilia');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 555299599, 1, 'pigstep', 'SE>>0972009840', 600, sysdate, 'Jurado Studios', 'Ignacio Román Écija Nieves Ébano');
+end;
+
+----- expected: 'ERROR: DATA NOT FOUND (FK error)'
+
+--- Prueba4: datos referenciados que no existen -> mirar de solucionar el control de flujo, porque muchas veces se crea el álbum 
+begin
+    melopack.interprete_actual_innit('Vigilia');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'no existo.', 555299599, 1, 'pigstep', 'SE>>0972009840', 600, sysdate, 'Jurado Studios', 'Ingeniero');
+end;
+begin
+    melopack.interprete_actual_innit('Vigilia');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 4, 1, 'pigstep', 'SE>>0972009840', 600, sysdate, 'Jurado Studios', 'Ingeniero');
+end;
+begin
+    melopack.interprete_actual_innit('Vigilia');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 555299599, 1, 'pigstep', 'SE>>0972009840', 600, sysdate, 'no existo', 'Ingeniero');
+end;
+
+begin
+    melopack.interprete_actual_innit('Vigilia');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 555299599, 1, 'pigstep', 'no existo', 600, sysdate, 'Jurado Studios', 'Ingeniero');
+end;
+
+----- expected: 'ERROR: DATA NOT FOUND (FK error)'
+
+
+-- Prueba del_track: 
+--- Prueba 1: borrar una track y el álbum
+insert into songs (title, writer) values ('pigstep', 'SE>>0972009840');
+begin
+    melopack.interprete_actual_innit('Vigilia');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 555299599, 1, 'pigstep', 'SE>>0972009840', 600, sysdate, 'Jurado Studios', 'Ingeniero');
+end;
+select * from albums where pair = '000000000000000';
+select * from tracks where pair = '000000000000000';
+
+execute melopack.del_track('000000000000000', 1);
+select * from albums where pair = '000000000000000';
+select * from tracks where pair = '000000000000000';
+-- expected: ninguna fila seleccionada
+
+---- Prueba2: borrar una track pero no el álbum;
+insert into songs (title, writer) values ('Requeton contra el suicidio', 'SE>>0972009840');
+insert into songs (title, writer) values ('perdio su vida en el lol', 'SE>>0972009840');
+begin
+    melopack.interprete_actual_innit('Vigilia');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 555299599, 1, 'perdio su vida en el lol', 'SE>>0972009840', 600, sysdate, 'Jurado Studios', 'Ingeniero');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 555299599, 2, 'Requeton contra el suicidio', 'SE>>0972009840', 600, sysdate, 'Jurado Studios', 'Ingeniero');
+end;
+select * from albums where pair = '000000000000000';
+select * from tracks where pair = '000000000000000';
+
+execute melopack.del_track('000000000000000', 1);
+select * from albums where pair = '000000000000000';
+select * from tracks where pair = '000000000000000';
+-- expected: solo existen datos de 'Requeton contra el suicidio' 
+
+

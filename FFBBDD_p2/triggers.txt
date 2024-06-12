@@ -1,0 +1,226 @@
+----Trigger1: ins_canciones
+CREATE OR REPLACE TRIGGER ins_cancion
+AFTER INSERT ON performances
+FOR EACH ROW
+DECLARE duracion NUMBER(4);
+BEGIN
+    SELECT NVL(duration,0) INTO duracion FROM concerts WHERE :new.performer=performer and :new.when = when;
+    IF :new.duration is NOT NULL
+        THEN duracion:= duracion + trunc(:new.duration/60,0);
+    END IF;
+    UPDATE concerts set duration=duracion  WHERE :new.performer=performer and :new.when= when ;
+END ins_cancion;
+
+---- Prueba 1: inserción con duration = 400
+insert into performances values('Aigulfo Garcia','15/08/04','12','Loving of last','SE>>0254709581','400');
+-- expected: aumento de duration de 143 a 149
+
+---- Prueba 2: inserción con duration = 0
+insert into performances values('Aigulfo Garcia','15/08/04','13','Loving of last','SE>>0254709581','0');
+-- expected: duration no aumenta, mantiene 143
+
+---- Prueba 2: inserción con duration NULL
+insert into performances values('Aigulfo Garcia','15/08/04','14','Loving of last','SE>>0254709581',NULL);
+-- expected: duration no aumenta, mantiene 143
+
+---- Para comprobar duration del concierto  se usa el siguiente comando
+select * from concerts where when = '15/08/04' and performer = 'Aigulfo Garcia';
+
+----Creacion tabla auxiliar
+drop table performprueba;
+
+CREATE TABLE performprueba (
+performer1  VARCHAR2(50),
+when1       DATE,
+sequ1       NUMBER(3), 
+songtitle1  VARCHAR2(100) NOT NULL, 
+songwriter1 CHAR(14) NOT NULL, 
+duration1   NUMBER(4),
+CONSTRAINT PK_PERFORMANCESprueba PRIMARY KEY (performer1,when1,sequ1),
+CONSTRAINT FK_PERFORMANCESprueba FOREIGN KEY (performer1,when1) REFERENCES CONCERTS ON DELETE CASCADE,
+CONSTRAINT FK_PERFORMANCES2prueba FOREIGN KEY (songtitle1,songwriter1) REFERENCES SONGS
+);
+
+---- Se insertan datos en tabla auxiliar
+INSERT INTO performprueba(performer1,when1,sequ1,songtitle1,songwriter1,duration1) 
+(SELECT DISTINCT performer,when,sequ,songtitle,songwriter,duration
+    FROM performances WHERE when = '06/07/97' and performer = 'Abri');
+INSERT INTO performprueba(performer1,when1,sequ1,songtitle1,songwriter1,duration1) 
+(SELECT DISTINCT performer,when,sequ,songtitle,songwriter,duration
+    FROM performances WHERE when = '20/06/03' and performer = 'Adelito');
+INSERT INTO performprueba(performer1,when1,sequ1,songtitle1,songwriter1,duration1) 
+(SELECT DISTINCT performer,when,sequ,songtitle,songwriter,duration
+    FROM performances WHERE when = '12/05/84' and performer = 'Abril Flores');
+
+---- Se eliminan datos de tabla original
+delete from performances WHERE when = '06/07/97' and performer = 'Abri';
+delete from performances where when = '20/06/03' and performer = 'Adelito';
+delete from performances where when = '12/05/84' and performer = 'Abril Flores';
+
+---- Comandos para comprobar duraciones
+select * from concerts where when = '06/07/97' and performer = 'Abri';
+select * from concerts where when = '20/06/03' and performer = 'Adelito';
+select * from concerts where when = '12/05/84' and performer = 'Abril Flores';
+
+---- Prueba 4: inserción multiple
+INSERT INTO performances(performer,when,sequ,songtitle,songwriter,duration) 
+(SELECT DISTINCT performer1,when1,sequ1,songtitle1,songwriter1,duration1
+    FROM performprueba);
+-- expected: duration aumenta de 125, 119, 126 a 189, 181, 191(Abri, Adelito, Abril Flores)
+
+----Trigger2:
+CREATE OR REPLACE TRIGGER ins_entrada
+BEFORE INSERT ON attendances
+FOR EACH ROW
+DECLARE fecha_nacimiento DATE;
+    isaminor EXCEPTION;
+BEGIN
+    SELECT birthdate INTO fecha_nacimiento FROM clients WHERE :new.client=e_mail;
+    IF fecha_nacimiento > :new.purchase - 365*18
+    THEN raise isaminor;
+    END IF;
+EXCEPTION
+    WHEN no_data_found THEN raise_application_error(-20002,’El cliente no tiene registrada fecha de nacimiento’);
+    WHEN isaminor THEN raise_application_error(-20001,’ERROR: cliente es menor de edad’);
+END INS_ENTRADA;
+
+---- Prueba 1: inserción menor de edad
+insert into attendances values('torda@clients.vinylinc.com','Aigulfo Garcia','15/08/04','BHAZJA7JM57PVS9LED2IKHFBIQQY8CYSBKHLY6B2X474ZCAQUUJZFZ0U80XRM6MD','10/07/86');
+-- expected: se lanza un error -20001: ERROR: cliente es menor de edad
+
+---- Prueba 2: inserción mayor de edad
+insert into attendances values('torda@clients.vinylinc.com','Aigulfo Garcia','15/08/04','BHAZJA7JM57PVS9LED2IKHFBIQQY8CYSBKHLY6B2X474ZCAQUUJZFZ0U80XRM6MD','10/07/02');
+-- expected: 1 fila insertada
+
+---- Las inserciones comparten rfid por lo que probar ambas hay que hacer un rollback o usar:
+delete from attendances where rfid= 'BHAZJA7JM57PVS9LED2IKHFBIQQY8CYSBKHLY6B2X474ZCAQUUJZFZ0U80XRM6MD’;
+
+----Tabla auxiliar
+drop table attendancesprueba; 
+
+CREATE TABLE attendancesprueba (
+client1      VARCHAR2(100), 
+performer1   VARCHAR2(100), 
+when1        DATE, 
+RFID1        VARCHAR2(120) NOT NULL,
+purchase1    DATE,
+CONSTRAINT PK_ATTENDANCESprueba PRIMARY KEY (client1,performer1,when1),
+CONSTRAINT UK_ATTENDANCESprueba UNIQUE (performer1,when1,RFID1),
+CONSTRAINT FK_ATTENDANCES1prueba FOREIGN KEY (performer1,when1) REFERENCES CONCERTS ON DELETE CASCADE,
+CONSTRAINT FK_ATTENDANCES2prueba FOREIGN KEY (client1) REFERENCES CLIENTS
+);
+
+---- Inserciones para todos los casos
+INSERT INTO attendancesprueba(client1,performer1,when1,RFID1,purchase1) 
+(SELECT DISTINCT client,performer,when,rfid,purchase FROM attendances where client = 'torda@clients.vinylinc.com');
+INSERT INTO attendancesprueba(client1,performer1,when1,RFID1,purchase1) 
+(SELECT DISTINCT client,performer,when,rfid,purchase FROM attendances where client = 'diosdi@clients.vinylinc.com');
+
+---- Eliminación de datos de tabla original para todos los casos
+delete from attendances where client= 'torda@clients.vinylinc.com';
+delete from attendances where client= 'diosdi@clients.vinylinc.com';
+
+---- Prueba 3: inserción con solo adultos
+INSERT INTO attendances(client,performer,when,RFID,purchase) 
+(SELECT DISTINCT client1,performer1,when1,rfid1,purchase1 FROM attendancesprueba);
+-- expected: 53 filas insertadas
+
+---- Prueba 4: inserción con un menor
+INSERT INTO attendancesprueba values('torda@clients.vinylinc.com','Aigulfo Garcia','15/08/04','BHAZJA7JM57PVS9LED2IKHFBIQQY8CYSBKHLY6B2X474ZCAQUUJZFZ0U80XRM6MD','10/07/86');
+INSERT INTO attendances(client,performer,when,RFID,purchase) 
+(SELECT DISTINCT client1,performer1,when1,rfid1,purchase1 FROM attendancesprueba);
+-- expected: se lanza un error -20001: ERROR: cliente es menor de edad
+
+---- Prueba 5: inserción con dos menores
+INSERT INTO attendancesprueba values('torda@clients.vinylinc.com','Aigulfo  Garcia','15/08/04','BHAZJA7JM57PVS9LED2IKHFBIQQY8CYSBKHLY6B2X474ZCAQUUJZFZ0U80XRM6MD','10/07/86');
+INSERT INTO attendancesprueba values('diosdi@clients.vinylinc.com','Aigulfo Garcia','15/08/04','BHAZJA7JM57PVS9LED2IKHFBIQQY8CYSBKHLY6B2X474ZCAQUUJZFZ0U80XDS6MD','10/07/80');
+INSERT INTO attendances(client,performer,when,RFID,purchase) 
+(SELECT DISTINCT client1,performer1,when1,rfid1,purchase1 FROM attendancesprueba);
+-- expected: se lanza un error -20001: ERROR: cliente es menor de edad
+
+---- comandos para eliminar a los menores de la tabla
+delete from attendancesprueba where rfid1= 'BHAZJA7JM57PVS9LED2IKHFBIQQY8CYSBKHLY6B2X474ZCAQUUJZFZ0U80XRM6MD’;
+delete from attendancesprueba where rfid1= 'BHAZJA7JM57PVS9LED2IKHFBIQQY8CYSBKHLY6B2X474ZCAQUUJZFZ0U80XDS6MD';
+
+----Trigger3:
+----Tabla auxiliar
+drop table songs_aux; 
+
+create table songs_aux (
+    title varchar2(50),
+    writer_aux char(14),
+    cowriter_aux char(14)
+); 
+
+----Triggers
+CREATE OR REPLACE TRIGGER ins_songs
+    BEFORE INSERT ON songs
+    FOR EACH ROW
+    BEGIN
+        INSERT INTO songs_aux values(:new.title, :new.writer, :new.cowriter);
+        
+    END;
+/
+CREATE OR REPLACE TRIGGER ins_songs2
+    AFTER INSERT ON songs 
+    BEGIN 
+        FOR FILA IN (SELECT * FROM (songs_aux join songs using(title))) loop
+            if fila.writer = fila.cowriter_aux and fila.cowriter = fila.writer_aux THEN
+                dbms_output.put_line('ERROR: cancion duplicada, copia eliminada');
+                DELETE FROM songs WHERE title = fila.title AND writer = fila.writer_aux AND cowriter = fila.cowriter_aux;
+            END IF;
+        END loop;
+        DELETE FROM songs_aux;
+    END;
+
+---- Prueba 1: inserción válida:
+insert into songs values('Pirate King', 'GB>>0884699403', 'GB>>0600283845');
+-- expected: se inserta una fila
+---- Prueba 2: inserción no válida:
+insert into songs values('Absence and copy','GB>>0986985819','GB>>0204670273');
+-- expected: se imprime 'ERROR: cancion duplicada, copia eliminada'
+---- Prueba 3: inserción con cowriter nulo:
+insert into songs values('Halazia', 'GB>>0884699403',NULL);
+-- expected: se inserta una fila
+
+---- Comprobacion prueba 1:
+select * from songs  where title = 'Pirate King' and writer = 'GB>>0884699403';
+---- Comprobacion prueba 2:
+select * from songs  where title = 'Absence and copy' and writer = ‘GB>>0986985819’;
+---- Comprobacion prueba 3:
+select * from songs  where title = 'Halazia' and writer = 'GB>>0884699403';
+
+----Tabla auxilar
+DROP TABLE dummy;
+
+CREATE TABLE dummy (
+    title varchar2(50),
+    writer_aux char(14),
+    cowriter_aux char(14)
+); 
+
+---- Prueba 4: inserción múltiple válida:
+insert into dummy values('Get out alive', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Una mirada bastara', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Alexander Hamilton', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Painkiller', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Oliver y Benji', 'GB>>0884699403', 'GB>>0600283845');
+
+insert into songs (select * from dummy);
+-- expected: se insertan 5 filas
+
+---- Prueba 5: inserción múltiple no válida:
+insert into dummy values('Absence and copy', 'GB>>0986985819' ,'GB>>0204670273');
+insert into dummy values('Toad', 'CA>>0192153627' ,'CA>>0514221276');
+insert into dummy values('Get out alive', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Una mirada bastara', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Alexander Hamilton', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Painkiller', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Oliver y Benji', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('To fly moments', 'GB>>0092343098', 'GB>>0778825943');
+
+insert into songs (select * from dummy);
+-- expected: se insertan 8 filas, se imprime el error 3 veces y se eliminan 3 de las filas
+
+----comprobar pruebas 4 y 5
+select * from (songs join dummy using(title)) where writer = writer_aux;

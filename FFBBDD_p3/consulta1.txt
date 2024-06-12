@@ -1,0 +1,24 @@
+WITH authors as (
+	select title,writer, writer musician from songs
+	UNION 
+	select title,writer,cowriter musician from songs
+),
+authorship as (
+	select distinct band performer, title, writer, 1 flag FROM involvement join authors using(musician)
+),
+recordings as (
+	select performer,tracks.title,writer from albums join tracks using(pair)
+),
+recs_match as (
+	select performer, round(sum(flag)*100/count('c'),2) pct_recs from recordings left join authorship using(performer,title,writer) group by (performer)
+),
+pers_match as (
+	select performer, round(sum(flag)*100/count('c'),2) pct_pers from (
+		select performer, songtitle title, songwriter writer from performances
+	) P left join authorship using(performer,title,writer) group by (performer)
+)
+SELECT performer, pct_recs, pct_pers from recs_match full join pers_match using(performer)
+
+UPDATE tracks
+set lyrics = dbms_random.string('a',dbms_random.value(900,1200))
+where searchk=changes(i);

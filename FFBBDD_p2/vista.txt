@@ -1,0 +1,121 @@
+drop table vetados;
+create or replace view fans as
+    select e_mail, name, surn1, TRUNC((sysdate - birthdate)/365, 0) as edad from (
+        Clients 
+        join (
+            select client, conc from (
+                select client, count ('x') as conc from (
+                    select distinct client, when from attendances where performer = (select melopack.return_interprete from dual)
+                ) group by(client)
+            ) where conc >1
+        ) on(client = e_mail)
+    ) where e_mail not in (select email from vetados where interprete = (select melopack.return_interprete from dual));
+
+   
+
+CREATE OR REPLACE TRIGGER deletion_fans 
+INSTEAD OF DELETE ON fans 
+for each row 
+BEGIN 
+    insert into vetados values(:old.e_mail, (select melopack.return_interprete from dual)); 
+END;
+
+create or replace trigger insert_fans 
+instead of insert on fans 
+for each row 
+declare aux varchar2(100);
+begin 
+    select e_mail into aux from clients where e_mail = :new.e_mail;
+    begin 
+        select email into aux from vetados where email = :new.e_mail and interprete = (select melopack.return_interprete from dual);
+        delete from vetados where email = aux;
+    exception
+        when no_data_found then dbms_output.put_line('Error: el cliente que solicita ya existe y no está vetado para el interprete' || ' ' || select melopack.return_interprete from dual);
+    end;
+exception 
+    when no_data_found then insert into clients (e_mail, Name, surn1, birthdate) values (:new.e_mail, :new.name, :new.surn1, sysdate - (:new.edad*365));
+end;
+
+create or replace trigger update_fans 
+instead of update on fans 
+begin 
+    dbms_output.put_line('Error: no se permite la operación update');
+end;
+
+
+-- Pruebas
+--- Prueba1: selecciona sólo los fans de cada artista 
+execute melopack.interprete_actual_innit('Vigilia');
+select * from fans; 
+----- expected: Ninguna fila seleccionada
+execute melopack.interprete_actual_innit('Ilse Orona');
+select * from fans; 
+----- expected: 173 filas seleccionadas
+execute melopack.interprete_actual_innit('Sandr'); 
+select * from fans;
+----- expected: 6 filas seleccinadas
+----- Aprovechar que sandr son pocas, podemos comprobar a mano
+select * from (select client, count('x') as num from attendances where performer = 'Sandr' group by (client)) where num > 1;
+----- expected: 6 filas seleccionadas. Todos deben tener num > 1
+
+--- Prueba2: trigger deletion_fans
+execute melopack.interprete_actual_innit('Ilse Orona');
+select * from fans order by(edad);
+------- 173 filas
+delete from fans where edad = 74; 
+------- expected: 6 filas suprimidas
+select * from fans order by(edad);
+------- expected: 167 filas seleccionadas (fácil de ver que se han eliminado los fans con 74 años)
+select * from vetados; 
+------- expected: 6 filas seleccionadas
+select * from (vetados join clients on(email = e_mail)); 
+------- expected: 6 filas seleccionadas (siguen almacenados en la tabla global)
+
+--- Prueba3: trigger insert_fans
+---- Prueba 3.1: si el fan no existe lo inserta
+drop table temp;
+create table temp (
+    email varchar2(100),
+    name varchar2(30),
+    surn1 varchar2(40),
+    edad number(3)
+);
+
+insert into temp values('Ireneserranogmail', 'Irene', 'subias', 15);
+insert into temp values('PaulaSSgmail', 'Paula', 'subias', 20);
+insert into temp values('Cesarlopmangmail', 'cesar', 'lopez', 30);
+
+insert into fans select * from temp;
+
+select * from clients where e_mail = 'Cesarlopmangmail' or e_mail = 'PaulaSSgmail' or e_mail = 'Ireneserranogmail';
+------ expected: 3 filas seleccionadas
+
+---- Prueba 3.2: fans vetados
+execute melopack.interprete_actual_innit('Sandr'); 
+
+drop table temp;
+create table temp (
+    email varchar2(100),
+    name varchar2(30),
+    surn1 varchar2(40),
+    edad number(3)
+);
+
+insert into temp (select * from fans where edad = 74);
+delete from fans (select *from fans where edad = 74);
+select * from vetados; 
+----- expected: 15 filas seleccionadas
+insert into fans (select * from vetados);
+select * from vetados; 
+----- expected: ninguna fila seleccionada
+
+
+
+
+
+
+
+
+
+
+

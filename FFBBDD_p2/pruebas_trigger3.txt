@@ -1,0 +1,28 @@
+create table dummy (
+    title varchar2(50),
+    writer_aux char(14),
+    cowriter_aux char(14)
+); 
+insert into dummy values('Absence and copy', 'GB>>0986985819' ,'GB>>0204670273');
+insert into dummy values('Toad', 'CA>>0192153627' ,'CA>>0514221276');
+insert into dummy values('Get out alive', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Una mirada bastara', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Alexander Hamilton', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Painkiller', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Oliver y Benji', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('To fly moments', 'GB>>0092343098', 'GB>>0778825943');
+
+insert into songs (select * from dummy);
+--- Prueba1: 
+select * from (songs join dummy using(title)) where writer = writer_aux;
+--- expected: solo inserta las filas las canciones nuevas
+--TITLE                                              WRITER         COWRITER       WRITER_AUX     COWRITER_AUX
+---------------------------------------------------- -------------- -------------- -------------- --------------
+--Get out alive                                      GB>>0884699403 GB>>0600283845 GB>>0884699403 GB>>0600283845
+--Una mirada bastara                                 GB>>0884699403 GB>>0600283845 GB>>0884699403 GB>>0600283845
+--Alexander Hamilton                                 GB>>0884699403 GB>>0600283845 GB>>0884699403 GB>>0600283845
+--Painkiller                                         GB>>0884699403 GB>>0600283845 GB>>0884699403 GB>>0600283845
+--Oliver y Benji                                     GB>>0884699403 GB>>0600283845 GB>>0884699403 GB>>0600283845
+
+rollback; 
+drop table dummy;

@@ -1,0 +1,24 @@
+-- Interpretaciones totales por artista
+select count('X'), performer from performances group by(performer); 
+
+-- Interpretaciones de artistas de canciones escritas por ellos mismos. (no aparecen los que tengan cuenta 0) 
+select count('x'), performer from (select distinct * from involvement join perfomances on(involvement.band = performer and involvement.musician = songwriter)) group by(performer);
+
+-- performer con 0 canciones bajo su autoría
+select distinct performer from performances where performer not in (select distinct performer from involvement join performances on (involvement.band = performer and involvement.musician = songwriter)); 
+
+
+-- join performer = band involvement * album
+select distinct * from (select band as performer, musician, start_d, role, end_d from involvement) join albums using(performer); 
+select distinct * from (select band as performer, musician, start_d, role, end_d from involvement) natural join albums; 
+
+-- # de cacniones escritas por la misma persona que la interpreta (consulta 1)
+select performer, count('x') as num from((select distinct * from (select band as performer, musician as writer, start_d, role, end_d from involvement) natural join albums) join tracks using(pair, writer)) group by(performer);
+
+-- # de canciones intepretadas por un artista. 
+select performer, count('x') as total from (select distinct * from (select band as performer, musician as writer, start_d, role, end_d from involvement) natural join albums) join tracks using(pair)) group by(performer);
+
+-- porcierto
+
+with numerador as (select performer, count('x') as num from((select distinct * from (select band as performer, musician as writer, start_d, role, end_d from involvement) natural join albums) join tracks using(pair, writer)) group by(performer)), denominador as (select performer, count('x') as total from ((select distinct * from (select band as performer, musician as writer, start_d, role, end_d from involvement) natural join albums) join tracks using(pair)) group by(performer)) select performer, (num/total)*100 from (numerador join denominador using(performer));
+

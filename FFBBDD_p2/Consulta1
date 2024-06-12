@@ -1,0 +1,44 @@
+Consuta1: 
+
+select performer, percentTracks, percentInt from (
+    select performer, TRUNC((numPropias/total) * 100, 2) as percentTracks from (
+        select performer,  numPropias, total from (
+            select performer, count('x') as total from (
+                select Tpair, sequ, performer from (
+                    (
+                        select pair as Tpair, sequ, writer from tracks
+                    ) join (
+                        (
+                            select band, musician from involvement
+                        ) join Albums on(band=performer)
+                    ) on(Tpair = pair)
+                )
+            ) group by(performer)
+        ) natural join (
+            select performer, count('x') as numPropias from (
+                select * from (
+                    (
+                        select pair as Tpair, sequ, writer from tracks
+                    ) join (
+                        (
+                             select band, musician from involvement
+                        ) join Albums on(band=performer)
+                    ) on(Tpair = pair)
+                ) where writer = musician
+            ) group by(performer)
+        )
+    )
+    ) full outer join (
+        select performer, TRUNC((nvl(intPropias,0)/intTotales)*100, 2) as percentInt from (
+            (
+                select performer, count('x') as intTotales from Performances group by(performer)
+            ) left outer join (
+                select performer as performer1, count('x') as intPropias from (
+                    (
+                         select band, musician from Involvement
+                    ) join Performances on(band = performer and musician = songwriter)
+                ) group by(performer)
+            ) on(performer1 = performer)
+        )
+    ) using(performer) order by(percentTracks);
+

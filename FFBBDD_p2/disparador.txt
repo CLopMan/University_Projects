@@ -1,0 +1,58 @@
+create or replace trigger ins_contracts 
+instead of insert on contracts 
+for each row
+begin
+insert into contracts_all
+values(:NEW.referenc, :NEW.signature, NULL);
+end ins_contracts;
+/
+
+-------
+create or replace trigger chk_clause_date 
+before insert or update on clauses_ALL
+for each row
+declare signdate DATE; 
+        baddate EXCEPTION;
+begin 
+    select signature into signdate from contracts_ALL where referenc = :NEW.referenc;
+    if signdate > :NEW.cl_date
+	then signdate := :NEW.cl_date; 
+    end if; 
+end chk_clause_date;
+
+
+_____
+
+create or replace trigger chk_clause_date 
+before insert or update on clauses_ALL
+for each row
+declare signdate DATE; 
+        baddate EXCEPTION;
+begin 
+    select signature into signdate from contracts_ALL where referenc = :NEW.referenc;
+    if signdate > :NEW.cl_date
+      then
+	raise baddate;
+    end if; 
+exception
+when baddate raise_application_error (-20001, 'WRONG DATE!');
+end chk_clause_date;
+
+_____
+
+alter table clauses_all add ( 
+userid varchar2(25), 
+dlt_date date);
+
+create or replace view clauses as ( 
+select referenc, n_order, cl_date 
+from clauses_all where dlt_date is NULL); 
+
+
+create or replace trigger delete_clause
+instead of delete on clauses 
+for each row
+begin
+update clauses_all set userid = user, dlt_date = sysdate where referenc = :old.referenc and n_order = :old.n_order;
+end delete_clause;
+/

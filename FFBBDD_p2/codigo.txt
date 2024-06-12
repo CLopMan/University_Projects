@@ -1,0 +1,772 @@
+-- Grupo128: 100472092, 100472119, 100472108
+
+--- CONSULTAS ---
+-- Autosuficientes:
+
+select performer, percentTracks, percentInter from(
+   (select performer, TRUNC((nvl(interpropias, 0)/intertotal) * 100, 2) as 
+   percentInter from (
+(select performer, count(‘x’) as interpropias from(
+select * from(
+Performances join Involvement on(performer = band)
+) where songwriter=musician
+) group by(performer)
+) right outer join (
+select performer, count(‘x’) as intertotal from Performances group by(performer)
+) using (performer))
+) full outer join (
+   select performer, TRUNC((grabpropias/grabtotal) * 100, 2) as percentTracks 
+   from (
+(select performer, count (‘x’) as grabpropias from (
+select * from (
+Tracks join Albums using(PAIR)) join Involvement on(performer = band
+) where writer = musician
+) group by(performer)
+) join (
+select performer, count(‘x’) as grabtotal from(Tracks join Albums 
+using(PAIR)) group by(performer)
+) using(performer))
+) using(performer));
+
+---- Pruebas: 
+--- Estado inicial de la fila correspondiente a Limbotron, un grupo de 6 integrantes: 100/220 interpretaciones: 45,45%. 54/120 Grabaciones: 45%
+
+---- Prueba 1: inserción de un nuevo Track propio, primero se inserta una nueva cancion para la clave ajena
+insert into Songs (title, writer) values ('nuevapropia', 'ES>>0959549682');
+insert into Tracks (PAIR, sequ, title, writer, rec_date, studio, engineer,duration) values('J62598EX2439CWN', 15, 'nuevapropia', 'ES>>0959549682',  ‘05/09/18’, ‘Jurado Studios’, ‘Ignacio Zambrano’, 300);
+-- expected: aumento del percentTracks a 45,45% -> 55/121. 
+
+---- Prueba2: inserción de una Track no propia: 
+insert into Tracks (PAIR, sequ, title, writer, rec_date, studio, engineer, duration) values('J62598EX2439CWN', 16, 'Tree', 'SE>>0787845940',  ‘05/09/18’, ‘Jurado Studios’, ‘Ignacio Zambrano’, 300);
+-- expected: disminuye percentTracks a 45,08% -> 55/122.
+
+---- Prueba3: inserción de una Performance propia: 
+insert into performances (performer, when, sequ, songtitle, songwriter, duration) values(‘Limbotron’, ‘11/05/85’, 15, ‘Night’, ‘ES>>0959549682’, 300); 
+-- expected: aumenta percentInter a 45,7% ->101/221
+
+---- Prueba4: inserción de una Performance no propia: 
+insert into performances (performer, when, sequ, songtitle, songwriter, duration) values(‘Limbotron’, ‘11/05/85’, 16, ‘Absence’, ‘SE>>0660691469’, 300); 
+-- expected: disminuye percentInter a 45,49% ->101/222
+
+---- Prueba5: eliminación de interpretacion propia
+delete from performances where performer = ‘Limbotron’ and songwriter = ‘ES>>0959549682’;
+-- expected: disminucion percentInter
+
+---- Prueba6: eliminación de interpretacion no propia
+delete from performances where performer = ‘Limbotron’ and songtitle = ‘Absence’;
+-- expected: aumenta percentInter
+
+---- Prueba7: eliminación de Track no propia
+delete from Tracks where PAIR = 'J62598EX2439CWN' and sequ = 16;
+-- expected: aumenta percentTracks
+
+---- Prueba8: eliminación de Track propia
+delete from Tracks where PAIR = 'J62598EX2439CWN' and sequ = 15;
+-- expected: disminuye percentTracks
+
+-- Revival:
+select performer, porcentaje, TRUNC((avg(when-rec_date))/365,0) as years, TRUNC(mod((avg(when-rec_date)),365)/30,0) as months, TRUNC(mod(mod((avg(when-rec_date)),365),12)) as days from (
+select * from (
+  select * from (
+select * from (select pair, performer from Albums) join Tracks using(pair)
+  ) join (
+Performances) 
+  using(performer) where title = songtitle and writer = songwriter
+) join (
+  select * from (
+    select performer, TRUNC((intgrab/numinter)*100,2) as porcentaje from(
+select performer, intgrab, numinter from(
+select performer, count(‘x’) as intgrab from(
+select distinct title, writer, performer from (
+select * from (select pair, performer from Albums) join 
+Tracks 
+using(pair)
+) join (
+Performances
+) using(performer) where title = songtitle and writer = songwriter
+) group by(performer)
+) join (
+select performer, count(‘x’) as numinter from(
+select distinct performer, songtitle, songwriter from 
+Performances
+) group by (performer)
+) using(performer)
+    ) order by (porcentaje) desc
+  ) where rownum <11
+) using (performer)
+) group by(performer, porcentaje);
+
+---- Pruebas: 
+--- Estado inicial de la fila correspondiente a Tron: 100%, 10 year, 2 month, 4 days, se ordena en orden ascendente para comprobar resultados. 
+
+---- Prueba1: inserción de una nueva interpretación que no está grabada.
+insert into performances (performer, when, sequ, songtitle, songwriter, duration) values(‘Tron’, ‘11/05/91’, 16, ‘Night’, ‘SE>>0981968995’, 300);
+-- expected: porciento de canciones se reduce a 98,38 -> 61/62 * 100
+
+---- Prueba2: inserción de una nueva grabación, que no ha sido interpretada
+insert into Tracks (PAIR, sequ, title, writer, rec_date, studio, engineer,duration) values('N6954BLS5221HDJ', 15, 'Absence', 'SE>>0584981759',  ‘05/09/18’, ‘Jurado Studios’, ‘Ignacio Zambrano’, 300);
+-- expected: no hay cambios en los datos. 
+
+---- Prueba3: inserción de una nueva interpretación, que ha sido grabada
+insert into performances (performer, when, sequ, songtitle, songwriter, duration) values(‘Tron’, ‘11/05/91’, 17, ‘Regular’, ‘IE>>0855556845’, 300);
+-- expected: porciento de canciones aumenta a 98,41% -> 62/63 * 100, cambia la edad media de las interpretaciones.
+
+---- Prueba4: eliminación de interpretación que ha sido grabada.
+delete from performances where performer = ‘Tron’ and songtitle = ‘Band’;
+-- expected: disminuye porcentaje a 98,38 -> 61/62 * 100, cambia la edad media de las interpretaciones. 
+
+---- Prueba5: eliminación de una canción grabada e interpretada.
+delete from Tracks where title = ‘Drums’ and writer = ‘SE>>0970608211’;
+-- expected: disminuye porcentaje a 96,77 -> 60/62 * 100, cambia la edad media de las interpretaciones.
+
+
+--- PAQUETE ---
+create or replace package melopack as 
+    interprete_actual varchar2(50);
+    procedure interprete_actual_innit (valor varchar2);
+    procedure new_track(ipair char, 
+                        iformat char,
+                        ititle varchar,
+                        irel_date date,
+                        ipublisher varchar2,
+                        imanager number,
+                        isequ number,
+                        ititle_track varchar2,
+                        iwriter char,
+                        iduration number,
+                        irec_date date,
+                        istudio varchar2,
+                        iengineer varchar);
+    function return_interprete return varchar2;
+    procedure del_track(ipair char, isequ number);
+end melopack;
+/
+create or replace package body melopack as
+    procedure interprete_actual_innit(valor varchar2) is
+    begin
+        select name into interprete_actual from Performers where name = valor;
+        dbms_output.put_line(interprete_actual);
+    exception
+        when no_data_found then dbms_output.put_line('ERROR: INTERPRETE NO EXISTE');
+    end;
+	
+    procedure del_track(ipair char, isequ number) is
+        n number(6);
+        begin 
+            select count('x') into n from tracks where pair = ipair;
+            delete from tracks where pair = ipair and sequ = isequ;
+            if n = 1 then
+                delete from albums where pair = ipair;
+            end if;
+        exception
+            when no_data_found then dbms_output.put_line('ERROR: no existe el dato solicitado');
+        end;
+        
+    procedure new_track(ipair char, 
+                        iformat char,
+                        ititle varchar,
+                        irel_date date,
+                        ipublisher varchar2,
+                        imanager number,
+                        isequ number,
+                        ititle_track varchar2,
+                        iwriter char,
+                        iduration number,
+                        irec_date date,
+                        istudio varchar2,
+                        iengineer varchar) is
+        aux varchar2(50);
+        type aux_type is record (title varchar2(50), writer char(14));
+        aux2 aux_type;
+        aux3 number(9);
+        begin 
+            
+            select name into aux from publishers where name = ipublisher; 
+            select title, writer into aux2 from songs where title = ititle_track and writer = iwriter;
+            select name into aux from studios where name = istudio;
+            select mobile into aux3 from managers where mobile = imanager;
+            
+            begin
+                select pair into aux from albums where pair = ipair;
+            
+            exception
+                when no_data_found then insert into Albums (Pair, performer, format, title, rel_date, publisher, manager) values(ipair, interprete_actual, iformat, ititle, irel_date, ipublisher, imanager);
+            end;
+            insert into tracks (pair, sequ, writer, title, rec_date, studio, engineer, duration) values(ipair, isequ, iwriter, ititle_track, irec_date, istudio, iengineer, iduration);
+        exception 
+            when no_data_found then dbms_output.put_line('ERROR: DATA NOT FOUND (FK error)');
+        end;
+            
+    function return_interprete return varchar2 is 
+	begin
+	    return interprete_actual;
+	end;
+
+end melopack;
+/
+
+-- Pruebas: 
+
+-- Pruebas interprete_actual_innit():
+--- Prueba1: interprete que exista
+execute melopak.inteprete_actual_innit('Vigilia');
+----- expected: 'Vigilia'
+--- Prueba2:interprete que no exista
+execute melopak.interprete_actual_innit('mi primo chico');
+----- expecte: 'ERROR: INTERPRETE NO EXISTE)
+
+-- Pruebas new_track;
+--- Prueba1: album que no exista 
+insert into songs (title, writer) values ('pigstep', 'SE>>0972009840');
+begin
+    melopack.interprete_actual_innit('Vigilia');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 555299599, 1, 'pigstep', 'SE>>0972009840', 600, sysdate, 'Jurado Studios', 'Ingeniero');
+end;
+select * from albums where pair = '000000000000000';
+select * from tracks where pair = '000000000000000';
+
+--- prueba2: album que si exista
+rollback;
+insert into songs (title, writer) values ('Pinocho se fue a pescar', 'SE>>0972009840');
+insert into songs (title, writer) values ('Al rio Guadalquivir', 'SE>>0972009840');
+begin
+    melopack.interprete_actual_innit('Vigilia');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 555299599, 1, 'Pinocho se fue a pescar', 'SE>>0972009840', 17, sysdate, 'Jurado Studios', 'Pablo Andrés Unamuno López Alonso');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 555299599, 2, 'Al rio Guadalquivir', 'SE>>0972009840', 23, sysdate, 'Jurado Studios', 'Carla Esther Sabina Aparicio Ruiz');
+end;
+select * from albums where pair = '000000000000000';
+select * from tracks where pair = '000000000000000';
+
+--- Prueba3: songs que no exista
+rollback;
+begin
+    melopack.interprete_actual_innit('Vigilia');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 555299599, 1, 'pigstep', 'SE>>0972009840', 600, sysdate, 'Jurado Studios', 'Ignacio Román Écija Nieves Ébano');
+end;
+
+----- expected: 'ERROR: DATA NOT FOUND (FK error)'
+
+--- Prueba4: datos referenciados que no existen -> mirar de solucionar el control de flujo, porque muchas veces se crea el álbum 
+begin
+    melopack.interprete_actual_innit('Vigilia');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'no existo.', 555299599, 1, 'pigstep', 'SE>>0972009840', 600, sysdate, 'Jurado Studios', 'Ingeniero');
+end;
+begin
+    melopack.interprete_actual_innit('Vigilia');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 4, 1, 'pigstep', 'SE>>0972009840', 600, sysdate, 'Jurado Studios', 'Ingeniero');
+end;
+begin
+    melopack.interprete_actual_innit('Vigilia');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 555299599, 1, 'pigstep', 'SE>>0972009840', 600, sysdate, 'no existo', 'Ingeniero');
+end;
+
+begin
+    melopack.interprete_actual_innit('Vigilia');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 555299599, 1, 'pigstep', 'no existo', 600, sysdate, 'Jurado Studios', 'Ingeniero');
+end;
+
+----- expected: 'ERROR: DATA NOT FOUND (FK error)'
+
+
+-- Prueba del_track: 
+--- Prueba 1: borrar una track y el álbum
+insert into songs (title, writer) values ('pigstep', 'SE>>0972009840');
+begin
+    melopack.interprete_actual_innit('Vigilia');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 555299599, 1, 'pigstep', 'SE>>0972009840', 600, sysdate, 'Jurado Studios', 'Ingeniero');
+end;
+select * from albums where pair = '000000000000000';
+select * from tracks where pair = '000000000000000';
+
+execute melopack.del_track('000000000000000', 1);
+select * from albums where pair = '000000000000000';
+select * from tracks where pair = '000000000000000';
+-- expected: ninguna fila seleccionada
+
+---- Prueba2: borrar una track pero no el álbum;
+insert into songs (title, writer) values ('Requeton contra el suicidio', 'SE>>0972009840');
+insert into songs (title, writer) values ('perdio su vida en el lol', 'SE>>0972009840');
+begin
+    melopack.interprete_actual_innit('Vigilia');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 555299599, 1, 'perdio su vida en el lol', 'SE>>0972009840', 600, sysdate, 'Jurado Studios', 'Ingeniero');
+    melopack.new_track('000000000000000', 'V', 'titulo', sysdate, 'Mecenazgo Recs.', 555299599, 2, 'Requeton contra el suicidio', 'SE>>0972009840', 600, sysdate, 'Jurado Studios', 'Ingeniero');
+end;
+select * from albums where pair = '000000000000000';
+select * from tracks where pair = '000000000000000';
+
+execute melopack.del_track('000000000000000', 1);
+select * from albums where pair = '000000000000000';
+select * from tracks where pair = '000000000000000';
+-- expected: solo existen datos de 'Requeton contra el suicidio' 
+
+--- DISEÑO EXTERNO ---
+-- my_albums
+CREATE OR REPLACE VIEW my_albums AS (
+SELECT PAIR, performer, format, title, rel_date, publisher, manager, nvl(duralbum,0) as duraciontotal FROM (
+(select sum(duration) as duralbum, PAIR from tracks group by(PAIR)
+) right outer join 
+Albums 
+using(PAIR)
+) where performer = (select melopack.return_interprete from dual)
+) WITH READ ONLY;
+
+-- Pruebas:
+--- Declaración del intérprete actual:
+execute melopack.interprete_actual_innit(‘Ilse Orona’);
+
+---- Prueba 1: inserción de un nuevo álbum
+insert into albums(PAIR, performer, format, title, rel_date, publisher, manager) values(‘I5029CVT37778XF’, ‘Ilse Orona’, ‘V’, ‘pruebavista’, ‘05/09/17’, ‘Scorpio’, 555299599);
+-- expected: Se añade una fila para el álbum con duración igual a 0. 
+
+---- Prueba2: inserción de una nueva interpretación en el album;
+insert into tracks (PAIR, sequ, title, writer, duration, rec_date, studio, engineer) values(‘I5029CVT37778XF’, 1, ‘Absence’, ‘SE>>0660691469’, 400, ‘05/09/17’, ‘Jurado Studios’, ‘Ignacio Zambrano’);
+-- expected: aumenta la duración del álbum en 400 segundos.
+
+---- Prueba3: inserción de una nueva interpretación en el album;
+insert into tracks (PAIR, sequ, title, writer, duration, rec_date, studio, engineer) values(‘I5029CVT37778XF’, 2, ‘Absence’, ‘SE>>0660691469’, 400, ‘05/09/17’, ‘Jurado Studios’, ‘Ignacio Zambrano’);
+-- expected: aumenta la duración del álbum en 400 segundos.
+
+---- Prueba4: eliminación de interpretaciones album;
+delete from tracks where PAIR = ‘I5029CVT37778XF’;
+-- expected: duración se hace 0.
+
+---- Prueba5: eliminación album
+insert into tracks (PAIR, sequ, title, writer, duration, rec_date, studio, delete from albums where PAIR = ‘I5029CVT37778XF’;
+-- expected: desaparece la fila del álbum.
+
+-- events
+CREATE OR REPLACE VIEW events AS ( 
+select * from (
+  select performer, extract(year from when) as whatyear, extract(month from when)
+  as whatmonth, count(‘x’) as nConciertos, nvl(sum(espectadores), 0) as 
+  espectadorestotal, avg(duration) as duracionmedia, avg(nvl(numinter, 0)) 
+  mediainterpretaciones from (
+	(
+	(select performer, when, duration from concerts
+) left outer join (
+	select performer, when, count(‘x’) as espectadores from
+	attendances group  by(performer, when)) 
+		using(performer, when)
+) left outer join (
+	select performer, when, count(‘x’) as numinter from performances 
+	group by(performer, when)
+)
+using(performer, when)
+  )group by(performer, extract(month from when), extract(year from when))
+) where performer = (select melopack.return_interprete from dual)
+) WITH READ ONLY;
+
+--- Pruebas: 
+--Declaración del intérprete actual:
+execute melopack.interprete_actual_innit(‘Ilse Orona’);
+--- Estado inicial de la fila correspondiente a 09/18: 4 conciertos, 137 espectadores totales, duracion media de 109,25 y cantidad media de interpretaciones 11(11,11,11,11)
+
+---- Prueba 1: inserción de un nuevo concierto
+insert into concerts values(‘Ilse Orona’, ‘05/09/18’,‘mundo 2018 Gira’, ‘Spoonborough on Yukon’, ‘78 Silk Circus’, ‘Bosnia and Herzegovina’, 0, 500, 555566273);
+-- expected: aumento de conciertos a 5, aumento duracion media a 187,4 y disminucion de media de interpretaciones a 8,8. 
+
+---- Prueba2: inserción de una nueva interpretacion;
+insert into performances (performer, when, sequ, songtitle, songwriter, duration) values(‘Ilse Orona’, ‘05/09/18’, 6, ‘Absence’, ‘SE>>0660691469’, 300);
+-- expected: aumento media de interpretaciones a 9, aumento duración media a 188,4. 
+
+---- Prueba3: inserción de un nuevo espectador;
+insert into attendances (client, performer, when, RFID, purchase) values(‘torda@clients.vinylinc.com’, ‘Ilse Orona’, ‘05/09/18’, ‘BHAZJA7JM57PVS8LED2IKHFBIQQY8CYSBKHLY6B2X474ZCAQUUJZFZ0U80XRM6BY’, ‘01/09/18’);
+-- expected: aumento número de espectadores totales a 138. 
+
+---- Prueba4: eliminación de espectador
+delete from attendances where performer = ‘Ilse Orona’ and when = ‘05/09/18’ and client = ‘torda@clients.vinylinc.com’;
+-- expected: disminucion número de espectadores totales a 137.
+ 
+---- Prueba5: eliminación de interpretacion
+delete from performances where performer = ‘Ilse Orona’ and when = ‘05/09/18’;
+-- expected: disminucion media de interpretaciones a 8,8
+
+---- Prueba6: eliminación de concierto
+delete from concerts where performer = ‘Ilse Orona’ and when = ‘05/09/18’;
+-- expected: disminucion de conciertos a 4, disminucion duracion media a 109,25 y aumento de media de interpretaciones a 11.
+
+-- fans
+
+create or replace view fans as
+select e_mail, name, surn1, TRUNC((sysdate - birthdate)/365, 0) as edad from (
+Clients 
+join (
+select client, conc from(
+select client, count ('x') as conc from(
+select distinct client, when from attendances where performer = (select melopack.return_interprete from dual)
+) group by(client)
+) where conc >1
+) on(client = e_mail)
+) where e_mail not in (select email from vetados where interprete = (select melopack.return_interprete from dual));
+
+-- tabla auxiliar vetados
+create table vetados (
+	email_vet varchar2(100),
+	interprete varchar2(50)
+	);
+	
+-- trigger deletion
+CREATE OR REPLACE TRIGGER deletion_fans
+INSTEAD OF DELETE ON fans
+for each row
+BEGIN
+	insert into vetados values(:old.e_mail, (select melopack.return_interprete from dual));
+END;
+
+-- update
+create or replace trigger update_fans
+instead of update on fans
+begin
+	dbms_output.put_line('Error: no se permite la operación update');
+end;
+
+--- insert
+create or replace trigger insert_fans
+instead of insert on fans
+for each row
+declare aux varchar2(100);
+control number(1) := 0;
+begin
+	select e_mail into aux from clients where e_mail = :new.e_mail;
+	begin
+		select e_mail into aux from fans where e_mail = :new.e_mail;
+		raise_application_error(-20003, ‘Error, el cliente ya es fan del interprete’);
+	exception
+	 	when no_data_found then
+		NULL;
+	end;
+	begin
+    	select email_vet into aux from vetados where email_vet = :new.e_mail;
+delete from vetados where email_vet = aux and interprete = (select melopack.return_interprete from dual);
+control := 1;
+	exception
+when no_data_found then NULL;
+	end;
+begin
+	if control = 0 then 
+select client into aux from attendances where client = :new.e_mail and performer = (select melopack.return_interprete from dual);
+insert into attendances (client, performer, when, RFID) values (:new.e_mail, (select melopack.return_interprete from dual), (select when from (select * from concerts order by(when) desc) where rownum = 1 and performer = (select melopack.return_interprete from dual)) , (select STANDARD_HASH(:new.e_mail, 'SHA256') from dual));
+end if;
+	exception
+    	when no_data_found then 
+insert into attendances (client, performer, when, RFID) values (:new.e_mail, (select melopack.return_interprete from dual), (select when from (select * from concerts order by(when) desc) where rownum = 1 and performer = (select melopack.return_interprete from dual)) , (select STANDARD_HASH(:new.e_mail, 'SHA256') from dual));
+insert into attendances (client, performer, when, RFID) values (:new.e_mail, (select melopack.return_interprete from dual), (select when from(select when, rownum as numberfila from (select when, performer from concerts order by(when) desc) where performer = (select melopack.return_interprete from dual)) where numberfila = 2) , (select STANDARD_HASH((:new.e_mail || :new.e_mail), 'SHA256') from dual));
+end;
+
+	exception
+when no_data_found then
+	insert into clients (e_mail, Name, surn1, birthdate) values (:new.e_mail, :new.name, :new.surn1, sysdate - (:new.edad*365));
+	insert into attendances (client, performer, when, RFID) values (:new.e_mail, (select melopack.return_interprete from dual), (select when from (select * from concerts order by(when) desc) where rownum = 1 and performer = (select melopack.return_interprete from dual)) , (select STANDARD_HASH(:new.e_mail, 'SHA256') from dual));
+insert into attendances (client, performer, when, RFID) values (:new.e_mail, (select melopack.return_interprete from dual), (select when from(select when, rownum as numberfila from (select when, performer from concerts order by(when) desc) where performer = (select melopack.return_interprete from dual)) where numberfila = 2) , (select STANDARD_HASH((:new.e_mail || :new.e_mail), 'SHA256') from dual));
+end;
+
+--- Pruebas:
+
+--- Pruebas de creación de vista: selecciona sólo los fans de cada artista
+execute melopack.interprete_actual_innit('Vigilia');
+select * from fans;
+----- expected: Ninguna fila seleccionada
+execute melopack.interprete_actual_innit('Ilse Orona');
+select * from fans;
+----- expected: 173 filas seleccionadas
+execute melopack.interprete_actual_innit('Sandr');
+select * from fans;
+----- expected: 6 filas seleccionadas
+
+--- Pruebas de eliminación de fans: trigger deletion_fans
+execute melopack.interprete_actual_innit('Ilse Orona');
+select * from fans order by(edad);
+------- 173 filas
+delete from fans where edad = 74;
+------- expected: 6 filas suprimidas
+select * from fans order by(edad);
+------- expected: 167 filas seleccionadas (fácil de ver que se han eliminado los fans con 74 años)
+select * from vetados;
+------- expected: 6 filas seleccionadas
+select * from (vetados join clients on(email = e_mail));
+------- expected: 6 filas seleccionadas (siguen almacenados en la tabla global)
+
+--- Pruebas de modificación de fans: trigger deletion_fans
+execute melopack.interprete_actual_innit('Ilse Orona');
+select * from fans order by(edad);
+
+
+-- Pruebas de inserción
+--Declaración del intérprete actual:
+execute melopack.interprete_actual_innit(‘Ilse Orona’);
+
+---- Prueba 1: inserción de un nuevo cliente
+insert into fans values('Ireneserranogmail', 'Irene', 'subias', 15);
+select * from fans where e_mail = 'Ireneserranogmail';
+select * from attendances where client = 'Ireneserranogmail';
+-- expected1: 1 fila seleccionada
+-- expected2: 2 filas seleccionadas de la tabla attendances, con interprete = Ilse Orona
+
+---- Prueba2: inserción de varios clientes nuevos
+drop table temp;
+create table temp (
+	email varchar2(100),
+	name varchar2(30),
+	surn1 varchar2(40),
+	edad number(3)
+);
+insert into temp values('PaulaSSgmail', 'Paula', 'subias', 20);
+insert into temp values('Cesarlopmangmail', 'cesar', 'lopez', 30);
+insert into fans select * from temp;
+-- expected1: 2 nuevas filas en tabla fans
+-- expected2: 4 nuevas filas en tabla attendances
+
+---- Prueba3: inserción de un fan que ya existe
+insert into fans values('duri@clients.vinylinc.com','Durando','hola',13);
+-- expected: Error de fan ya existe
+
+---- Prueba4: inserción de un fan vetado
+delete from fans where e_mail = 'duri@clients.vinylinc.com';
+insert into fans values('duri@clients.vinylinc.com','Durando','hola',13);
+-- expected: eliminación de cliente de tabla fans, y posteriormente su inclusión 
+ 
+---- Prueba5: inserción de un cliente que no había asistido a ningún concierto
+insert into fans values(‘torda@clients.vinylinc.com’, ‘Belen’, ‘Lopez’, 12);
+-- expected: inserción de una nueva fila en la tabla fans y dos nuevas filas en attendances en los dos últimos conciertos del interprete
+
+---- Prueba6: inserción de un cliente que había asistido a un concierto 
+insert into fans values(‘finit@clients.vinylinc.com’,’prueba’, ‘surname’, 14);
+-- expected: inserción de una nueva fila en la tabla fans, y una nueva fila en attendances para el cliente y el interprete actual
+
+----Trigger1: ins_canciones
+CREATE OR REPLACE TRIGGER ins_cancion
+AFTER INSERT ON performances
+FOR EACH ROW
+DECLARE duracion NUMBER(4);
+BEGIN
+    SELECT NVL(duration,0) INTO duracion FROM concerts WHERE :new.performer=performer and :new.when = when;
+    IF :new.duration is NOT NULL
+        THEN duracion:= duracion + trunc(:new.duration/60,0);
+    END IF;
+    UPDATE concerts set duration=duracion  WHERE :new.performer=performer and :new.when= when ;
+END ins_cancion;
+
+---- Prueba 1: inserción con duration = 400
+insert into performances values('Aigulfo Garcia','15/08/04','12','Loving of last','SE>>0254709581','400');
+-- expected: aumento de duration de 143 a 149
+
+---- Prueba 2: inserción con duration = 0
+insert into performances values('Aigulfo Garcia','15/08/04','13','Loving of last','SE>>0254709581','0');
+-- expected: duration no aumenta, mantiene 143
+
+---- Prueba 2: inserción con duration NULL
+insert into performances values('Aigulfo Garcia','15/08/04','14','Loving of last','SE>>0254709581',NULL);
+-- expected: duration no aumenta, mantiene 143
+
+---- Para comprobar duration del concierto  se usa el siguiente comando
+select * from concerts where when = '15/08/04' and performer = 'Aigulfo Garcia';
+
+----Creacion tabla auxiliar
+drop table performprueba;
+
+CREATE TABLE performprueba (
+performer1  VARCHAR2(50),
+when1       DATE,
+sequ1       NUMBER(3), 
+songtitle1  VARCHAR2(100) NOT NULL, 
+songwriter1 CHAR(14) NOT NULL, 
+duration1   NUMBER(4),
+CONSTRAINT PK_PERFORMANCESprueba PRIMARY KEY (performer1,when1,sequ1),
+CONSTRAINT FK_PERFORMANCESprueba FOREIGN KEY (performer1,when1) REFERENCES CONCERTS ON DELETE CASCADE,
+CONSTRAINT FK_PERFORMANCES2prueba FOREIGN KEY (songtitle1,songwriter1) REFERENCES SONGS
+);
+
+---- Se insertan datos en tabla auxiliar
+INSERT INTO performprueba(performer1,when1,sequ1,songtitle1,songwriter1,duration1) 
+(SELECT DISTINCT performer,when,sequ,songtitle,songwriter,duration
+    FROM performances WHERE when = '06/07/97' and performer = 'Abri');
+INSERT INTO performprueba(performer1,when1,sequ1,songtitle1,songwriter1,duration1) 
+(SELECT DISTINCT performer,when,sequ,songtitle,songwriter,duration
+    FROM performances WHERE when = '20/06/03' and performer = 'Adelito');
+INSERT INTO performprueba(performer1,when1,sequ1,songtitle1,songwriter1,duration1) 
+(SELECT DISTINCT performer,when,sequ,songtitle,songwriter,duration
+    FROM performances WHERE when = '12/05/84' and performer = 'Abril Flores');
+
+---- Se eliminan datos de tabla original
+delete from performances WHERE when = '06/07/97' and performer = 'Abri';
+delete from performances where when = '20/06/03' and performer = 'Adelito';
+delete from performances where when = '12/05/84' and performer = 'Abril Flores';
+
+---- Comandos para comprobar duraciones
+select * from concerts where when = '06/07/97' and performer = 'Abri';
+select * from concerts where when = '20/06/03' and performer = 'Adelito';
+select * from concerts where when = '12/05/84' and performer = 'Abril Flores';
+
+---- Prueba 4: inserción multiple
+INSERT INTO performances(performer,when,sequ,songtitle,songwriter,duration) 
+(SELECT DISTINCT performer1,when1,sequ1,songtitle1,songwriter1,duration1
+    FROM performprueba);
+-- expected: duration aumenta de 125, 119, 126 a 189, 181, 191(Abri, Adelito, Abril Flores)
+
+----Trigger2:
+CREATE OR REPLACE TRIGGER ins_entrada
+BEFORE INSERT ON attendances
+FOR EACH ROW
+DECLARE fecha_nacimiento DATE;
+    isaminor EXCEPTION;
+BEGIN
+    SELECT birthdate INTO fecha_nacimiento FROM clients WHERE :new.client=e_mail;
+    IF fecha_nacimiento > :new.purchase - 365*18
+    THEN raise isaminor;
+    END IF;
+EXCEPTION
+    WHEN no_data_found THEN raise_application_error(-20002,’El cliente no tiene registrada fecha de nacimiento’);
+    WHEN isaminor THEN raise_application_error(-20001,’ERROR: cliente es menor de edad’);
+END INS_ENTRADA;
+
+---- Prueba 1: inserción menor de edad
+insert into attendances values('torda@clients.vinylinc.com','Aigulfo Garcia','15/08/04','BHAZJA7JM57PVS9LED2IKHFBIQQY8CYSBKHLY6B2X474ZCAQUUJZFZ0U80XRM6MD','10/07/86');
+-- expected: se lanza un error -20001: ERROR: cliente es menor de edad
+
+---- Prueba 2: inserción mayor de edad
+insert into attendances values('torda@clients.vinylinc.com','Aigulfo Garcia','15/08/04','BHAZJA7JM57PVS9LED2IKHFBIQQY8CYSBKHLY6B2X474ZCAQUUJZFZ0U80XRM6MD','10/07/02');
+-- expected: 1 fila insertada
+
+---- Las inserciones comparten rfid por lo que probar ambas hay que hacer un rollback o usar:
+delete from attendances where rfid= 'BHAZJA7JM57PVS9LED2IKHFBIQQY8CYSBKHLY6B2X474ZCAQUUJZFZ0U80XRM6MD';
+
+----Tabla auxiliar
+drop table attendancesprueba; 
+
+CREATE TABLE attendancesprueba (
+client1      VARCHAR2(100), 
+performer1   VARCHAR2(100), 
+when1        DATE, 
+RFID1        VARCHAR2(120) NOT NULL,
+purchase1    DATE,
+CONSTRAINT PK_ATTENDANCESprueba PRIMARY KEY (client1,performer1,when1),
+CONSTRAINT UK_ATTENDANCESprueba UNIQUE (performer1,when1,RFID1),
+CONSTRAINT FK_ATTENDANCES1prueba FOREIGN KEY (performer1,when1) REFERENCES CONCERTS ON DELETE CASCADE,
+CONSTRAINT FK_ATTENDANCES2prueba FOREIGN KEY (client1) REFERENCES CLIENTS
+);
+
+---- Inserciones para todos los casos
+INSERT INTO attendancesprueba(client1,performer1,when1,RFID1,purchase1) 
+(SELECT DISTINCT client,performer,when,rfid,purchase FROM attendances where client = 'torda@clients.vinylinc.com');
+INSERT INTO attendancesprueba(client1,performer1,when1,RFID1,purchase1) 
+(SELECT DISTINCT client,performer,when,rfid,purchase FROM attendances where client = 'diosdi@clients.vinylinc.com');
+
+---- Eliminación de datos de tabla original para todos los casos
+delete from attendances where client= 'torda@clients.vinylinc.com';
+delete from attendances where client= 'diosdi@clients.vinylinc.com';
+
+---- Prueba 3: inserción con solo adultos
+INSERT INTO attendances(client,performer,when,RFID,purchase) 
+(SELECT DISTINCT client1,performer1,when1,rfid1,purchase1 FROM attendancesprueba);
+-- expected: 53 filas insertadas
+
+---- Prueba 4: inserción con un menor
+INSERT INTO attendancesprueba values('torda@clients.vinylinc.com','Aigulfo Garcia','15/08/04','BHAZJA7JM57PVS9LED2IKHFBIQQY8CYSBKHLY6B2X474ZCAQUUJZFZ0U80XRM6MD','10/07/86');
+INSERT INTO attendances(client,performer,when,RFID,purchase) 
+(SELECT DISTINCT client1,performer1,when1,rfid1,purchase1 FROM attendancesprueba);
+-- expected: se lanza un error -20001: ERROR: cliente es menor de edad
+
+---- Prueba 5: inserción con dos menores
+INSERT INTO attendancesprueba values('torda@clients.vinylinc.com','Aigulfo  Garcia','15/08/04','BHAZJA7JM57PVS9LED2IKHFBIQQY8CYSBKHLY6B2X474ZCAQUUJZFZ0U80XRM6MD','10/07/86');
+INSERT INTO attendancesprueba values('diosdi@clients.vinylinc.com','Aigulfo Garcia','15/08/04','BHAZJA7JM57PVS9LED2IKHFBIQQY8CYSBKHLY6B2X474ZCAQUUJZFZ0U80XDS6MD','10/07/80');
+INSERT INTO attendances(client,performer,when,RFID,purchase) 
+(SELECT DISTINCT client1,performer1,when1,rfid1,purchase1 FROM attendancesprueba);
+-- expected: se lanza un error -20001: ERROR: cliente es menor de edad
+
+---- comandos para eliminar a los menores de la tabla
+delete from attendancesprueba where rfid1= 'BHAZJA7JM57PVS9LED2IKHFBIQQY8CYSBKHLY6B2X474ZCAQUUJZFZ0U80XRM6MD';
+delete from attendancesprueba where rfid1= 'BHAZJA7JM57PVS9LED2IKHFBIQQY8CYSBKHLY6B2X474ZCAQUUJZFZ0U80XDS6MD';
+
+----Trigger3:
+----Tabla auxiliar
+drop table songs_aux; 
+
+create table songs_aux (
+    title varchar2(50),
+    writer_aux char(14),
+    cowriter_aux char(14)
+); 
+
+----Triggers
+CREATE OR REPLACE TRIGGER ins_songs
+    BEFORE INSERT ON songs
+    FOR EACH ROW
+    BEGIN
+        INSERT INTO songs_aux values(:new.title, :new.writer, :new.cowriter);
+        
+    END;
+/
+CREATE OR REPLACE TRIGGER ins_songs2
+    AFTER INSERT ON songs 
+    BEGIN 
+        FOR FILA IN (SELECT * FROM (songs_aux join songs using(title))) loop
+            if fila.writer = fila.cowriter_aux and fila.cowriter = fila.writer_aux THEN
+                dbms_output.put_line('ERROR: cancion duplicada, copia eliminada');
+                DELETE FROM songs WHERE title = fila.title AND writer = fila.writer_aux AND cowriter = fila.cowriter_aux;
+            END IF;
+        END loop;
+        DELETE FROM songs_aux;
+    END;
+
+---- Prueba 1: inserción válida:
+insert into songs values('Pirate King', 'GB>>0884699403', 'GB>>0600283845');
+-- expected: se inserta una fila
+---- Prueba 2: inserción no válida:
+insert into songs values('Absence and copy','GB>>0986985819','GB>>0204670273');
+-- expected: se imprime 'ERROR: cancion duplicada, copia eliminada'
+---- Prueba 3: inserción con cowriter nulo:
+insert into songs values('Halazia', 'GB>>0884699403',NULL);
+-- expected: se inserta una fila
+
+---- Comprobacion prueba 1:
+select * from songs  where title = 'Pirate King' and writer = 'GB>>0884699403';
+---- Comprobacion prueba 2:
+select * from songs  where title = 'Absence and copy' and writer = ‘GB>>0986985819’;
+---- Comprobacion prueba 3:
+select * from songs  where title = 'Halazia' and writer = 'GB>>0884699403';
+
+----Tabla auxilar
+DROP TABLE dummy;
+
+CREATE TABLE dummy (
+    title varchar2(50),
+    writer_aux char(14),
+    cowriter_aux char(14)
+); 
+
+---- Prueba 4: inserción múltiple válida:
+insert into dummy values('Get out alive', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Una mirada bastara', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Alexander Hamilton', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Painkiller', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Oliver y Benji', 'GB>>0884699403', 'GB>>0600283845');
+
+insert into songs (select * from dummy);
+-- expected: se insertan 5 filas
+
+---- Prueba 5: inserción múltiple no válida:
+insert into dummy values('Absence and copy', 'GB>>0986985819' ,'GB>>0204670273');
+insert into dummy values('Toad', 'CA>>0192153627' ,'CA>>0514221276');
+insert into dummy values('Get out alive', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Una mirada bastara', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Alexander Hamilton', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Painkiller', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('Oliver y Benji', 'GB>>0884699403', 'GB>>0600283845');
+insert into dummy values('To fly moments', 'GB>>0092343098', 'GB>>0778825943');
+
+insert into songs (select * from dummy);
+-- expected: se insertan 8 filas, se imprime el error 3 veces y se eliminan 3 de las filas
+
+----comprobar pruebas 4 y 5
+select * from (songs join dummy using(title)) where writer = writer_aux;
+
+--TITLE                                              WRITER         COWRITER       WRITER_AUX     COWRITER_AUX
+---------------------------------------------------- -------------- -------------- -------------- --------------
+--Get out alive                                      GB>>0884699403 GB>>0600283845 GB>>0884699403 GB>>0600283845
+--Una mirada bastara                                 GB>>0884699403 GB>>0600283845 GB>>0884699403 GB>>0600283845
+--Alexander Hamilton                                 GB>>0884699403 GB>>0600283845 GB>>0884699403 GB>>0600283845
+--Painkiller                                         GB>>0884699403 GB>>0600283845 GB>>0884699403 GB>>0600283845
+--Oliver y Benji                                     GB>>0884699403 GB>>0600283845 GB>>0884699403 GB>>0600283845
+
+--<3
+
