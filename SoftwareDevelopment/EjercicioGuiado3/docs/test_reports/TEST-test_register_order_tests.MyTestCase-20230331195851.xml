@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="test_register_order_tests.MyTestCase-20230331195851" tests="27" file="test_register_order_tests.py" time="0.217" timestamp="2023-03-31T19:58:52" failures="0" errors="0" skipped="0">
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt1" time="0.006" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt10" time="0.006" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt11" time="0.006" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt12" time="0.007" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt13" time="0.007" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt14" time="0.007" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt15" time="0.008" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt16" time="0.011" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt17" time="0.011" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt18" time="0.009" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt19" time="0.008" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt2" time="0.010" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt20" time="0.010" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt3" time="0.008" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt4" time="0.007" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt5" time="0.007" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt6" time="0.009" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt7" time="0.009" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt8" time="0.009" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_NVt9" time="0.007" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_Vt1" time="0.007" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_Vt2" time="0.008" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_Vt3" time="0.007" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_Vt4" time="0.007" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_Vt5" time="0.008" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_Vt6" time="0.009" timestamp="2023-03-31T19:58:52"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_f1_Vt7" time="0.008" timestamp="2023-03-31T19:58:52"/>
+</testsuite>
