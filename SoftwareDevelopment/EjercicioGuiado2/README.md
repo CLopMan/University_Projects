@@ -1,4 +1,4 @@
-# Ejercicio GUiado 3
+# Ejercicio Guiado 2
 
 In this project, we were required to establish a code guideline using pylint and refactor a given codebase to adhere to these guidelines.
 
