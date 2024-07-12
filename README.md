@@ -15,7 +15,7 @@ Some of this projects have their own repository. You can find the link to them i
 | [FFBBDD-p1](https://github.com/CLopMan/University_Projects/tree/main/FFBBDD_p1) | SQL | Reorganize a given data base | 2022-23 |
 | [FFBBDD-p2](https://github.com/CLopMan/University_Projects/tree/main/FFBBDD_p2) | SQL | Develop queries, functions, packages and triggers for a data base | 2022-23 |
 | [FFBBDD-p3](https://github.com/CLopMan/University_Projects/tree/main/FFBBDD_p3) | SQL | Optimizing a database | 2022-23 |
-| [SoftwareDevelopment](https://github.com/CLopMan/University_Projects/tree/main/SoftwareDevelopment) | Python | 3 code exercises following Agile methology to implement a shipping control system | 2022-223 |
+| [SoftwareDevelopment](https://github.com/CLopMan/University_Projects/tree/main/SoftwareDevelopment) | Python | 3 code exercises following Agile methology to implement a shipping control system | 2022-23 |
 | [Interfaces-caso_practico](https://github.com/CLopMan/University_Projects/tree/main/Interfaces-caso_practico) | JS, HTML5, CSS | Development of a web prototype for a cat-themed café | 2023-24 |
 | [heuristica-p1](https://github.com/CLopMan/University_Projects/tree/main/heuristica_p1-100472092-100472182) | AMPL | Model a call assignment problem where calls from various districts are to be attended by designated parkings | 2023-24 |
 | [heuristica-p2](https://github.com/CLopMan/University_Projects/tree/main/heuristica-p2) | C++, bash | Solve a constraint satisfaction problem and a seach problem. | 2023-24 |
