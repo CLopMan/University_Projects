@@ -7,5 +7,5 @@ All the code is contained in one file: `codigo.txt`.
 course: 2022-23
 ## Authors
 - [CLopMan](https://github.com/CLopMan)
-- [PaulaUc3m](https://github.com/PaulaUc3m)
+- [PaulaSubiser](https://github.com/PaulaSubiser)
 - [IreneUc3m](https://github.com/IreneUc3m)
