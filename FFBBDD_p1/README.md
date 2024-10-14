@@ -7,5 +7,5 @@ The SQL scripts for creation and insertion are in `NEWcreations.sql` and `NEWloa
 course: 2022-23
 ## Authors
 - [CLopMan](https://github.com/CLopMan)
-- [PaulaUc3m](https://github.com/PaulaUc3m)
+- [PaulaSubiser](https://github.com/PaulaSubiser)
 - [IreneUc3m](https://github.com/IreneUc3m)
