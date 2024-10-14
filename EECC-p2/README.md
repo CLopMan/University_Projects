@@ -6,4 +6,4 @@ This project was developed using [WepSim](https://wepsim.github.io/) and [Creato
 ## Authors 
 
 - [CLopMan](https://github.com/CLopMan)                                  
-- [PaulaUc3m](https://github.com/PaulaUc3m) 
+- [PaulaSubiser](https://github.com/PaulaSubiser) 
