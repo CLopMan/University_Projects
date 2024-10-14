@@ -9,4 +9,4 @@ This project was developed using [CREATOR](https://creatorsim.github.io/).
 
 ## Authors 
 - [CLopMan](https://github.com/CLopMan)
-- [PaulaUc3m](https://github.com/PaulaUc3m)
+- [PaulaSubiser](https://github.com/PaulaSubiser)
