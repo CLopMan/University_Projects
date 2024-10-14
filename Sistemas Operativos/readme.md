@@ -9,4 +9,4 @@ course: second (2022-2023)
 # Authors 
 This three projects were developed by: 
 - CLopMan
-- [PaulaUc3m](https://github.com/PaulaUc3m)
+- [PaulaSubiser](https://github.com/PaulaSubiser)
