@@ -29,6 +29,6 @@ The execution of the tests using these scripts also tries to evaluate the output
 
 # Authors 
 - [CLopMan](https://github.com/CLopMan)
-- [PaulaUc3m](https://github.com/PaulaUc3m)
+- [PaulaSubiser](https://github.com/PaulaSubiser)
 
 **Original repository**: https://github.com/CLopMan/PL-practicaFinal
