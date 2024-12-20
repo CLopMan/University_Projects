@@ -2,6 +2,8 @@
 
 This repository stores every file related with the development of any project related to the Cibersecurity Engineering course.
 
+Course: 2024-25 (forth)
+
 ## [Practica1](https://github.com/CLopMan/ciberseguridad-practicas/tree/main/practica1)
 We were given access to a remote machine with the objective of retrieving 9 flags.
 
