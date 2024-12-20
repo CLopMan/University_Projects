@@ -1,0 +1,46 @@
+db.createCollection("mantenimiento", {
+    validator: {
+        $jsonSchema: {
+            bsonType: "object",
+            title: "Maintenance Validation",
+            required: ["ID", "FECHA_INTERVENCION", "TIPO_INTERVENCION", "ESTADO_PREVIO", "ESTADO_POSTERIOR", "JuegoID", "Tipo", "Comentarios"],
+            properties: {
+                ID: {
+                    bsonType: "string",
+                    description: "id del mantenimiento",
+                },
+                FECHA_INTERVENCION: {
+                    bsonType: ["string", "date"],
+                    description: "fecha en la que se realizaón la intervención",
+                },
+                TIPO_INTERVENCION: {
+                    bsonType: "string",
+                    enum: ["CORRECTIVO", "EMERGENCIA", "PREVENTIVO"],
+                    description: "tipo de la intervención realizada"
+                },
+                ESTADO_PREVIO: {
+                    bsonType: "string",
+                    enum: ["MALO", "REGULAR", "BUENO"],
+                    description: "estado previo a la revisión"
+                },
+                ESTADO_POSTERIOR: {
+                    bsonType: "string",
+                    enum: ["MALO", "REGULAR", "BUENO"],
+                    description: "estado posterior a la revisión",
+                },
+                JuegoID: {
+                    bsonType: "int",
+                    description: "identificador del juego al que se le realizó el mantenimiento",
+                },
+                Tipo: {
+                    bsonType: "string",
+                    description: "tipo de mantenimiento",
+                },
+                Comentarios: {
+                    bsonType: "string",
+                    description: "comentario realizado sobre el mantimiento",
+                },
+            }
+        }
+    }
+})

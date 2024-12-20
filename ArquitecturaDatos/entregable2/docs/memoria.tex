@@ -1,0 +1,1026 @@
+\documentclass[]{article}
+\usepackage{graphicx}
+\usepackage[spanish]{babel}
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=3cm]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+
+\definecolor{miverde}{rgb}{0,0.6,0}
+\definecolor{aqua}{rgb}{0.0, 0.5, 0.8}
+\definecolor{miotrootroverde}{rgb}{0.11, 0.40, 0.11}
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break, $sum, $out, $size, $filter, $group, $addFields, $substract, $multiply, $divide, $round, $map, $reduce, $replaceRoot, $mergeObjects, $unwind, $dateFromString, $floor, $project, $jsonSchema, $lookup},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this, validator, db, createCollection, bsonType, description, title, required, properties},
+  ndkeywordstyle=\color{miotrootroverde}\bfseries,
+  identifierstyle=\color{aqua},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{red}\ttfamily,
+  stringstyle=\color{miverde}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+% style for listings (código)
+\lstdefinestyle{python}{
+    language=Python,
+    backgroundcolor=\color{gray!2},     % Color de fondo
+    basicstyle=\ttfamily,               % Tipo y tamaño de fuente
+    keywordstyle=\color{blue}\bfseries, % Color para palabras clave
+    stringstyle=\color{miverde},        % Color para cadenas
+    commentstyle=\color{red},           % Color para comentarios
+    showspaces=false,                   % No mostrar espacios
+    showstringspaces=false,             % No mostrar espacios en las cadenas
+    frame=single,                       % Poner un marco alrededor del código
+    breaklines=true,                    % Romper las líneas largas
+    captionpos=b,                       % Posición del caption
+    tabsize=4,                          % Tamaño de las tabulaciones
+    escapeinside={\%*}{*)},             % Para incluir código LaTeX en los listings
+    morekeywords={self}                 % Palabras clave adicionales
+}
+
+\lstdefinestyle{bash}{
+    language=shell,
+    backgroundcolor=\color{gray!2},     % Color de fondo
+    basicstyle=\ttfamily,               % Tipo y tamaño de fuente
+    keywordstyle=\color{blue}\bfseries, % Color para palabras clave
+    stringstyle=\color{miverde},        % Color para cadenas
+    commentstyle=\color{red},           % Color para comentarios
+    showspaces=false,                   % No mostrar espacios
+    showstringspaces=false,             % No mostrar espacios en las cadenas
+    frame=single,                       % Poner un marco alrededor del código
+    breaklines=true,                    % Romper las líneas largas
+    captionpos=b,                       % Posición del caption
+    tabsize=4,                          % Tamaño de las tabulaciones
+    escapeinside={\%*}{*)},             % Para incluir código LaTeX en los listings
+    morekeywords={self}                 % Palabras clave adicionales
+}
+
+\lstset{basicstyle=\ttfamily}
+\lstset{
+    inputencoding=utf8,
+    extendedchars=true,      % Permitir caracteres extendidos (acentos)
+    literate=%
+        {á}{{\'a}}1 {Á}{{\'A}}1
+        {é}{{\'e}}1 {É}{{\'E}}1
+        {í}{{\'i}}1 {Í}{{\'I}}1
+        {ó}{{\'o}}1 {Ó}{{\'O}}1
+        {ú}{{\'u}}1 {Ú}{{\'U}}1
+}
+
+
+%title
+\title{Práctica 2} 
+
+\author{Adrián Ferández Galán, César López Mantecón y Manuel Gómez-Plana Rodríguez}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+   \includegraphics[width=0.9\textwidth]{uc3m.jpg} 
+    {\Huge Universidad Carlos III\\
+    
+     \Large Arquitectura de Datos\\
+     \vspace{0.5cm}
+     Curso 2024-25}
+    \vspace{2cm}
+
+    {\Huge \textbf{Práctica 1.2} \par}
+    \vspace{0.5cm}
+    {\Large Migración de Base de Datos a MongoDB \par}
+    \vspace{8cm}
+
+   \textbf{Ingeniería Informática, Cuarto curso}\\
+    \vspace{0.2cm} 
+    Adrián Fernández Galán       (NIA: 100472182, e-mail: 100472182@alumnos.uc3m.es)\\
+    César López Mantecón         (NIA: 100472092, e-mail: 100472092@alumnos.uc3m.es)\\
+    Manuel Gómez-Plana Rodríguez (NIA: 100472310, e-mail: 100472310@alumnos.uc3m.es)
+    \vspace{0.5cm}
+
+   
+    \textbf{Prof.} Lourdes Moreno López\\
+    
+    \textbf{Grupo: } 81   
+    
+\end{titlepage}
+\newpage
+
+\renewcommand{\contentsname}{\centering Índice}
+\tableofcontents
+
+\newpage
+\section{Introducción}
+\label{sec:introduccion}
+En este documento se recoge el desarrollo de la segunda práctica de la asignatura
+Arquitectura de datos. A continuación, se especifica el preprocesado de los datos usando
+la biblioteca \textit{Pandas} de Python, la realización de la validación de esquemas de
+mongoDB y la carga de los csvs limpios a esta herramienta.
+
+Para el desarrollo de la práctica, se migrará una base de datos para la gestión de áreas
+recreativas a un modelo no relacional a través de \texttt{MongoDB}. De esta
+forma se podrán aprovechar las ventajas de este tipo de bases de datos en flexibilidad,
+escalabilidad horinzontal y velocidad.
+
+Durante el proceso de migración se seguirá la siguiente metodología:
+\begin{enumerate}
+    \item \textbf{Limpieza de los datos}: la base de datos previa a la migración está
+    contenida en ficheros \texttt{csv}. Esto nos permite usar la herramienta
+    \textit{Pandas} y el lenguaje de programación \texttt{Python} para preprocesar y
+    limpiar los datos.
+    \item \textbf{Importación y trasnformación en \texttt{MongoDB}}: Se importarán los
+    datos a \texttt{Mongo} y se harán las transformaciones necesarias para que los datos
+    tengan el tipo correcto.
+    \item \textbf{Validación de esquemas}: Se aplicará un esquema de validación a cada uno
+    de los documentos para asegurar que los datos tienen el formato correcto.
+    \item \textbf{Creación de agregados}: Se crearán los agregados especificados en el
+    enunciado, calculando todos los atributos derivados necesarios.
+\end{enumerate}
+
+Con todo lo anterior, la migración será completa y los datos estarán listos para su uso.
+Posteriormente, se desarrollará una estructura de \textit{cluster} para una gestión más
+eficiente de los datos y las consultas.
+
+A continuación se expone cómo ejecutar el preprocesado correctamente.
+
+\subsection{Cómo ejecutar el preprocesado}
+\label{subsec:usoscript}
+Para facilitar la ejecución del preprocesado se ha desarrollado un \textit{script} que limpia los datos y realiza la migración completa a \texttt{MongoDB}. Este \textit{script} está contenido en el archivo \texttt{import\_data.sh} y se debe llamar desde la carpeta donde está contenido: 
+
+\lstset{style=python}
+\begin{lstlisting}[language=bash, caption=Comando para realizar el preprocesado]
+# Desde la carpeta entregable2
+bash import_data.sh
+\end{lstlisting}
+
+Es importante descatar que para el correcto funcionamiento de este script deben existir dos carpetas: 
+\begin{itemize}
+\item \texttt{csvs}: esta carpeta debe contener los ficheros con los datos en sucio.
+\item \texttt{output}: en esta carpeta se almacenarán los datos en limpio para su posterior inserción en \texttt{Mongo}.
+\end{itemize}
+
+\newpage
+\lstset{style=python}
+\section{Preprocesado de Datos}
+\label{sec:preprocesado}
+En este apartado se describen las técnicas para el preprocesado de los datos con
+el fin de prepararlos para su inserción en \texttt{MongoDB}. Para este preprocesado se ha usado la librería de Python \textit{Pandas}, siguiendo una metodología común para cada fichero que constaba de los siguientes pasos:
+
+\begin{enumerate}
+    \item Se carga el csv a limpiar en un \textit{dataframe} de \textit{Pandas}
+    \item Se aplican técnicas de preprocesado como la normalización de los strings o imputación genérica de \textit{missing values}
+    \item Se escribe el csv limpio a partir del \textit{dataframe} preprocesado
+\end{enumerate}
+
+\subsection{Técnicas de preprocesado comunes}
+\label{subsec:preprocesadocomun}
+Se han aplicado técnicas de preprocesado que son comunes a todos los ficheros, independientemente de cual se quiera limpiar. A continuación, se listan y explican las técnias más usadas:
+
+\begin{itemize}
+    \item \textbf{Normalización de strings}:
+
+    Todos los datos categóricos han sido normalizados de manera que siempre estén en mayúscula y sin tildes. Esto se ha realizado empleando la siguiente función:
+
+    \begin{lstlisting}[language=Python,caption=Eliminación de tildes]
+def change_accents(word):
+    if type(word) != str:
+        return
+    for letter in range(len(word)):
+        if word[letter] == "Á":
+            word = word[0:letter] + "A" + word[letter + 1:]
+        if word[letter] == "É":
+            word = word[0:letter] + "E" + word[letter + 1:]
+        if word[letter] == "Í":
+            word = word[0:letter] + "I" + word[letter + 1:]
+        if word[letter] == "Ó":
+            word = word[0:letter] + "O" + word[letter + 1:]
+        if word[letter] == "Ú":
+            word = word[0:letter] + "U" + word[letter + 1:]
+    return word
+    \end{lstlisting}
+
+    La cuál se llama de la siguiente manera:
+
+    \begin{lstlisting}[caption=Capitalización de strings y eliminacion de tildes]
+dataframe.loc[indice, "COLUMNA_A_CAMBIAR"] = change_accents(valor["COLUMNA_A_CAMBIAR"].upper())
+    \end{lstlisting}
+
+    \item \textbf{Rellenado de fechas}
+
+    Las fechas que tenían el valor ``fecha desconocida'' o que no tenían valor han sido rellenadas con el valor ``01/01/1970'' a través del siguiente código:
+
+    \begin{lstlisting}[caption=Imputacion de fechas incorrectas o faltantes]
+for indice, value in dataframe.iterrows():
+    if not pd.notna(value["FECHA_INSTALACION"]) or value["FECHA_INSTALACION"] == "fecha_incorrecta":
+        dataframe.loc[indice, "FECHA_INSTALACION"] = "1970-01-01T00:00:00Z"
+    \end{lstlisting}
+
+    Se ha seleccionado este valor por tratarse de la \textit{fecha UNIX}. De
+    esta forma es un valor fácilmente reconocible que no inclumple la validación
+    de esquemas que implementaremos en \texttt{MongoDB}.
+
+    \item \textbf{Formateo de fechas}
+
+    Todas las fechas han sido formateadas al formato de mongo a través del siguiente código:
+
+    \begin{lstlisting}[caption=Formateo de fechas"]
+dataframe["COLUMNA_A_CAMBIAR"] = pd.to_datetime(dataframe["COLUMNA_A_CAMBIAR"], format="mixed", dayfirst=True, utc=True).dt.strftime('%Y-%m-%dT%H:%M:%SZ')
+    \end{lstlisting}
+
+    Se ha seleccionado este valor por tratarse de la \textit{fecha UNIX}. De
+    esta forma es un valor fácilmente reconocible que no inclumple la validación
+    \item \textbf{Rellenado genérico de \textit{missing values}}. 
+    
+    Las columnas que tenían valores nulos que no ha sido posible imputar han sido rellenadas con un valor fácilmente indetificable que sigue el formato ``NOM-COL\_DESCONOCIDO\_ID-FILA'' mediante la siguiente función:
+
+    \begin{lstlisting}[caption=Inputacion de valores faltantes desconocidos]
+def fill_missing_tipo(row,column,string_missing):
+    if pd.isnull(row[column]):
+        return f'{string_missing}_{row["ID"]}'
+    return row[column]
+    \end{lstlisting}
+
+    Esta función se llama de la siguiente manera:
+
+    \begin{lstlisting}[caption=llamada a la función para rellenar valores faltantes]
+df["COLUMNA"] = df.apply(lambda row: fill_missing_tipo(row, "COLUMA", "COLUMNA_DESCONOCIDO"), axis=1)
+    \end{lstlisting}
+
+\end{itemize}
+
+\newpage
+\subsection{Preprocesado de los csvs en Python}
+\label{subsec:preprocessespecifico}
+En este apartado se explican las técnicas y procedimientos para el preprocesado de cada uno de los csvs sucios desarrollado en Pyhon usando la libería \textit{pandas}.
+
+\subsubsection{Juegos}
+\label{subsubsec:preprocessjuego}
+Para el fichero \textit{JuegosSucio.csv} se han aplicado las siguientes transformaciones:
+
+\begin{enumerate}
+    \item Apertura y carga de valores en dataframe
+    \item Imputación de valores en \textit{DISTRITO} y \textit{CODIGO\_DISTRITO}: se han relacionado valores de distrito con códigos de forma unívoca, rellenando los valores faltantes en caso necesario. Esto se hace mediante la llamada a la función \texttt{imput\_missing\_district}.
+    \item Imputación de valores en \textit{TIPO\_VIA}, \textit{NOMBRE\_VIA}, y \textit{NUM\_VIA}: se ha extraído toda la información posible de \textit{DIRECCION\_AUX} y rellenado los campos anteriores en caso posible.
+    \item Fusión con \textit{areas\_limpias.csv}: se han asociado los juegos a un área mediante los campos \textit{CODIGO\_INTERNO} y \textit{NDP}. Esto se ha traducido en una columna nueva en la tabla de \textit{juegos} con el ID del área al que pertenece. Adicionalmente se ha completado la información faltante de cada tabla con información del otro en los casos posibles.
+\end{enumerate}
+
+\subsubsection{Áreas}
+\label{subsubsec:preprocessarea}
+Para el fichero \textit{AreasSucio.csv} se ha aplicado el siguiente proceso:
+
+\begin{enumerate}
+    \item Apertura y carga de valores en dataframe
+    \item Normalización de la columna \textit{DESC\_CLASIFICACION}: mediante el paso a mayúsculas y la eliminación de los acentos de toda la columna
+    \item Normalización de la columna \textit{BARRIO}: mediante el paso a mayúsculas y eliminación de los acentos de toda la columna, así como la obtención de los valores de \textit{COD\_POSTAL} por barrio para su posterior imputación siempre y cuando sus valores no sean nulos
+    \item Imputación de los valores faltantes de \textit{COD\_POSTAL}: mediante la identificación del barrio y la imputación del código postal identificado por el barrio
+    \item Normalización de la columna \textit{DISTRITO}: mediante el paso a mayúsculas y eliminación de los acentos de toda la columna, así como la obtención de los valores de \textit{COD\_DISTRITO} por distrito y viceversa para su posterior imputación, siempre y cuando sus valores no sean nulos
+    \item Imputación de los valores faltantes de \textit{COD\_DISTRITO} y \textit{DISTRITO}: mediante la identificación del código buscando por distrito cuando este no es nulo y viceversa
+    \item Imputación de valores en \textit{TIPO\_VIA}, \textit{NOMBRE\_VIA}, y \textit{NUM\_VIA}: se ha extraído toda la información posible de \textit{DIRECCION\_AUX} y rellenado los campos anteriores en caso posible siguiendo los siguientes pasos:
+    \begin{itemize}
+        \item Si no hay \textit{TIPO\_VIA}, se extrae el tipo de la dirección auxiliar. Si esta no existe, se escribe el valor ``tipo\_desconocido\_ID''
+        \item Si no hay \textit{NOM\_VIA}, se extrae el nombre de la dirección auxiliar. Si esta no existe, se escribe el valor ``NOMBRE\_DESCONOCIDO\_ID''
+        \item Si no hay \textit{NUM\_VIA}, se extrae el número de la dirección auxiliar. Aquí, puede haber tres opciones:
+        \begin{itemize}
+            \item Existe solo un número en la dirección auxiliar, que tiene la forma ``VALDEBERNARDO, 000037''. En este caso, simplemente se extrae y se castea a entero para eliminar los 0's innecesarios
+            \item Existen más de un número en la dirección auxiliar, que tiene la forma ``V · VIA LÍMITE 115 , ASCENDIENTE 1: 064 · ALMENAR''. En este caso, se extrae el primer número y se interpreta como el número de la vía
+            \item Si no existen números en la dirección auxiliar, que tiene la forma ``PARQUE ROMA''. Aquí, simplemente se escribe el valor ``NUMERO\_DESCONOCIDO\_ID''
+        \end{itemize}
+        \item Tras sacar los datos de la dirección auxiliar, se borra esta columna de la instancia imputada
+    \end{itemize}
+    \item Formateo de \textit{FECHA\_INSTALACION}: mediante el paso de la fecha al formato de mongo
+    \item Imputación de valores faltantes en \textit{CODIGO\_INTERNO}: mediante el rellenado de estos datos con los valores ``CÓDIGO\_INTERNO\_ID\_DESCONOCIDO''.
+    \item Normalización de la columna \textit{tipo}: mediante el paso a mayúsculas y eliminación de los acentos de toda la columna
+    \item Escritura del csv limpio final
+\end{enumerate}
+
+\subsubsection{Encuestas satisfacción}
+\label{subsubsec:preprocesssatisfaccion}
+Para el fichero \textit{EncuestasSatisfaccion.csv} se ha aplicado el siguiente proceso:
+
+\begin{enumerate}
+    \item Apertura y carga de valores en dataframe
+    \item Formateo de \textit{FECHA}: mediante el paso de la fecha al formato de mongo
+    \item Normalización de la columna \textit{COMENTARIOS}: mediante el paso a mayúsculas de todos los valores
+    \item Renombrado de la columna \textit{ID} a ``\_id`` para su posterior inserción en mongo
+    \item Escritura del csv limpio final
+\end{enumerate}
+
+\subsubsection{Incidencias Usuario}
+\label{subsubsec:preprocessincidenciasusuario}
+Para el fichero \textit{IncidenciasUsuariosSucio.csv} se ha aplicado el siguiente proceso:
+
+\begin{enumerate}
+    \item Apertura y carga de valores en dataframe
+    \item Normalización de la columna \textit{TIPO\_INCIDENCIA}: mediante el paso a mayúsculas de todos los valores
+    \item Formateo de \textit{FECHA\_REPORTE}: mediante el paso de la fecha al formato de mongo
+    \item Normalización de la columna \textit{ESTADO}: mediante el paso a mayúsculas de todos los valores
+    \item Renombrado de la columna \textit{ID} a ``\_id`` para su posterior inserción en mongo
+    \item Eliminación de los usuarios replicados: debido a que existen usuarios con la misma información, salvo el correo, se ha decidido eliminar los usuarios duplicados
+    \item Escritura del csv limpio final
+\end{enumerate}
+
+\subsubsection{Incidencias Seguridad}
+\label{subsubsec:preprocessincidenciasseguridad}
+Para el fichero \textit{IncidentesSeguridadSucio.csv} se ha aplicado el siguiente proceso:
+
+\begin{enumerate}
+    \item Apertura y carga de valores en dataframe
+    \item Formateo de \textit{FECHA\_REPORTE}: mediante el paso de la fecha al formato de mongo
+    \item Normalización de la columna \textit{TIPO\_INCIDENTE}: mediante el paso a mayúsculas y la eliminación de los acentos de toda la columna
+    \item Normalización de la columna \textit{GRAVEDAD}: mediante el paso a mayúsculas y la eliminación de los acentos de toda la columna
+    \item Renombrado de la columna \textit{ID} a ``\_id`` para su posterior inserción en mongo
+    \item Escritura del csv limpio final
+\end{enumerate}
+
+\subsubsection{Mantenimiento}
+\label{subsubsec:preprocessmantenimiento}
+Para el fichero \textit{MantenimientoSucio.csv} se ha aplicado el siguiente proceso:
+
+\begin{enumerate}
+    \item Apertura y carga de valores en dataframe
+    \item Normalización de la columna \textit{TIPO\_INTERVENCION}: mediante el paso a mayúsculas de todos los valores
+    \item Formateo de \textit{FECHA\_INTERVENCION}: mediante el paso de la fecha al formato de mongo
+    \item Normalización de la columna \textit{ESTADO\_PREVIO}: mediante el paso a mayúsculas de todos los valores
+    \item Normalización de la columna \textit{ESTADO\_POSTERIOR}: mediante el paso a mayúsculas de todos los valores
+    \item Normalización de la columna \textit{Tipo}: mediante el rellenado de los missing values con el valor ``TIPO\_ID\_DESCONOCIDO'' y su paso a mayúsculas de todos los valores
+    \item Normalización de la columna \textit{Comentarios}: mediante el rellenado de los missing values con el valor ``COMENTARIO\_ID\_DESCONOCIDO'' y su paso a mayúsculas de todos los valores
+    \item Cambio de la columna \textit{ID} para su posterior uso en los agregado en mongo. Esto se hace mediante la extracción el número del id y su concatenación a la cadena ``MNT-'', rellenando con ceros hasta que el número tenga cinco dígitos. Esto se realiza de la siguiente manera:
+
+\begin{lstlisting}
+for indice, value in df.iterrows():
+    id_antiguo = value["ID"]
+    indice_numero = id_antiguo.index(",")
+    indice_nuevo = id_antiguo[1: indice_numero]
+    while len(indice_nuevo) < 5:
+        indice_nuevo = "0" + indice_nuevo
+    df.loc[indice, "ID"] = "MNT-" + indice_nuevo
+\end{lstlisting}
+
+    \item Renombrado de la columna \textit{ID} a ``\_id`` para su posterior inserción en mongo
+    \item Eliminación de los mantenimientos replicados: debido a que existen mantenimientos con el mismo ``\_id``, se ha decidido eliminar los valores duplicados
+    \item Escritura del csv limpio final
+\end{enumerate}
+
+\subsubsection{Meteo24}
+\label{subsubsec:preprocessmeteo}
+El fichero \textit{meteo24.csv} se ha restructurado para conseguir el formato pedido, el proceso de reestructuración es el siguiente:
+
+\begin{enumerate}
+    \item Se ha creado un nuevo dataframe con las siguientes columnas: \textit{Id}, \textit{Fecha}, \textit{Temperatura}, \textit{Precipitación}, \textit{Viento} y \textit{Estación}.
+    \item Se ha creado un diccionario en python que permita asociar el código de la magnitud con la propia magnitud con tan solo las magnitudes que nos interesan.
+    \item Para cada fila de meteo24 se ha tomado el valor de la magnitud, comprobando que era una de las magnitudes que nos interesan, el código de la estación, el valor del año y del mes, y se ha iterado por cada columna que corresponde a un día del mes
+    \item Para cada valor de día se creaba una fecha completa (\%DD,\%MM,\%AAAA) y se tomaba el valor de la columna de ese día para esa magnitud. Con estos datos se rellena el dataframe nuevo de la siguiente manera.
+    \begin{itemize}
+        \item Si esa fecha y estación no existen en el nuevo dataframe se crea una nueva fila y se rellena con únicamente la magnitud que se ha encontrado en ese momento, por lo que se crea una fila con magnitudes sin valor a las que se tendrá que esperar para dar valor.
+        \item Si esa fecha y estación ya existe en el nuevo dataframe se rellena la fila existente con el nuevo valor de la magnitud.
+    \end{itemize}
+    \item Tras pasar por todas las filas de \textit{meteo24.csv} se transforma la columna \textit{Viento} a un booleano, dado que la magnitud que se nos pide es si el viento es fuerte o no, sin embargo a través de meteo conocemos la velocidad de este.
+\end{enumerate}
+
+\subsubsection{Usuarios}
+\label{subsubsec:preprocessusuarios}
+El fichero \textit{UsuariosSucio.csv} se ha restructurado para conseguir el formato pedido, el proceso de reestructuración es el siguiente:
+
+\begin{enumerate}
+    \item Apertura y carga de valores en dataframe
+    \item Normalización de la columna \textit{NOMBRE}: mediante el paso a mayúsculas de todos los valores
+    \item Normalización de la columna \textit{EMAIL}: mediante el paso a mayúsculas de todos los valores y el relleno de los missing values con el valor ``EMAIL\_ID\_DESCONOCIDO''
+    \item Normalización de la columna \textit{TELEFONO} mediante la eliminación del prefijo y de los espacios en blanco. Esto se realiza con la siguiente función:
+
+\begin{lstlisting}
+def format_phone_number(phone):
+    phone = phone.replace(" ", "")
+    if phone.startswith("+34"):
+        phone = phone[3:]
+    if phone.startswith("34"):
+        phone = phone[2:]
+    return phone
+\end{lstlisting}
+
+    \item Renombrado de la columna \textit{NIF} a ``\_id`` para su posterior inserción en mongo
+    \item Escritura del csv limpio final
+\end{enumerate}
+
+\subsection{Importación de datos a MongoDB}
+\label{subsec:importacion}
+Los datos se han trasladado a mongo tras el primer preprocesado en \texttt{Python} a través del siguiente \textit{script}:
+
+\begin{lstlisting}[caption=Script para la importación en Mongo, language=bash]
+mongoimport --db entregable2 --collection areas --type csv --file ../output/areas_limpias.csv --headerline
+mongoimport --db entregable2 --collection juegos --type csv --file ../output/juegos_limpio.csv --headerline
+mongoimport --db entregable2 --collection encuestas_satisfaccion --type csv --file ../output/encuestas_satisfaccion_limpio.csv --headerline
+mongoimport --db entregable2 --collection estaciones_meteo_codigo_postal --type csv --file ../output/estaciones_meteo_codigo_postal.csv --headerline 
+mongoimport --db entregable2 --collection incidencias_usuarios --type csv --file ../output/incidencias_usuarios_limpio.csv --headerline
+mongoimport --db entregable2 --collection incidentes_seguridad --type csv --file ../output/incidentes_seguridad_limpio.csv --headerline
+mongoimport --db entregable2 --collection mantenimiento --type csv --file ../output/mantenimiento_limpio.csv --headerline
+mongoimport --db entregable2 --collection meteo24 --type csv --file ../output/meteo24_limpio.csv --headerline 
+mongoimport --db entregable2 --collection usuarios --type csv --file ../output/usuarios_limpios.csv --headerline
+\end{lstlisting}
+
+De esta forma se insertan todos los registros en \texttt{Mongo}, cada uno en una colección distinta.
+
+\subsection{Preprocesado en MongoDB}
+\label{subsec:preprocessmongo}
+Una vez que el grueso de la limpieza se ha realizado en Python, todavía existen algunos atributos con problemas que hay que resolver antes de se inserción en MongoDB. Es por ello que en este apartado se explica el preprocesado realizado en MongoDB.
+
+\subsubsection{Cambio de tipo}
+\label{subsubsec:preprocessmongocambiodetipo}
+
+Algunos de los atributos de los csvs tienen un tipado incorrecto cuando se insertan en MongoDB. Es por ello que, tras su inserción, se le cambia el tipo a todos los atributos que lo necesiteb. Esto se realiza con el operador \textit{addFields}, añadiendo una nueva columna con el mismo nombre que la que queremos cambiar de tipo. Luego, se emplea el operador \textit{convert} para cambiar al tipo que se desee. Este proceso se ve en el siguiente código:
+
+\begin{lstlisting}[language=JavaScript, caption=Cambio de tipo genérico]
+$addFields: {
+    COD_DISTRITO: {
+        $convert: {
+            input: "$COD_DISTRITO",
+            to: "int",
+            onError: null,
+            onNull: null
+        }
+    },
+}
+\end{lstlisting}
+
+Todos los atributos que han necesitado un cambio son:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| c | l | c |}
+        \hline
+        CSV & Atributo & Tipo nuevo \\ \hline 
+        Áreas & COD\_POSTAL & int\\ 
+        Áreas & COD\_DISTRITO & int\\ 
+        Áreas & LATITUD & string\\ 
+        Áreas & LONGITUD & string\\
+        Áreas & NUM\_VIA & string\\ 
+        Áreas & NUM\_VIA & string\\ 
+        Juegos & COD\_DISTRITO & int\\ 
+        Juegos & COD\_POSTAL & string\\ 
+        Juegos & LATITUD & string\\ 
+        Juegos & LONGITUD & string\\
+        Juegos & MODELO & string\\ 
+        Juegos & ACCESIBLE & bool\\ 
+        Juegos & NUM\_VIA & string\\ 
+        Encuestas Satisfaccion & AreaRecreativaID & string\\ 
+        Usuarios & \_id & string\\ 
+        meteo24 & \_id & string\\ 
+        meteo24 & VIENTO & bool\\
+        \hline
+    \end{tabular}
+    \caption{Atributos y sus nuevos tipos}
+\end{table}
+
+\subsubsection{Obtención de fechas a través de strings}
+De la misma manera, todas las fechas de todos los csvs son interpretadas erróneamenta al introducir los datos en mongo. Todas las fechas se interpretan como strings, así que deben ser cambiadas al tipo \textit{Date}. Esto se realiza con el operador \textit{addFields} que, de manera similar al apartado anterior, sustituye el atributo antiguo por el homónimo nuevo con su tipo corregido. También se usa el operador \textit{dateFromString}, que devuelve una fecha ajustada al formato especificado. Todo esto se realiza mediante el siguiente código:
+
+\begin{lstlisting}[language=JavaScript, caption=Cambio a date de las fechas]
+$addFields: {
+    FECHA_REPORTE: {
+        $dateFromString: {
+            dateString: "$FECHA_REPORTE",
+            format: "%Y-%m-%dT%H:%M:%SZ"
+        }
+    }
+}
+\end{lstlisting}
+
+Todos los atributos que han necesitado un cambio al tipo \textit{date} son:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| c | l | }
+        \hline
+        CSV & Atributo \\ \hline
+        Áreas & FECHA\_INSTALACION \\
+        Juego & FECHA\_INSTALACION \\ 
+        Encuestas Satisfaccion & FECHA\\ 
+        Incidentes Seguridad & FECHA\_REPORTE \\ 
+        meteo24 & FECHA\\ 
+        Mantenimiento & FECHA\_INTERVENCION\\ 
+        Incidencias Usuarios & FECHA\_REPORTE\\ 
+        \hline
+    \end{tabular}
+    \caption{Atributos cambiados al tipo \textit{date}}
+\end{table}
+
+\subsubsection{Paso a array de strings}
+El último paso del preprocesado en mongo pasa por la conversión de dos atributos específicos, \textit{MantenimientoID} y \textit{UsuarioID}, ambos pertenecientes a la colección \textit{Incidencias Usuarios}. Ambos atributos se insertan inicialmente en mongo como un string con la siguiente forma: ``['valor1', 'valor2']''. Estos atributos son mal interpretados por mongo, ya que deberían ser arrays de strings, en vez de strings. Por este motivo, ambos atributos son preprocesados con el siguiente código:
+
+\begin{lstlisting}
+$addFields: {
+    Columna: {
+        $split: [
+            {
+                $replaceAll: {
+                    input: {
+                        $replaceAll: {
+                            input: {
+                                $replaceAll: {
+                                    input:
+                                        {
+                                            $replaceAll: {
+                                                input: "$Columna",
+                                                find: " ",
+                                                replacement: ""
+                                        }
+                                    },
+                                    find: "'",
+                                    replacement: ""
+                                }
+                            },
+                            find: "]",
+                            replacement: ""
+                    }
+                },
+                find: "[",
+                replacement: ""
+            }
+        }, ","]
+    },
+\end{lstlisting}
+
+El código anterior simplemente reemplaza la columna por una nueva que está bien preprocesada. Este cambio de tipo se consigue a través del reemplazo de todos los valores problemáticos, como los espacios en blanco, las dobles comillas y los corchetes. Luego, este valor procesado se pasa a un operador \textit{split} que se encarga de devolver un array de strings.
+\newpage
+\section{Validación de Esquemas}
+\label{sec:validacion}
+Para la validación de esquemas, se han desarrollado unos esquemas para cada csv que ha sido limpiado en el apartado anterior. Para ello, todos han seguido una estructura similar a la siguiente:
+
+\begin{lstlisting}[language=JavaScript, caption=Estructura genérica de la validación de esquemas]
+db.createCollection("nombre_de_colección", {
+    validator: {
+        $jsonSchema: {
+            bsonType: "object",
+            title: "Nombre_de_colección Validation",
+            required: ["param1", "param2", "paramN"],
+            properties: {
+                param1: {
+                    bsonType: "tipo1",
+                    description: "descripción1"
+                },
+                param2: {
+                    bsonType: "tipo2",
+                    description: "descripción2"
+                },
+                paramN: {
+                    bsonType: "tipo3",
+                    description: "descripción3"
+                }
+            }
+        }
+    }
+})
+\end{lstlisting}
+
+Hemos aplicado un esquema adaptado a cada uno de los documentos con el fin de asegurar que cada dato tiene la estructura y tipos adecuados. Para ello se ha seguido el modelo porporcionado en el enunciado. Destacan el caso de \textit{\_id}, que se han decidido mantener como entero para la mayoría de las tablas ya que este tipo permite la generación de \textit{UUIDs} de forma nativa desde \texttt{Mongo}. Esto facilitará futuras inserciones. Las únicas tablas que necesitan mantener el \textit{\_id} como string son \textit{Usuarios} y \textit{Mantenimiento}. 
+
+
+\newpage
+\section{Creación de Agregados}
+\label{sec:creacion_agregados}
+Dada la propuesta de diseño de agregados se han relacionado las tablas originales para conseguir los agregados indicados, además de generar los atributos derivados con los datos originales.
+
+\subsection{Agregado de Area Recreativa Clima}
+\label{subsec:agregado_area}
+
+\subsubsection{Relaciones de Tablas con Áreas}
+\label{subsubsec:relaciones_area}
+
+Se han relacionado la tabla \textit{Área} con las tablas de \textit{juegos}, \textit{incidentes de seguridad}, \textit{encuestas satisfacción}, \textit{estaciones\_meteo\_codigo\_postal} y \textit{meteo24}.
+Estas relaciones se han conseguido de la siguiente manera:
+\begin{lstlisting}[language=JavaScript, caption=Operadores para relacionar tablas en mongodb]
+{
+    $lookup: {
+        from: '<tabla_a_relacionar>',
+        localField: '<atributo_local_a_relacionar>',
+        foreignField: '<atributo_de_la_tabla_a_relacionar>',
+        as: '<atributo_resultante>'
+    }
+}
+\end{lstlisting}
+
+Es importante destacar que al final de la \textit{pipeline} se transformarán las relaciones de \textit{Juegos}, \textit{Encuestas Satisifacción} y \textit{estaciones\_mete\_codigo\_postal} en tan solo su id a través de un proyecto, y para el caso de la relación con la tabla \textit{Incidentes de Seguridad} se mostrarán atributos adicionales al id para completar el resumen.
+\subsubsection{Atributos Derivados}
+\label{subsubsec:derivados_area}
+
+En el agregado \textit{Area Recreativa Clima} se piden calcular los siguientes atributos:
+\begin{itemize}
+    \item \textbf{estadoGlobalArea}
+    
+    Este atributo debe de contener el resultado de un cálculo que utilice la cantidad de incidentes de seguridad que tiene un área, la cantidad de juegos en reparación que tiene dicha área y la satisfacción de los usuarios en las encuestas. Para su creación se han seguido los siguientes pasos
+    \begin{enumerate}
+        \item Cálculo de la nota de satisfacción
+        
+        \begin{lstlisting}[language=JavaScript, caption=Calculo del campo nota\_encuestas\_areas]
+{
+    $addFields: {
+        encuestas_accesibilidad_transformado: {
+            $map: {
+                input: "$ref_encuestas_satisfaccion.PUNTUACION_ACCESIBILIDAD",
+                as: "puntuacion",
+                in: { $subtract: [6, "$$puntuacion"] }
+            }
+        },
+        encuestas_calidad_transformado: {
+            $map: {
+                input: "$ref_encuestas_satisfaccion.PUNTUACION_CALIDAD",
+                as: "puntuacion",
+                in: { $subtract: [6, "$$puntuacion"] }
+            }
+        },
+        nota_encuestas_area: {
+            $sum: {
+                $concatArrays: ["$encuestas_accesibilidad_transformado", "$encuestas_calidad_transformado"]
+            }
+        }
+    }
+}
+
+        \end{lstlisting}
+
+        \item Cálculo del número de incidentes de seguridad
+        
+        \begin{lstlisting}[language=JavaScript, caption=Ponderación del número de incidencias]
+numero_incidencias_ponderado: {
+    $multiply: [{ $size: "$ref_incidentes_seguridad" }, 3]
+}
+        \end{lstlisting}
+
+        Se calcula el numero de incidentes de seguridad y se multplica por 3 para darle más peso en el cálculo.
+
+        \item Cálculo del número de juegos en reparación 
+        
+        \begin{lstlisting}[caption=Calculo del número de juegos en reparación, language=JavaScript]
+juegos_mantenimiento: {
+    $size: {
+        $filter: {
+            input: "$ref_juegos",
+            as: "juego",
+            cond: {
+                $eq: ["$$juego.ESTADO", "EN REPARACION"]
+            }
+        }
+    }
+}
+        \end{lstlisting}
+
+        Para conocer la cantidad de juegos en reparación de las distintas áreas
+        se utiliza \texttt{\$size} para conecer la lóngitud del array de
+        devuelve el operador \texttt{\$filter} tras filtrar por solo los juegos en reparación.
+
+        \item Suma de todos los valores calculados
+        
+        \begin{lstlisting}[language=JavaScript, caption=Calculo de not\_total\_area]
+$addFields: {
+nota_total_area: {
+    $sum: 
+        ["$nota_encuestas_area", "$numero_incidencias_ponderado", "$juegos_mantenimiento"]
+    
+    }
+}
+        \end{lstlisting}
+
+        \item Encontrar el valor máximo
+        
+        \begin{lstlisting}[language=JavaScript, caption=Agrupación de áreas previa a la normalización]
+{
+    $group: {
+        _id: null,
+        max_nota_global: { $max: "$nota_total_area" },
+        areas: { $push: "$$ROOT" }
+    }
+},
+{
+    $unwind: "$areas"
+},
+{
+    $replaceRoot: {
+        newRoot: {
+            $mergeObjects: ["$areas", { max_nota: "$max_nota_global" }]
+        }
+    }
+}
+        \end{lstlisting}
+
+        Se busca obtener la nota máxima total de los juegos de todas las areas para estandarizar el atributo final
+    
+        \item Cálculo final del atributo \textbf{estadoGlobalArea}
+        
+        \begin{lstlisting}[language=JavaScript, caption=Cálculo de estado\_global\_area]
+estado_global_area: {
+    $round: [
+        {
+            $multiply: [
+                { $divide: ["$nota_total_area", "$max_nota"] },
+                10
+            ]
+        },
+        2
+    ]
+},
+estado_global_area: {
+                $subtract: [10, "$estado_global_area"]
+}
+        \end{lstlisting}
+
+        Dividimos la nota total de cada area por la nota máxima calculada en el paso anterior para estandarizar el valor, lo que se nos permite obtener un valor entre 0 y 1. Este valor se multiplca por 10 para obtener una nota, y se redondea a 2 decimales.
+
+    \end{enumerate}
+
+    \item \textbf{cantidadJuegosPorTipo}
+    
+    Este atributo debe de contener el número de juegos que tiene cada área según al tipo al que correspondan. Para su obtención se han seguido los siguientes pasos: 
+    \begin{enumerate}
+        \item Relacionamos los documentos de juegos y areas a través del campo \textit{Area}. Además se separa el \textit{array} de juegos en diferentes documentos para poder realizar las agrupaciones.
+\begin{lstlisting}[caption=Relación de juegos y áreas, language=JavaScript]
+{
+    // Areas con juegos
+    $lookup: {
+        from: 'juegos',
+        localField: '_id',
+        foreignField: 'AREA',
+        as: 'aux_ref_juegos'
+    }
+},
+{ $unwind: "$aux_ref_juegos" }, 
+
+\end{lstlisting}
+        \item Agrupamos los juegos por tipo. Esto lo hacemos a través de 2 operaciones \texttt{\$group}.
+\begin{lstlisting}[caption=Agrupacion de juegos por tipo, language=JavaScript]
+{
+    $group: {
+        _id: { tipo: "$aux_ref_juegos.tipo_juego", area_id: "$_id" }, // agrupar areas y tipos
+        count: { $sum: 1 },
+        ref_juegos: { $push: { _id: "$aux_ref_juegos._id" } },
+        original: { $first: "$$ROOT" }
+    }
+},
+{
+    $group: { // Crear para cada área un array de {tipo, count}, {tipo, count}
+        _id: "$_id.area_id",
+        cuenta: {
+            $push: {
+                k: "$_id.tipo", v: "$count"
+            }
+        },
+        ref_juegos: { $push: "$ref_juegos" },
+        original: { $first: "$original" }
+    },
+}
+\end{lstlisting}
+        \item Creación del nuevo campo e inclusión en el documento original.
+
+\begin{lstlisting}[caption=Creación de nuevo campo en el documento original, language=JavaScript]
+{
+    $addFields: {
+        "cantidad_juego_por_tipo": {
+            $arrayToObject: "$cuenta"
+
+        },
+        "ref_juegos": {
+            $reduce: {
+                input: "$ref_juegos",
+                initialValue: [],
+                in: { $concatArrays: ["$$value", "$$this"] }
+            }
+        }
+    }
+},
+{
+    $replaceRoot: {
+        newRoot: {
+            $mergeObjects: [
+                "$original",
+                { "cantidad_juego_por_tipo": "$cantidad_juego_por_tipo" },
+                { "ref_juegos": "$ref_juegos" }
+            ]
+        }
+    }
+},
+
+\end{lstlisting}
+    \end{enumerate}
+
+    \item \textbf{capacidadMax}
+    
+    Este atributo debe de ser la cantidad máxima de juegos que un área es capaz de soportar. Para ello simplemente tomamos como máxima capacidad el número de juegos actual del área.
+    \begin{lstlisting}[language=JavaScript, caption=Cálculo de la capacidad máxima]
+$addFields:{
+    capacidadMax: "$TOTAL_ELEM"
+}
+    \end{lstlisting}
+\end{itemize}
+
+\subsection{Agregado de Juegos}
+\label{subsec:agregado_juego}
+
+\subsubsection{Relaciones de Tablas con Juegos}
+\label{subsubsec:relaciones_juego}
+
+Se han relacionado con la tabla de \textit{juegos} las tablas \textit{incidencias de usuarios} y \textit{mantenimiento}. Esto se ha conseguido al igual que en la anterior sección a través del operador \texttt{\$lookup}.
+
+Al final de la \textit{pipeline} se transformarán las relación con \textit{Mantenimiento} para solo mostrar sus id's y para el caso de la relación con \textit{Incidencia} se mostrarán, además de sus id's, aquellos atributos que conformen el resumen. 
+
+\subsubsection{Atributos Derivados}
+\label{subsubsec:derivados_juego}
+
+En el agregado \textit{Juegos} se pide calcular los siguientes:
+\begin{itemize}
+    \item \textbf{indicadorExposicion}
+    
+    Este atributo debe de ser un enumerado que corresponda con el nivel de exposición a los factores climatológicos del juego en concreto. Para ello se asignará a cada juego un valor aleatorio entre los valores 1, 2 y 3.
+    \begin{lstlisting}[caption=Cálculo de indicadorExposicion, language=JavaScript]
+$addFields: {
+    "indicadorExposicion": {
+        $add: [
+            {
+                $floor: {
+                    $multiply: [
+                        { $rand: {} },
+                        3
+                    ]
+                }
+            },
+            1
+        ]
+    }
+}
+    \end{lstlisting}
+
+    \item \textbf{desgasteAcumulado}
+    
+    Este atributo hará uso del anterior atributo \textbf{indicadorExposicion} para calcular el nivel de desgaste de cada juego. Para ello se aplicará la siguiente fórmula: $( tiempo\_de\_uso \cdot indicadorExposicion) - (numero\_de\_mantenimientos \cdot 100)$
+
+    \begin{lstlisting}[caption=Cálculo de desgasteAcumulado, language=JavaScript]
+{
+    $addFields: {
+        "desgasteAcumulado": {
+            $max: [
+                {
+                    $subtract: [
+                        {
+                            $multiply: [
+                                {
+                                    $add: [
+                                        {
+                                            $floor: {
+                                                $multiply: [
+                                                    { $rand: {} },
+                                                    15
+                                                ]
+                                            }
+                                        },
+                                        1
+                                    ]
+                                },
+                                "$indicadorExposicion"
+                            ]
+                        },
+                        {
+                            $multiply: [
+                                { $size: "$ref_mantenimiento" },
+                                5
+                            ]
+                        }
+                    ]
+                },
+                0
+            ]
+        }
+    }
+}
+    \end{lstlisting}
+
+    \item \textbf{ultimaFechaMantenimiento}
+    
+    Este atributo debe de registrar la última fecha en la que se realizó un interveción en dicho juego. Para ello se toma la fecha máxima para cada juego.
+
+    \begin{lstlisting}[caption=Cálculo de ultimaFechaMantenimiento, language=JavaScript]
+$addFields: {
+    "ultimaFechaMantenimiento": {
+        $max: {
+            $map: {
+                input: "$ref_mantenimiento",
+                as: "ref",
+                in: "$$ref.FECHA_INTERVENCION"
+            }
+        }
+    }
+}
+    \end{lstlisting}
+
+    \item \textbf{tiempoResolucion}
+    
+    Este atributo debe ser un valor entero que representa el tiempo que ha durado el proceso de mantenimiento. Consideramos que este atributo no debe de ubicarse en los juegos, dado que existe un tiempo de resolución de la incidencia para cada una de las incidencias, por lo que lo ubicaremos en el resumen que contiene juego para cada una de las incidencias.
+
+    Para la creación de este atributo se han seguido los siguientes pasos:
+    \begin{enumerate}
+        \item Mientras se crea el resumen, en el cual se itera por cada incidencia, se calcula el atributo derivado
+        
+        \begin{lstlisting}[caption=Iterar por cada incidencia durante la creación del resumen, language=JavaScript]
+"res_incidencias_usuarios": {
+    $map: {
+        input: "$res_incidencias_usuarios",
+        as: "ref",
+        in: {
+            ID: "$$ref._id",
+            TIPO_INCIDENCIA: "$$ref.TIPO_INCIDENCIA",
+            FECHA_REPORTE: "$$ref.FECHA_REPORTE",
+            ESTADO: "$$ref.ESTADO",
+            tiempoResolucion: {...}
+        }
+    }
+}
+        \end{lstlisting}
+
+        \item Se toma el máximo de todas las duraciones calculadas a través de la diferencia entre la fecha de la incidencia y las distintas fechas de cada uno de los mantenimientos.
+        
+        \begin{lstlisting}[language=JavaScript, caption=Máximo de las duraciones calculadas]
+$max: {
+        $map: {
+            input: "$$ref.MantenimientoID",
+            as: "mantenimiento_id",
+            in: {
+                $subtract: [
+                    { ... },
+                    {
+                        $$ref.FECHA_REPORTE
+                    }
+                ]
+            }
+        }
+    }
+        \end{lstlisting}
+
+        \item Finalmente se necesita obtener las fechas de los mantenimientos a los que se referencia en la incidencia.
+        
+        \begin{lstlisting}[language=JavaScript, caption=Obtención de fechas de mantenimiento relacionadas con la incidencia]
+$arrayElemAt: [
+                {
+                    $map: {
+                        input: {
+                            $filter: {
+                                input: "$ref_mantenimiento",
+                                as: "mantenimiento",
+                                cond: { $eq: ["$$mantenimiento._id", "$$mantenimiento_id"] }
+                            }
+                        },
+                        as: "man",
+                        in: {
+                            "$$man.FECHA_INTERVENCION"
+                        }
+                    }
+                },
+                0
+            ]
+        \end{lstlisting}
+    \end{enumerate}
+\end{itemize}
+
+\subsection{Agregado de Incidencias}
+\label{subsec:agregado_incidencias}
+
+\subsubsection{Relaciones de Tablas con Incidencias}
+\label{subsubsec:relaciones_incidencias}
+
+Este agregado relaciona la tabla de \textit{Incidencias de Usuario} con la tabla de \textit{Usuarios}. Para ello como para el resto de agregados se utilizará el operador \texttt{\$lookup}.
+
+En este caso no será necesario modificar los atributos que se muestran de la relación con \textit{Usuarios} dado que la relación es embebida.
+
+\subsubsection{Creación de Atributo Derivados}
+\label{subsubsec:derivados_incidencias}
+
+En el agregado \textit{Incidencia} se pide calcular el siguiente atributo:
+\begin{itemize}
+    \item \textbf{nivelEscalamiento}
+    
+    Este atributo debe de categorizar la urgencia de las incidencias. Para ello se generará un número aleatorio del 1 al 10 que corresponderá a este valor.
+
+    \begin{lstlisting}[language=JavaScript, caption={Cálculo de nivelEscalamiento}]
+$addFields: {
+    nivelEscalamiento: {
+        $add: [
+            { $floor: { $multiply: [{ $rand: {} }, 10] } },
+            1
+        ]
+    }
+}
+    \end{lstlisting}
+\end{itemize}
+
+\section{Conclusiones}
+\label{sec:conclusiones}
+
+Durante esta parte de la práctica nos hemos enfrentado a distintas problemáticas como son la limpieza de los datos de manera efectiva y el uso de \texttt{MongoDB} para la transformación de los datos y la construcción de agregados. Consumiendo estas partes el mayor tiempo de desarrollo de la práctica.
+
+La limpieza de los datos ha sido, sin lugar a dudas, la parte más costosa en términos de tiempo. Los documentos csv contaban con numerosas instancias mal formateadas, gran cantidad de valores faltantes y campos muy poco explicativos. Esto ha llevado a numerosas iteraciones sobre el código para poder corregir correctamente los datos, además de dificultades en la relación de documentos como áreas y juegos; ya que estos no contaban con ningún campo que los relacionase explicitamente. Por otro lado, la imputación de valores faltantes como cadenas de caracteres ha generado más de una problemática durante la migración \texttt{Mongo}.
+
+En cuanto a la migración, la principal dificultad ha sido la poca familiaridad con la operatividad de \texttt{MongoDB}. Pese a su parecido con lenguajes de programación tradicionales como \texttt{JavaScript} el uso de agregados incentiva un sobre anidamiento de operaciones que dificulta la legibilidad del código.
+
+Con todo lo anterior, concluímos que esta práctica nos ha permitido experimentar y familiarizarnos con el entorno de \texttt{MongoDB}.
+
+
+\end{document}

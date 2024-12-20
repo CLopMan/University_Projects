@@ -1,0 +1,13 @@
+*.swp
+*.log
+*.aux
+*.toc
+*.out
+*.zip
+*.gz
+entregable1/*.pdf
+entregable2/docs/*.pdf
+__pycache__/
+venv
+*.json
+build

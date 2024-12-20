@@ -1,0 +1,228 @@
+\documentclass[]{article}
+\usepackage{graphicx}
+\usepackage[spanish]{babel}
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=3cm]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{booktabs}
+\definecolor{miverde}{rgb}{0,0.6,0}
+\definecolor{aqua}{rgb}{0.0, 0.5, 0.8}
+\definecolor{miotrootroverde}{rgb}{0.11, 0.40, 0.11}
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break, $sum, $out, $size, $filter, $group, $addFields, $substract, $multiply, $divide, $round, $map, $reduce, $replaceRoot, $mergeObjects, $unwind, $dateFromString, $floor, $project, $jsonSchema, $lookup},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this, validator, db, createCollection, bsonType, description, title, required, properties},
+  ndkeywordstyle=\color{miotrootroverde}\bfseries,
+  identifierstyle=\color{aqua},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{red}\ttfamily,
+  stringstyle=\color{miverde}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+% style for listings (código)
+\lstdefinestyle{python}{
+    language=Python,
+    backgroundcolor=\color{gray!2},     % Color de fondo
+    basicstyle=\ttfamily,               % Tipo y tamaño de fuente
+    keywordstyle=\color{blue}\bfseries, % Color para palabras clave
+    stringstyle=\color{miverde},        % Color para cadenas
+    commentstyle=\color{red},           % Color para comentarios
+    showspaces=false,                   % No mostrar espacios
+    showstringspaces=false,             % No mostrar espacios en las cadenas
+    frame=single,                       % Poner un marco alrededor del código
+    breaklines=true,                    % Romper las líneas largas
+    captionpos=b,                       % Posición del caption
+    tabsize=4,                          % Tamaño de las tabulaciones
+    escapeinside={\%*}{*)},             % Para incluir código LaTeX en los listings
+    morekeywords={self}                 % Palabras clave adicionales
+}
+
+\lstdefinestyle{bash}{
+    language=shell,
+    backgroundcolor=\color{gray!2},     % Color de fondo
+    basicstyle=\ttfamily,               % Tipo y tamaño de fuente
+    keywordstyle=\color{blue}\bfseries, % Color para palabras clave
+    stringstyle=\color{miverde},        % Color para cadenas
+    commentstyle=\color{red},           % Color para comentarios
+    showspaces=false,                   % No mostrar espacios
+    showstringspaces=false,             % No mostrar espacios en las cadenas
+    frame=single,                       % Poner un marco alrededor del código
+    breaklines=true,                    % Romper las líneas largas
+    captionpos=b,                       % Posición del caption
+    tabsize=4,                          % Tamaño de las tabulaciones
+    escapeinside={\%*}{*)},             % Para incluir código LaTeX en los listings
+    morekeywords={self}                 % Palabras clave adicionales
+}
+
+\lstset{basicstyle=\ttfamily}
+\lstset{
+    inputencoding=utf8,
+    extendedchars=true,      % Permitir caracteres extendidos (acentos)
+    literate=%
+        {á}{{\'a}}1 {Á}{{\'A}}1
+        {é}{{\'e}}1 {É}{{\'E}}1
+        {í}{{\'i}}1 {Í}{{\'I}}1
+        {ó}{{\'o}}1 {Ó}{{\'O}}1
+        {ú}{{\'u}}1 {Ú}{{\'U}}1
+}
+
+
+%title
+\title{Práctica 2} 
+
+\author{Adrián Ferández Galán, César López Mantecón y Manuel Gómez-Plana Rodríguez}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+   \includegraphics[width=0.9\textwidth]{uc3m.jpg} 
+    {\Huge Universidad Carlos III\\
+    
+     \Large Arquitectura de Datos\\
+     \vspace{0.5cm}
+     Curso 2024-25}
+    \vspace{2cm}
+
+    {\Huge \textbf{Práctica 1.2} \par}
+    \vspace{0.5cm}
+    {\Large Diseño de los clusters \par}
+    \vspace{8cm}
+
+   \textbf{Ingeniería Informática, Cuarto curso}\\
+    \vspace{0.2cm} 
+    Adrián Fernández Galán       (NIA: 100472182, e-mail: 100472182@alumnos.uc3m.es)\\
+    César López Mantecón         (NIA: 100472092, e-mail: 100472092@alumnos.uc3m.es)\\
+    Manuel Gómez-Plana Rodríguez (NIA: 100472310, e-mail: 100472310@alumnos.uc3m.es)
+    \vspace{0.5cm}
+
+   
+    \textbf{Prof.} Lourdes Moreno López\\
+    
+    \textbf{Grupo: } 81   
+    
+\end{titlepage}
+\newpage
+
+\renewcommand{\contentsname}{\centering Índice}
+\tableofcontents
+
+\newpage
+\section{Introducción}
+\label{sec:introduccion}
+En este documento se discutirá del diseño de los clusters de la base de datos sobre las areas recreativas de Madrid. Un correcto diseño de \textit{clustering} dotará al sistema de una mayor eficiencia, además de sus ventajas de tolerancia a fallos y accesibilidad. 
+
+Para cada agregado, se discutirán distintas claves y estrategias de particionamiento para lograr una mejor eficiencia en la base de datos, tanto en la actualidad como para soportar escalabilidad sin sacrificar rendimiento. Además, se discutirán distintas estrategias de replicación de los datos con el fin de contar con un respaldo frente a caídas y brindar una mayor disponibilidad de la información.
+
+%Para este diseño se hablarán de las diferentes posibilidades que se pueden conseguir a través de la \textbf{fragmentación} y de la \textbf{replicación}, además de analizar sus consecuencias tanto en el contexto de nuestra base de datos como en contextos parecidos.
+
+\section{Fragmentación}
+\label{sec:fragmentacion}
+En este apartado se analizarán las diferentes estrategias con las que se podrán abordar para cada una de las colecciones de los distintos agregados.
+
+\subsection{\texttt{Agregado\_area\_recreativa\_clima}}
+\label{subec:areas}
+Este agregado cuenta con diferentes datos en relación a un área. Los más relevantes son los siguientes:
+\begin{itemize}
+    \item Condiciones climáticas: se trata de una \textbf{referencia} a la información meteorológica en un área (y todas las que compartan \textit{código postal}).
+    \item Incidentes de Seguridad: se trata de una \textbf{referencia con resumen}, en la que se incluye el tipo de incidente, su gravedad y la fecha de reporte.
+    \item Lista de juegos: se trata de una lista de \textbf{referencias} a la información de cada juego presente en el área.
+    \item Encuestas de usuario: se trata de una lista de \textbf{referencias} a los registros sobre las encuestas hechas a cada usuario sobre el área.
+\end{itemize}
+
+Tal y cómo sugiere el enunciado, se trabajará sobre el supuesto de que tanto la lectura como la escritura son operaciones frecuentes. La primera, consultando sobre todo el estado de áreas y juegos; y la segunda, actualizando los registros relativos a \textit{encuestas de usuario} e \textit{información meteorológica (meteo24)}.
+
+
+
+\subsubsection{Clave de partición}
+\label{subsubsec:particion_areas}
+
+Para las colecciones \textit{areas}, \textit{juegos}, \textit{encuestas\_satisfaccion} e \textit{incidentes\_seguridad} se fragmentará por la clave \textbf{AreaRecreativaID} (\textbf{\_id} en el caso de areas). De esta forma se optimizarán las consultas sobre estos documentos para la misma área. 
+
+En cambio, para la colección \textit{meteo} se propone fragmentar por \textbf{punto\_muestreo} que identifica la estación, la cual está asociada siempre al mismo código postal. Así, la información meteorlógica relativa a una misma zona geográfica (donde las todas las áreas tienen el mismo clima)  quedará póxima en los \textit{shards}; facilitando su consulta y actualización, a la vez que optimizando la consistencia de los datos.
+
+\subsubsection{Estrategia de fragmentación}
+\label{subsubsec:fragmentacion_areas}
+
+Para asegurar una distribución balanceada y evitar sobre cargas, se implementan las siguientes estrategias de sharding:
+\begin{itemize}
+    \item \textit{Pre-Splitting}: se realizará pre-spliting sobre el campo \textit{AreaRecreativaID} para evitar la sobre carga (\textit{hotspot}) sobre el nodo primario en la primera carga de datos. Además, esto garantiza una distribución uniforme de los registros.
+    \item Zonas de \textit{Sharding}: se definen zonas de sharding para agrupar los datos de \textit{meteo24} por código postal y garantizar una localidad espacial de los datos. % zonas de sharding: mongo se asegura de que los datos de un cierto rango de valores se mantengan siempre en el mismo shard y no se muevan por balanceo u otros factores.
+\end{itemize}
+
+
+\subsection{\texttt{Agregado\_Juego}}
+\label{subsec:juegos}
+Este agregado consta de las siguientes relaciones:
+\begin{itemize}
+    \item Listado de Mantenimientos sobre un Juego: se trata de una lista de \textbf{referencias} a la información sobre los mantenimientos de un juego en concreto.
+    \item Incidencias reportadas por lo usuarios: se trata de una \textbf{refencia con resumen}, en la que se incluye el tipo de incidencia, la fecha de reporte y el estado actual de la incidencia.
+\end{itemize}
+
+En el enunciado se indica que tanto las lecturas como las escrituras son operaciones frecuentes. La primera de ellas ocurre sobre todo para consultar el estado de los juegos y su historial de mantenimiento; la segunda de ellas es común para gestionar el mantenimiento de los juegos y actualizar el estado de las incidencias.
+
+\subsubsection{Clave de partición}
+\label{subsubsec:particion_juegos}
+
+Para las colecciones \textit{juegos} y \textit{mantenimiento} se fragmentará por la clave \textbf{JuegoID} (\textbf{\_id} en el caso de juegos). De esta manera se optimizarán las consultas sobre estos documentos para el mismo juego.
+Para el caso de \textit{incidencias}, dado que a priori no se conoce a qué juego pertenece la incidencia se busca fragmentar estos documentos según al mantenimiento al que pertenecen a través de la clave \textbf{MantenimientoID}, de esta manera se facilitarán las escrituras cuando ocurran finalizaciones de mantenimientos que resuelvan una incidencia, actualizando el estado de esta última. Además es conveniente usar \textit{FECHA\_REPORTE} para poder agrupar en cada shard las fechas más cercanas. Así mismo se fragmentará la colección de incidencias a través de una clave compuesta por \textit{MantenimientoID} y \textit{FECHA\_REPORTE}. De esta forma, pese a que la fecha sea una clave secuencial se repatirá la carga por los \textit{shards} evitando una sobrecarga del último fragmento.
+
+\subsubsection{Estrategia de fragmentacion}
+\label{subsubsec:fragmentacion_juegos}
+
+Para asegurar una distribución balanceada y evitar una sobrecarga, se implementan las siguientes estrategias de sharding:
+\begin{itemize}
+    \item \textit{Pre-Splitting}: se realizará pre-splitting sobre el campo \textit{JuegoID} para evitar la sobre carga sobre el nodo primario en la primera carga de datos.
+    \item Zonas de \textit{Sharding}: se definen zonas de sharding para agrupar los datos de \textit{incidencias} por \textit{MantenimientoID} y de esta manera garantizar la localidad espacial de los datos.
+\end{itemize}
+
+\subsection{\texttt{Agregado\_Incidencias}}
+\label{subsec:incidencias}
+Este agregado tiene relación con Usuarios de forma \textbf{embebida}, por lo que no es necesario aplicar ninguna estrategia de fragmentacion a usuarios, ya que se encuentra dentro del agregado.
+
+Tal y como se indica en el enunciado, en este agregado son frecuentes tanto las lecturas como las escrituras para gestionar las incidencias reportadas por los usuarios.
+\subsubsection{Clave de partición}
+\label{subsubsec:particion_incidencias}
+Para la colección de \textit{incidencias}, que ya contiene a los usuarios, se fragmentará por una clave compuesta por \textit{FECHA\_REPORTE} y \textit{nivelEscalamiento}, esta clave permite agrupar en el mismo shard las incidencias cercanas temporalmente y que además tengan un mismo nivel de prioridad. Además que esta configuración soluciona el problema que tienen las fechas al ser \textbf{claves ascendientes}, ya que al combinar la clave ascenente \textit{FECHA\_REPORTE} con un \textit{nivelEscalamiento} se evitará un \textit{hotspot} en el \textit{shard} correspondiente al último rango de valores. 
+
+\subsubsection{Estrategia de fragmentación}
+\label{subsubsec:fragmentacion_incidencias}
+
+Para asegurar una distribución balanceada y evitar una sobrecarga, se implementan las siguientes estrategias de sharding:
+\begin{itemize}
+    \item \textit{Pre-Splitting}: se realizará pre-splitting sobre los campos \textit{FECHA\_REPORTE} y \textit{nivelEscalamiento} para evitra la sobre carga sobre el nodo primaio en la primera carga de datos.
+\end{itemize}
+
+\subsection{Otras características}
+\label{subsec:others}
+
+Otras características que no entran son especificas de cada agregado, sino que afectan a la base de datos completa son las siguientes:
+\begin{itemize}
+    \item \textbf{Balanceador de Carga}: El balanceador de carga es un proceso que siempre está activo y permite ajustar automáticamente la distribución de información entre los diferentes \textit{shards}, sin embargo el balancer puede tener un gran impacto en el rendimiento del sistema, sobre todo para situaciones de alta carga en el sistema. Por estas razones se tendrá un balanceador de carga pero se desactivará de forma temporal en momentos de alta carga y se realizarán las respectivas distribuciones en ventanas de baja carga.
+    \item \textbf{Número de \textit{Shards}}: Se ha decidido tener 6 fragmentos, dado que se tiene un número moderado de datos y se espera una escalabilidad del sistema. Sin embargo para escenarios con más datos, como información a nivel nacional o internacional sería recomendable tener 10 fragmentos por país.
+    \item \textbf{Número de enrutadores}: Se ha decidido tener 3 enrutadores, lo que nos permite dividir Madrid en tres zonas: sur, noreste y noroeste. En caso de que algun enrutador pueda fallar o tenga demasida carga se redirigirá su carga entre los otros dos restantes. Para escenarios con más carga de trabajo se recomendaría tener 6 enrutadores por país.
+    \item \textbf{Número de servidrores de configuración}: Se ha decidido usar 3 servidores de configuración. Este número de servidores es suficiente ya que aporta disponibilidad, al poder repartir la carga entre varios servidores; a la vez que tolerancia a fallos, ya que aunque caiga un nodo el sistema contará con la mayoría de los mismos para mantener el sistema hasta que se recupere.
+\end{itemize}
+
+\section{Replicación}
+\label{sec:replicacion}
+
+La replicación es una técnica que mejora la disponibilidad y tolerancia a fallos del sistema, en nuestro caso de la base de datos, además de reducir la carga de las lecturas. Esto se consigue replicando exactamente la misma información en diferentes \textit{clusters}, lo que permite seguir operando en el sistema aunque alguno de los nodos falle.
+
+El sistema de gestión de las Áreas recreativas de Madrid no es un sistema crítico ni en los casos de uso se indica que la disponibilidad del sistema sea una de las características principales, por lo que se optará por un factor de 2. Esto permitirá tener una réplica de soporte para cada conjunto de datos, de forma que la caída de cualquier nodo puede ser contrarestada mediante su copia.
+\newpage
+
+\section{Conclusiones}
+\label{sec:conclusiones}
+
+Un correcto diseño de \textit{cluster} permite a las aplicaciones contar con características fundamentales como son la disponibilidad y la tolerancia a fallos. Esta práctica nos ha permitido experimentar y realizar un análisis profundo sobre un conjunto relativamente grande de datos, acerándonos a un problema similar al que encontraríamos en un entorno laboral.
+
+Destacamos como la principal dificultad de esta parte la elección de claves de fragmentación para cada una de las colecciones. Tratar de de contemplar la mayor parte de los casos de uso en esta elección para optimizar lo máximo posible el rendimiento de la base de datos es de vital importancia para distrbuir correctamente los datos y permitir un mejor desempeño de las consultas.
+
+\end{document}

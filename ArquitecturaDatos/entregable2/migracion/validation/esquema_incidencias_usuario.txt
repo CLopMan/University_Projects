@@ -1,0 +1,49 @@
+db.createCollection("incidencias_usuario", {
+    validator: {
+        $jsonSchema: {
+            bsonType: "object",
+            title: "Incidencias Usuario Validator",
+            required: [
+                "_id",
+                "TIPO_INCIDENCIA",
+                "FECHA_REPORTE",
+                "ESTADO",
+                "UsuarioID",
+                "MantenimientoID",
+            ],
+            properties: {
+                _id: {
+                    bsonType: "int",
+                    description: "número identificativo de la columna",
+                },
+                TIPO_INCIDENCIA: {
+                    bsonType: "string",
+                    enum: ["DESGASTE", "ROTURA", "VANDALISMO", "MAL FUNCIONAMIENTO"],
+                    description: "tipo de incidencia reportada",
+                },
+                FECHA_REPORTE: {
+                    bsonType: ["string", "date"],
+                    description: "fecha en la que se reportó la incidencia",
+                },
+                ESTADO: {
+                    bsonType: "string",
+                    enum: ["CERRADA", "ABIERTA"],
+                    description: "estado actual de la incidencia",
+                },
+                UsuarioID: {
+<<<<<<< HEAD
+                    bsonType: "string",
+                    description: "listado de usuarios que han realizado el reporte"
+=======
+                    bsonType: ["string"],
+                    description: "listado de usuarios",
+>>>>>>> 42409968415df99838baafe3a6e0e05393fa2bc4
+                },
+                MantenimientoID: {
+                    bsonType: ["string"],
+                    description: "id de mantenimiento",
+                }
+            },
+        },
+    },
+});
