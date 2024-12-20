@@ -1,0 +1,424 @@
+\documentclass[]{article}
+\usepackage{graphicx}
+\usepackage[spanish]{babel}
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=3cm]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+
+\definecolor{miverde}{rgb}{0,0.6,0}
+\lstdefinelanguage{flag}{
+  keywords={dbafcc, cafebb},
+  keywordstyle=\bfseries,
+  ndkeywords={},
+  ndkeywordstyle=\color{miotrootroverde}\bfseries,
+  identifierstyle={},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{red}\ttfamily,
+  stringstyle=\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+% style for listings (código)
+\lstdefinestyle{python}{
+    language=Python,
+    backgroundcolor=\color{gray!2},     % Color de fondo
+    basicstyle=\ttfamily,               % Tipo y tamaño de fuente
+    keywordstyle=\color{blue}\bfseries, % Color para palabras clave
+    stringstyle=\color{miverde},        % Color para cadenas
+    commentstyle=\color{red},           % Color para comentarios
+    showspaces=false,                   % No mostrar espacios
+    showstringspaces=false,             % No mostrar espacios en las cadenas
+    frame=single,                       % Poner un marco alrededor del código
+    breaklines=true,                    % Romper las líneas largas
+    captionpos=b,                       % Posición del caption
+    tabsize=4,                          % Tamaño de las tabulaciones
+    escapeinside={\%*}{*)},             % Para incluir código LaTeX en los listings
+    morekeywords={self}                 % Palabras clave adicionales
+}
+
+\lstdefinestyle{flag}{
+    language=bash,
+    backgroundcolor=\color{gray!2},     % Color de fondo
+    basicstyle=\ttfamily,               % Tipo y tamaño de fuente
+    keywordstyle=\bfseries, % Color para palabras clave
+    stringstyle=\color{miverde},        % Color para cadenas
+    commentstyle=\color{red},           % Color para comentarios
+    showspaces=false,                   % No mostrar espacios
+    showstringspaces=false,             % No mostrar espacios en las cadenas
+    frame=single,                       % Poner un marco alrededor del código
+    breaklines=true,                    % Romper las líneas largas
+    captionpos=b,                       % Posición del caption
+    tabsize=4,                          % Tamaño de las tabulaciones
+    escapeinside={\%*}{*)},             % Para incluir código LaTeX en los listings
+    morekeywords={self}                 % Palabras clave adicionales
+}
+
+
+\lstdefinestyle{bash}{
+    language=bash,
+    backgroundcolor=\color{gray!2},     % Color de fondo
+    basicstyle=\ttfamily,               % Tipo y tamaño de fuente
+    keywordstyle=\bfseries, % Color para palabras clave
+    stringstyle=\color{miverde},        % Color para cadenas
+    commentstyle=\color{red},           % Color para comentarios
+    showspaces=false,                   % No mostrar espacios
+    showstringspaces=false,             % No mostrar espacios en las cadenas
+    frame=single,                       % Poner un marco alrededor del código
+    breaklines=true,                    % Romper las líneas largas
+    captionpos=b,                       % Posición del caption
+    tabsize=4,                          % Tamaño de las tabulaciones
+    escapeinside={\%*}{*)},             % Para incluir código LaTeX en los listings
+    morekeywords={self}                 % Palabras clave adicionales
+}
+\lstset{basicstyle=\ttfamily}
+\hypersetup{
+    colorlinks=true, % Activa el color en los enlaces
+    linkcolor=blue,  % Color de los enlaces internos (como secciones)
+    urlcolor=blue,   % Color de los enlaces a URLs
+}
+
+
+%title
+\title{Práctica 3} 
+
+\author{Adrián Ferández Galán, César López Mantecón y Manuel Gómez-Plana Rodríguez}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+   \includegraphics[width=0.9\textwidth]{uc3m.jpg} 
+    {\Huge Universidad Carlos III\\
+    
+     \Large Ingeniería de la Ciberseguridad\\
+     \vspace{0.5cm}
+     Curso 2024-25}
+    \vspace{2cm}
+
+    {\Huge \textbf{Práctica 3} \par}
+    \vspace{0.5cm}
+    {\Large Análisis de Malware\par}
+    \vspace{8cm}
+
+   \textbf{Ingeniería Informática, Cuarto curso}\\
+    \vspace{0.2cm} 
+    Adrián Fernández Galán       (NIA: 100472182, e-mail: 100472182@alumnos.uc3m.es)\\
+    César López Mantecón         (NIA: 100472092, e-mail: 100472092@alumnos.uc3m.es)\\
+    Manuel Gómez-Plana Rodríguez (NIA: 100472310, e-mail: 100472310@alumnos.uc3m.es)
+    \vspace{0.5cm}
+
+   
+    \textbf{Prof.} Antonio Nappa\\
+    
+    \textbf{Grupo: } 81   
+    
+\end{titlepage}
+\newpage
+
+%\renewcommand{\contentsname}{\centering Índice}
+%\tableofcontents
+
+\newpage
+
+\lstset{style=bash}
+\section{Introducción}
+\label{sec:introduccion}
+Este documento recoge el desarrollo de la tercera práctica de la asignatura
+\textit{Ingeniería de la Ciberseguridad}. El objetivo de esta práctica es el
+análisis y comprensión de dos programas maliciosos para extraer una
+\textit{flag} de cada uno. Para ello trabajaremos con una máquina virtual de
+\href{https://www.kali.org/}{KaliLinux} totalmente aislada con el fin de poder
+analizar los binarios tanto estáticamente como dinámicamente.
+
+Los malwares son softwares con alguna intención maliciosa que puede poner a un
+usuario, sus datos o un dispositivo en riesgo. Para esta práctica, será
+fundamental identificar el comportamiento malicioso de cada uno de los
+softwares y comprender su funcionamiento. Además de extraer las \textit{flags}
+con el formato adecuado.
+
+Adicionalmente, es importante tener en cuenta que contamos con información
+acerca del autor de estos programas. Es por esto que centraremos gran parte de
+nuestros esfuerzos en la identificación de cadenas donde un prefijo y un sufijo
+se concatenen a una \textbf{semilla}, siendo esta típicamente una palabra
+seguida de algún caracter repetido sobre la que se ha aplicado alguna clase de
+cifrado de desplazamiento en un alfabeto, comúnmente el alfabeto de caracteres
+hexadecimales (``abcdef0123456789'').
+
+\section{Parte 1}
+\label{sec:type1}
+El primer malware se trata de un programa que se ejecuta sobre un directorio.
+Contamos con el código fuente, así como el binario ejecutable. Es importante
+destacar que este último no cuenta con marcas de depuración, lo que dificulta
+su análisis mediante decompiladores y entornos de \textit{debugging}.
+
+Durante su análisis se emplearán las herramientas
+\href{https://ghidra-sre.org/}{Ghidra} y
+\href{https://man7.org/linux/man-pages/man1/gdb.1.html}{gdb}, además de otros
+métodos propios.
+
+\subsection{Análisis estático}
+\label{subsec:analisis-estatico-1}
+
+Durante este proceso se ha tratado de comprender del funcionamiento del
+programa, extraer el flujo habitual del código e identificar secciones o
+funciones clave en su ejecución. Para ello se ha empleado \textit{Ghidra} 
+para decompilar y comparar el pseudocódigo resultante con el código C y
+verificar que ambos programas tienen el mismo comportamiento.
+
+Finalmente se concluyó que el código l3.c y el ejecutable \texttt{runDir} son
+el mismo programa. Tras su análisis se extrajeron las siguientes conclusiones:
+\begin{itemize}
+    \item El programa realiza una llamada \texttt{fork} con el fin de evitar el
+    uso de herramientas como \texttt{gdb} u otros entornos de debugging.
+    \item El programa genera una \textit{flag} de longitud pseudoaleatoria y de
+    caracteres al azar mediante la concatenación de la semilla rotada
+    ``srrqnn'' con un prefijo y un sufijo, también generados aleatoriamente.
+    Esta flag se transforma mediante las funciones \texttt{transform\_flag} y
+    \texttt{process\_buffer}.
+    \item El programa procesa archivos con las extensiones .txt, .pdf, .jpg,
+    .png y .doc; creando una copia y aplicando una transformación descrita en
+    la función \texttt{process\_buffer}. A estos archivos transformados les
+    inserta la \texttt{flag} transformada al final.
+    \item Las funciones para transformar archivos o explorar directorios
+    reciben una estructura donde se encuentra la \textit{flag} sin transformar
+    y transformada.
+\end{itemize}
+
+Con todo lo anterior es fácil concluir que se trata de un programa que cifra u
+ofusca archivos con extensiones concretas, creando una copia de seguridad
+previamente. Destaca que trabaja siempre con copias de los archivos, nunca con
+los originales. También, crea un archivo \textit{processed\_files.txt} donde
+registran todos los archivos que se han procesado y se incluye la \textit{flag
+transformada}.
+
+\subsection{Análisis dinámico}
+\label{subsec:analisis-dinámico-1}
+
+El análisis dinámico ha permitido la extracción de las \textit{flags}
+transformada y sin transformar. Para ello ha sido necesario sortear la llamada
+a la función \texttt{fork} para que el padre procese el directorio, al igual
+que el hijo, y permitir su análisis con la herramienta \texttt{gdb}. Esto se ha
+logrado mediante el siguiente código:
+
+\newpage
+\begin{lstlisting}[caption=Instrucciones en gdb para esquivar la llamada fork]
+(gdb) break fork@plt
+(gdb) run
+(gdb) finish
+(gdb) set $rax=0
+\end{lstlisting}
+
+De esta forma el proceso padre recibirá un 0 como resultado del fork,
+ejecutando el flujo habitual del proceso hijo. Con esto podemos extraer la
+\textit{flag} a través de las siguientes instrucciones:
+
+\begin{lstlisting}[caption=Instrucciones en gdb para extraer la flag]
+(gdb) break process_directory
+(gdb) finish
+(gdb) x/s $rsi
+(gdb) x/s $rsi + 64
+\end{lstlisting}
+
+Con la primera instrucción \texttt{x/s} podemos extraer la semilla antes de ser
+transformada. Con la segunda, vemos el resultado de la transformación. Al
+repetir esto varias veces, hemos comprobado que la \textit{flag} no cambia
+entre ejecuciones, lo que ha levantado sospechas sobre la aleatoriedad de la
+función \texttt{rand}. Al buscar información en el manual y realizar una prueba
+en 3 máquinas distintas con diferentes sistemas operativos se ha confirmado que
+la secuencia que genera esta función es siempre la misma, haciendo de la
+generación de la \textit{flag} un proceso determinista. Para cualquier ejecución, la
+cadena de caracteres tendrá una longitud de 26, donde el prefijo y sufijo serán
+de longitud 10.
+
+Complementariamente, se han analizado los ficheros generados por el ejecutable.
+Esto ha permitido comprobar que, efectivamente, la flag escrita en el fichero
+\textit{processed\_files.txt}, la extraída durante la ejecución y la flag
+escrita al final de cada fichero es la misma. Se puede extraer la flag al final
+del fichero a través del siguiente comando:
+
+\begin{lstlisting}[caption=Obtención de la flag transformada concatenada al final del fichero]
+tail -c 26 file.processed # 881531cc331308c2ca534a15c4
+\end{lstlisting}
+
+\subsection{Descripción del Malware}
+\label{malware1}
+
+El malware se trata de un cifrador de ficheros, lo que encaja con la
+descripción de un \textit{ransomware}. Sin embargo, tiene ciertas
+particularidades destacables. Lo primero, crea una copia de cada fichero en el
+propio directorio, lo que no encaja del todo con el comportamiento típico de
+este tipo de malware. También, no trabaja sobre el archivo original, cifrando
+una copia. Esto se traduce en que, si una víctima ejecuta el binario en su
+máquina, no existirían daños reales sobre sus datos u archivos. No obstante, si
+se tiene en cuenta la naturaleza académica de este ejercicio, podemos ignorar
+estas particularidades y reconocer el potencial daño que puede tener un
+software de este tipo: la pérdida de acceso a ciertos ficheros en un directorio.
+
+\subsection{Descubrimiento de la flag}
+\label{flag1}
+
+Para el descubrimiento de la \textit{flag} ha sido necesario rotar la semilla
+descubierta. Dado que no cuenta con caracteres hexadecimales se ha empleado un
+\textit{script} de \texttt{Python} (ver \hyperref[anexo]{anexo}) para rotarla en el alfabeto inglés buscando
+encontrar el patrón descrito en la introducción.
+
+\begin{lstlisting}[caption=Resultado de rotar la semilla en el alfabeto inglés]
+$ python rotate_seed.py 
+0	srrqnn
+1	tssroo
+2	uttspp
+3	vuutqq
+4	wvvurr
+5	xwwvss
+6	yxxwtt
+7	zyyxuu
+8	azzyvv
+9	baazww
+10	cbbaxx
+11	dccbyy
+12	eddczz
+13	feedaa
+14	gffebb
+15	hggfcc
+16	ihhgdd
+17	jiihee
+18	kjjiff
+19	lkkjgg
+20	mllkhh
+21	nmmlii
+22	onnmjj
+23	poonkk
+24	qppoll
+25	rqqpmm
+\end{lstlisting}
+
+De este resultado, la única semilla que cumple la condición de ser una palabra
+seguida de dos letras es \textit{feedaa}. Adicionalmente cuenta exclusivamente
+con caracteres hexadecimales, lo que la convierte en
+la única candidata viable para ser la semilla. Adicionalmente, se han
+probado las rotaciones de ejercicios pasados sin resultado exitoso.
+
+Finalmente, conociendo la longitud y ubicación de la semilla gracias al
+análisis estático se ha conseguido entregar existosamente la semilla:
+\texttt{6931FAC9DAFEEDAAB2B36C248B}. Esta semilla se ha generado replicando el
+código de la función \texttt{generate\_flag}, eliminando la ofuscación y
+empleando la semilla en claro.
+
+\section{Parte 2}
+\label{sec:type2}
+
+El segundo malware es una aplicación móvil desarrollada para sistemas \textit{Android} a
+través de Kotlin. En el directorio raíz encontramos dos ficheros con la
+extensión \textit{.kt}: \textit{FileProcessor.kt} \textit{MainActivity.kt}.
+Además encontramos un archivo \textit{.apk}.
+
+\subsection{Análisis estático}
+\label{subsec:analisis-estatico-2}
+
+Se ha descomprimido el fichero \textit{.apk}, obteniendo varios ficheros
+compilados con la extensión \textit{.dex}. Gracias a la herramienta
+\href{https://github.com/skylot/jadx}{Jadx} hemos podido decompilar estos
+ficheros y analizar el código del programa.
+
+Entre todos los binarios, destaca el fichero \textit{classes3.dex}, donde están
+contenidas funciones como \texttt{generate\_flag}. Adicionalmente, mirando el
+conjunto completo de los ficheros el programa tiene un comportamiento similar
+al de la parte anterior, destacando el uso del objeto \texttt{SecureRandom()}
+de \texttt{Java} para la generación de números aleatorios. Este método, al
+contrario que en la primera parte, si que genera números aleatorios para
+distinas ejecuciones.
+
+El proceso de generación de la \textit{flag} es similar al de la parte
+anterior. Una semilla \textit{hardcoded} es concatenada a un prefijo y sufijo
+de longitudes aleatorias. La semilla encontrada en el código es ``srrrss''. 
+
+Con todo lo anterior se concluye que se trata de un software con un
+comportamiento similar al de la parte anterior, adaptado a la plataforma de
+android.
+
+\subsection{Análisis dinámico}
+\label{subsec:analisis-dinámico-2}
+
+Se ha utilizado un móvil aislado de la red para la ejecución del software y la
+observación de su comportamiento. Se observa que se obtienen \textit{flags}
+distintas en cada ejecución (ver figura \ref{ejec}). Sin embargo, no se perciben efectos nocivos a los
+datos almancenados en el dispositivo. Destaca que se ha analizado el programa
+con un antivirus, sin levantar ninguna alarma.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.25\textwidth]{screenshot1.jpg}
+\includegraphics[width=0.25\textwidth]{screenshot2.jpg}
+\caption{Dos ejecuciones sobre un dispositivo android}
+\label{ejec}
+\end{figure}
+
+Destaca que, además de la instalación, el usuario debe darle permisos sobre el
+sistema de ficheros para que el software pueda ejecutarse. Es decir, se
+necesita interacción del usuario para la ejecución del malware.
+
+\subsection{Descripción del Malware}
+\label{malware1}
+
+De la misma forma que en la parte anterior, el análisis dinámico apunta a que
+se trata de un \textit{ransomware}. No obstante, la ejecución sobre un
+dispositivo android no tiene como consecuencia ningún efecto observable.
+
+\subsection{Descubrimiento de la flag}
+\label{flag1}
+
+Para el descubrimiento de la \textit{flag} ha sido necesario tanto las
+conclusiones extraídas del análisis estástico como el análisis del código
+fuente incluído el archivo \textit{FileProcessor.kt}. En este último aparece un
+comentario donde se incluye la forma en la que se ha obtenido la semilla
+incluída en el binario, afirmando que se trata de un desplazamiento de 13
+posiciones sobre la palabra ``feedff''. No obstante, si se aplica este proceso
+a la inversa sobre la cadena que se usa como semilla se obtiene la palabra
+``feeeff''. Ante esta situación, se ha seguido el mismo proceso de la parte
+anterior obteniendo dos \textit{flags} candidatas:
+\texttt{3850413feedffb6b28ff359c466459e} y
+\texttt{3850413feeeffb6b28ff359c466459e}. 
+
+Tras probar ambas, la \textit{flag} que ha sido aceptada en el envío ha sido la
+primera: 
+
+\noindent
+\texttt{3850413feedffb6b28ff359c466459e}. 
+
+Es importante destacar que esta semilla es la única de las dos que sigue el
+patrón de prácticas anteriores. Sin embargo, en el ejecutable la \textit{flag}
+resultante proviene de rotar la cadena ``feeeff''. Esto resalta la importancia
+de contar con el código fuente a la hora de analizar software malicioso, siendo
+un elemento que facilita en gran medida el trabajo.
+
+\section{Conclusiones}
+\label{sec:conclusion}
+El análisis estático y dinámico de archivos binarios es una de las principales
+actividades relacionadas con la ciberseguridad. Esta práctica nos ha permitido
+explorar el análisis estático mediante el decompilado de archivos binarios,
+estudiando en el proceso las heerramientas más famosas de este campo, como
+\texttt{ghidra} o \texttt{jadx}.
+
+Este análisis nos sirvé también para mejorar nuestra capacidad de análisis de
+código, permitíendonos discernir si un código es malicioso o no, algo altamente
+crucial en la ciberseguridad. Así, valoramos está práctica ya que nos ha
+brindado la oportunidad de conocer herramientas de decompilado y la oportunidad
+de practicar el análisis de código mediante la búsqueda de la intención del
+malware así como la \textit{flag} en claro.
+
+\newpage
+\pagenumbering{gobble}
+\section*{Anexo}
+
+\phantomsection
+\label{anexo}
+\subsection*{Código para la rotación de la flag en el alfabeto inglés}
+\lstset{style=python}
+\lstinputlisting[language=Python]{scripts/rotate_seed.py}
+
+\end{document}

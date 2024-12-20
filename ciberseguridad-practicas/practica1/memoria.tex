@@ -1,0 +1,286 @@
+\documentclass[]{article}
+\usepackage{graphicx}
+\usepackage[spanish]{babel}
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=3cm]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+
+\definecolor{miverde}{rgb}{0,0.6,0}
+
+% style for listings (código)
+\lstdefinestyle{python}{
+    language=Python,
+    backgroundcolor=\color{gray!2},     % Color de fondo
+    basicstyle=\ttfamily,               % Tipo y tamaño de fuente
+    keywordstyle=\color{blue}\bfseries, % Color para palabras clave
+    stringstyle=\color{miverde},        % Color para cadenas
+    commentstyle=\color{red},           % Color para comentarios
+    showspaces=false,                   % No mostrar espacios
+    showstringspaces=false,             % No mostrar espacios en las cadenas
+    frame=single,                       % Poner un marco alrededor del código
+    breaklines=true,                    % Romper las líneas largas
+    captionpos=b,                       % Posición del caption
+    tabsize=4,                          % Tamaño de las tabulaciones
+    escapeinside={\%*}{*)},             % Para incluir código LaTeX en los listings
+    morekeywords={self}                 % Palabras clave adicionales
+}
+\lstdefinestyle{bash}{
+    language=bash,
+    backgroundcolor=\color{gray!2},     % Color de fondo
+    basicstyle=\ttfamily,               % Tipo y tamaño de fuente
+    keywordstyle=\color{blue}\bfseries, % Color para palabras clave
+    stringstyle=\color{miverde},        % Color para cadenas
+    commentstyle=\color{red},           % Color para comentarios
+    showspaces=false,                   % No mostrar espacios
+    showstringspaces=false,             % No mostrar espacios en las cadenas
+    frame=single,                       % Poner un marco alrededor del código
+    breaklines=true,                    % Romper las líneas largas
+    captionpos=b,                       % Posición del caption
+    tabsize=4,                          % Tamaño de las tabulaciones
+    escapeinside={\%*}{*)},             % Para incluir código LaTeX en los listings
+    morekeywords={self}                 % Palabras clave adicionales
+}
+\lstset{basicstyle=\ttfamily}
+\hypersetup{
+    colorlinks=true, % Activa el color en los enlaces
+    linkcolor=blue,  % Color de los enlaces internos (como secciones)
+    urlcolor=blue,   % Color de los enlaces a URLs
+}
+
+
+%title
+\title{Práctica 1} 
+
+\author{Adrián Ferández Galán, César López Mantecón y Manuel Gómez-Plana Rodríguez}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+   \includegraphics[width=0.9\textwidth]{uc3m.jpg} 
+    {\Huge Universidad Carlos III\\
+    
+     \Large Ingeniería de la Ciberseguridad\\
+     \vspace{0.5cm}
+     Curso 2024-25}
+    \vspace{2cm}
+
+    {\Huge \textbf{Práctica 1} \par}
+    \vspace{0.5cm}
+    {\Large Extracción de contraseñas para binarios y permisos en ACL's\par}
+    \vspace{8cm}
+
+   \textbf{Ingeniería Informática, Cuarto curso}\\
+    \vspace{0.2cm} 
+    Adrián Fernández Galán       (NIA: 100472182, e-mail: 100472182@alumnos.uc3m.es)\\
+    César López Mantecón         (NIA: 100472092, e-mail: 100472092@alumnos.uc3m.es)\\
+    Manuel Gómez-Plana Rodríguez (NIA: 100472310, e-mail: 100472310@alumnos.uc3m.es)
+    \vspace{0.5cm}
+
+   
+    \textbf{Prof.} Antonio Nappa\\
+    
+    \textbf{Grupo: } 81   
+    
+\end{titlepage}
+\newpage
+
+%\renewcommand{\contentsname}{\centering Índice}
+%\tableofcontents
+
+\newpage
+
+\section{Introducción}
+\label{sec:introduccion}
+En este documento se recoge el proceso de desarrollo de la primera práctica de la asignatura \textit{Ingeniería de la Ciberseguridad}. En esta práctica hemos logrado obtener 9 \textit{flags} mediante el descubrimiento de contraseñas y ataque a archivos binarios. 
+
+\section{Estrategias para el descubrimiento de contraseñas}
+\label{sec:password}
+
+Para extraer las contraseñas de los ejecutables se han empleado 2 estrategias distintas: uso de \href{https://www.openwall.com/john/}{\textit{John the Ripper}} para la obtención de contraseñas y ataque sobre los binarios.
+
+\subsection{John The Ripper}
+\label{sec:john}
+
+\texttt{John} es una herramienta para la obtención de contraseñas débiles a partir de su \textit{hash}. Dado el conocimiento que teníamos de las contraseñas hemos generado una \textit{wordlist} con todas las contraseñas posibles con el alfabeto proporcionado. Esto se reduce a las permutaciones de 5, 6 y 8 elementos de los conjuntos de caracteres usados para generar cada contraseña. De esta forma hemos podido realizar un ataque de diccionario sobre las contraseñas de los 3 archivos. 
+
+Para generar la \textit{wordlist} se ha empleado el siguiente código de \textit{python}:
+
+\lstset{style=python}
+\begin{lstlisting}[caption=Script para la generación de \textit{wordlists}]
+import itertools
+
+# charset level 1
+charset_level1 = "abcdefg123456lab"
+
+# Generate all permutations of length 5
+permutations = itertools.permutations(charset_level1, 5)
+
+with open("level1_wordlist.txt", "w+") as file:
+    # Print the result
+    for p in permutations:
+        file.write(''.join(p) + "\n")
+        
+# charset level 2
+charset_level2 = "abcdefg123456uc3m"
+
+# Generate all permutations of length 6
+permutations = itertools.permutations(charset_level2, 6)
+
+with open("level2_wordlist.txt", "w+") as file:
+    # Print the result
+    for p in permutations:
+        file.write(''.join(p) + "\n")
+
+# charset level 3
+charset_level3 = "abcdefg123456profe"
+
+# Generate all permutations of length 8
+permutations = itertools.permutations(charset_level3, 8)
+
+with open("level3_wordlist.txt", "w+") as file:
+    # Print the result
+    for p in permutations:
+        file.write(''.join(p) + "\n")
+
+\end{lstlisting}
+
+Sin embargo, no ha sido posible generar la \textit{wordlist} para \textit{level3} debido gran número de contraseñas posibles y, consecuentemente, al gran tamaño del archivo.
+
+Usando este método, hemos podido extraer las contraseñas para los archivos \textit{level1} y \textit{level2}. En la siguiente tabla se recogen los tiempos que ha llevado obtener cada contraseña: 
+\begin{table}[H]
+\begin{centering}
+    \begin{tabular}{|c|c|c|}
+        \hline
+        Archivo & Longitud de la \textit{wordlist} en líneas & Tiempo\\
+        \hline
+        level1 & 524160 & 53s\\ 
+        level2 & 8910720 & 383s\\
+        level3 & 1764322560 & Not Finished\\
+        \hline
+    \end{tabular}
+    \caption {\small Tiempos por contraseña usando \textit{john}}
+\end{centering}
+\end{table}
+
+Para el archivo \textit{level3} no hemos empleado esta estrategia debido al elevado tiempo de computación que precisa en comparación con la siguiente estrategia.
+
+\subsection{Explotación de binarios}
+\label{subsec:binary}
+Hemos empleado 3 herramientas distintas para el análisis y la explotación de binarios: \texttt{objdump}, \texttt{Ghidra} y \texttt{gdb}. Mediante la primera, hemos analizado y comprendido el funcionamiento del ejecutable; logrando identificar dos subrutinas de gran importancia: \texttt{strcmp} y \texttt{decode\_password}. Esto lo hemos hecho a través del siguiente comando:
+
+\begin{center}\texttt{objdump -D level1 level2 level3}\end{center}
+
+Con esto, hemos podido analizar el código ensamblador y descubrir que la función \texttt{decode\_password} recibe un \textit{string} y, a través de una serie de operaciones, lo transforma in-situ.
+
+Ejecutando los programas sobre un entorno controlado con \texttt{gdb} hemos detenido la ejecución al final de la subrutina \texttt{decode\_password} y leído el valor de la cadena de texto en memoria:
+
+\lstset{style=bash}
+\begin{center}
+    \begin{lstlisting}[language=bash,caption=Obtención de contraseña para level1 en gdb]
+gdb level1                  # ejecucion en entorno gdb
+(gdb) break decode_password # breakpoint
+(gdb) run                   # ejecucion hasta la rutina
+(gdb) x/s $rdi              # contrasena cifrada
+(gdb) finish                # salto a la instruccion ret
+(gdb) x/s $rdi              # obtener contrasenia en claro
+0x7fffffffe48a:	"l23bf"
+(gdb) continue              # continuar ejecucion
+Enter Password: l23bf
+Correct! The flag is: 379b9e4d3e1590165d5bdb1b1a4ea61ca998f25546d1f5820394e98971098d84
+[Inferior 1 (process 1409) exited normally]
+\end{lstlisting}
+\end{center}
+
+Dado que los tres binarios siguen la misma estrategia, ha sido posible obtener todas las contraseñas mediante este procedimiento.
+
+Adicionalmente se ha decompilado el programa usando \texttt{Ghidra} con el fin de comprender mejor su funcionamiento. De esta forma hemos podido obtener el pseudocódigo en \texttt{C} de la función \texttt{decode\_password} y descubrir que la contraseña incluida en el binario está cifrada mediante el desplazamiento de 4 posiciones en la tabla ascii.
+
+\subsection{Comparación de métodos}
+\label{subsec:comparacion}
+Ambos métodos, \textit{John} y la explotación de binarios, son estrategias completamente distintas con sus ventajas y desventajas.
+
+El uso de \textit{John} requiere el conocimiento del hash de la contraseña e, idealmente, algo de contexto sobre la misma para poder limitar el espacio de búsqueda. Sin embargo, dada la naturaleza del ataque, tiene un coste de computación que crece exponencialmente; llegando a tiempos de ejecución extremenadamente largos para contraseñas de media longitud (como es el caso de de la tercera contraseña).
+
+La explotación de binarios, en contraste, tiene un coste de ejecución bajo. No obstante, require de conocimiento de la arquitectura para la que se ha compilado el archivo y, evidentemente, de acceso al propio archivo. Si un atacante tiene acceso a un binario suele significar que ha conseguido corromper una parte crítica del sistema.
+
+Con todo lo anterior concluímos que un ataque basado en fuerza bruta, como es el caso de \textit{John}, requiere un menor coste en conocimiento sobre la contraseña y objetivo del ataque; a cambio de un mayor coste computacional. Por otro lado, la explotación de binarios necesita del acceso al archivo en un entorno controlado y un mayor conocimiento sobre programación a bajo nivel y la arquitectura del sistema atacado.
+
+\section{ACL's}
+\label{sec:acl}
+Como se especifica en la práctica, la máquina virtual cuenta con 3 ficheros que el usuario \textit{rover} no tiene permiso para leer. Es por ello que, analizando la lista de ACL's de los siguientes ficheros, podemos ver quién tiene los permisos adecuados.
+
+\vspace{0.5cm}
+
+\begin{minipage}{\textwidth}
+\begin{minipage}[t]{0.3\textwidth}
+\begin{lstlisting}[showlines=true,language=bash]
+$ getfacl /challenge/flag.txt
+# file: challenge/flag.txt
+# owner: root
+# group: root
+user::rw-
+user:rover:---
+user:admin:r--
+user:student1:---
+group::r--
+mask::r--
+other::r--
+
+
+\end{lstlisting}
+\end{minipage}
+\begin{minipage}[t]{0.3\textwidth}
+\begin{lstlisting}[language=bash]
+$ getfacl /projects/subproject/flag.txt
+# file: projects/subproject/flag.txt
+# owner: root
+# group: root
+user::rw-
+user:1004:r--
+user:rover:---
+user:student1:r--
+group::r--
+mask::r--
+other::r--
+
+\end{lstlisting}
+\end{minipage}
+\begin{minipage}[t]{0.3\textwidth}
+\begin{lstlisting}[showlines=true, language=bash]
+$ getfacl /secret/flag.txt
+# file: secret/flag.txt
+# owner: root
+# group: root
+user::rw-
+user:rover:---
+user:admin:r--
+group::r--
+mask::r--
+other::r--
+
+
+
+\end{lstlisting}
+\end{minipage}
+\end{minipage}
+
+\vspace{0.5cm}
+
+Se puede apreciar como el usuario \texttt{rover} no cuenta con permisos suficientes para poder leer las \textit{flags}. De hecho, al usuario \texttt{rover} le es imposible acceder a las \textit{ACL's} de las flag contenidas en \textit{subproject} y \textit{secret}. Sin embargo, el usuario \texttt{admin} puede acceder a todos los archivos necesarios.
+
+Con esto en mente, hemos iniciado sesión como usuario \texttt{admin}, adivinando su contraseña (\texttt{password}). Desde ese momento hemos podido acceder a todos los archivos necesarios y recuperar las 6 \textit{flags}.
+
+\section{Conclusión}
+\label{sec:conclusion}
+
+Esta práctica nos ha permitido explorar distintas formas de obtención de contraseñas según la información y las herramientas con las que contemos. También nos ha permitido profundizar en el control de acceso basado en \textit{ACL's}, un sistema que permite administrar los permisos en un sistema con mayor granularidad. Otros conceptos interesantes que presenta la práctica son la vulnerabilidad de las contraseñas sencillas a ataques de fuerza bruta o \textit{guessing}.
+
+Cabe destacar que el desarrollo de esta práctica no sólo nos ha permitido afianzar los conocimientos de la asigntura. También nos ha invitado a reflexionar sobre los tipos de ataques que se pueden hacer a un sistema y cómo podríamos proteger nuestros programas y aplicaciones ante los mismos.
+
+El mundo tiende a la digitalización, por lo que la ciberseguridad es uno de los pilares del desarrollo tecnológico en la actualidad. Conocer los tipos de ataque frente a contraseñas y la administración del control de acceso en los sistemas son piezas clave en nuestro desarrollo como ingenieros informáticos.
+
+\end{document}
