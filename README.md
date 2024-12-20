@@ -27,6 +27,6 @@ Some of this projects have their own repository. You can find the link to them i
 | [distribuidos-p3](https://github.com/CLopMan/University_Projects/tree/main/distribuidos_p3-rpc) | C, bash | Distribute data storage using rpc aproximation | 2023-24 | 
 | [distribuidos-final](https://github.com/CLopMan/University_Projects/tree/main/distribuidos_final) | C, Python, bash | Peer to peer system coordinated by a central server | 2023-24 |
 | [SSIIUU-final](https://github.com/CLopMan/University_Projects/tree/main/SSIIUU-final) | JS, HTML5, CSS | Web application for gamifying the purchasing process | 2023-24 |
-| [ciberseguridad-practicas](https://github.com/CLopMan/University_Projects/tree/main/ciberseguridad-practicas) | Python, Bash, C, Ghidra, Jadx, gdb, LaTEX | Exercises to retrieve flags in diferent contexts related to cibersecurity |
+| [ciberseguridad-practicas](https://github.com/CLopMan/University_Projects/tree/main/ciberseguridad-practicas) | Python, Bash, C, Ghidra, Jadx, gdb, LaTEX | Exercises to retrieve flags in diferent contexts related to cibersecurity | 2024-25 |
 
 
