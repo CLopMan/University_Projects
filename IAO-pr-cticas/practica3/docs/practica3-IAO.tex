@@ -1,0 +1,1387 @@
+%----------
+%   IMPORTANTE
+%----------
+
+% Si nunca has utilizado LaTeX es conveniente que aprendas una serie de conceptos básicos antes de utilizar esta plantilla. Te aconsejamos que leas previamente algún tutorial (puedes encontar muchos en Internet).
+
+% Esta plantilla está basada en las recomendaciones de la guía "Trabajo fin de Grado: Escribir el TFG", que encontrarás en http://uc3m.libguides.com/TFG/escribir
+% contiene recomendaciones de la Biblioteca basadas principalmente en estilos APA e IEEE, pero debes seguir siempre las orientaciones de tu Tutor de TFG y la normativa de TFG para tu titulación.
+
+% Encontrarás un ejemplo de TFG realizado con esta misma plantilla en la carpeta "_ejemplo_TFG_2019". Consúltalo porque contiene ejemplos útiles para incorporar tablas, figuras, listados de código, bibliografía, etc.
+
+
+%----------
+%    CONFIGURACIÓN DEL DOCUMENTO
+%----------
+
+% Definimos las características del documento y añadimos una serie de paquetes (\usepackage{package}) que agregan funcionalidades a LaTeX.
+
+\documentclass[12pt]{report} %fuente a 12pt
+
+% MÁRGENES: 2,5 cm sup. e inf.; 3 cm izdo. y dcho.
+\usepackage[
+a4paper,
+vmargin=2.5cm,
+hmargin=3cm
+]{geometry}
+
+% INTERLINEADO: Estrecho (6 ptos./interlineado 1,15) o Moderado (6 ptos./interlineado 1,5)
+\renewcommand{\baselinestretch}{1.15}
+\parskip=6pt
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% DEFINICIÓN DE COLORES para portada y listados de código
+\usepackage[table,dvipsnames]{xcolor}
+\definecolor{azulUC3M}{RGB}{0,0,102}
+\definecolor{gray97}{gray}{.97}
+\definecolor{gray75}{gray}{.75}
+\definecolor{gray45}{gray}{.45}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+% Soporte para GENERAR PDF/A --es importante de cara a su inclusión en e-Archivo porque es el formato óptimo de preservación y a la generación de metadatos, tal y como se describe en http://uc3m.libguides.com/ld.php?content_id=31389625. En la carpeta incluímos el archivo plantilla_tfg_2017.xmpdata en el que puedes incluir los metadatos que se incorporarán al archivo PDF cuando lo compiles. Ese archivo debe llamarse igual que tu archivo .tex. Puedes ver un ejemplo en esta misma carpeta.
+\usepackage[a-1b]{pdfx}
+
+% ENLACES
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,
+    linkcolor=black, % enlaces a partes del documento (p.e. índice) en color negro
+    citecolor=black,
+    urlcolor=blue} % enlaces a recursos fuera del documento en azul
+
+% EXPRESIONES MATEMATICAS
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{booktabs}
+
+\usepackage{txfonts}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage[spanish, es-tabla]{babel}
+\usepackage[babel, spanish=spanish]{csquotes}
+\AtBeginEnvironment{quote}{\small}
+
+% diseño de PIE DE PÁGINA
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\rfoot{\thepage}
+\fancypagestyle{plain}{\pagestyle{fancy}}
+
+% DISEÑO DE LOS TÍTULOS de las partes del trabajo (capítulos y epígrafes o subcapítulos)
+\usepackage{titlesec}
+\usepackage{titletoc}
+\titleformat{\chapter}[block]
+{\large\bfseries\filcenter}
+{\thechapter.}
+{5pt}
+{\MakeUppercase}
+{}
+\titlespacing{\chapter}{0pt}{0pt}{*3}
+\titlecontents{chapter}
+[0pt]
+{}
+{\contentsmargin{0pt}\thecontentslabel.\enspace\uppercase}
+{\contentsmargin{0pt}\uppercase}
+{\titlerule*[.7pc]{.}\contentspage}
+
+\titleformat{\section}
+{\bfseries}
+{\thesection.}
+{5pt}
+{}
+\titlecontents{section}
+[5pt]
+{}
+{\contentsmargin{0pt}\thecontentslabel.\enspace}
+{\contentsmargin{0pt}}
+{\titlerule*[.7pc]{.}\contentspage}
+
+\titleformat{\subsection}
+{\normalsize\bfseries}
+{\thesubsection.}
+{5pt}
+{}
+\titlecontents{subsection}
+[10pt]
+{}
+{\contentsmargin{0pt}
+    \thecontentslabel.\enspace}
+{\contentsmargin{0pt}}
+{\titlerule*[.7pc]{.}\contentspage}
+
+
+% DISEÑO DE TABLAS. Puedes elegir entre el estilo para ingeniería o para ciencias sociales y humanidades. Por defecto, está activado el estilo de ingeniería. Si deseas utilizar el otro, comenta las líneas del diseño de ingeniería y descomenta las del diseño de ciencias sociales y humanidades
+\usepackage{multirow} % permite combinar celdas
+\usepackage{caption} % para personalizar el título de tablas y figuras
+\usepackage{floatrow} % utilizamos este paquete y sus macros \ttabbox y \ffigbox para alinear los nombres de tablas y figuras de acuerdo con el estilo definido. Para su uso ver archivo de ejemplo
+\usepackage{array} % con este paquete podemos definir en la siguiente línea un nuevo tipo de columna para tablas: ancho personalizado y contenido centrado
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+\DeclareCaptionFormat{upper}{#1#2\uppercase{#3}\par}
+
+% Diseño de tabla para ingeniería
+\captionsetup[table]{
+    format=upper,
+    name=TABLA,
+    justification=centering,
+    labelsep=period,
+    width=.75\linewidth,
+    labelfont=small,
+    font=small,
+}
+
+%Diseño de tabla para ciencias sociales y humanidades
+%\captionsetup[table]{
+%    justification=raggedright,
+%    labelsep=period,
+%    labelfont=small,
+%    singlelinecheck=false,
+%    font={small,bf}
+%}
+
+
+% DISEÑO DE FIGURAS. Puedes elegir entre el estilo para ingeniería o para ciencias sociales y humanidades. Por defecto, está activado el estilo de ingeniería. Si deseas utilizar el otro, comenta las líneas del diseño de ingeniería y descomenta las del diseño de ciencias sociales y humanidades
+\usepackage{graphicx}
+\graphicspath{{img/}} %ruta a la carpeta de imágenes
+
+% Diseño de figuras para ingeniería
+\captionsetup[figure]{
+    format=hang,
+    name=Fig.,
+    singlelinecheck=off,
+    labelsep=period,
+    labelfont=small,
+    font=small
+}
+
+% Diseño de figuras para ciencias sociales y humanidades
+%\captionsetup[figure]{
+%    format=hang,
+%    name=Figura,
+%    singlelinecheck=off,
+%    labelsep=period,
+%    labelfont=small,
+%    font=small
+%}
+
+
+% NOTAS A PIE DE PÁGINA
+\usepackage{chngcntr} %para numeración contínua de las notas al pie
+\counterwithout{footnote}{chapter}
+
+% LISTADOS DE CÓDIGO
+% soporte y estilo para listados de código. Más información en https://es.wikibooks.org/wiki/Manual_de_LaTeX/Listados_de_código/Listados_con_listings
+\usepackage{listings}
+
+% definimos un estilo de listings
+\lstdefinestyle{estilo}{ frame=Ltb,
+    framerule=0pt,
+    aboveskip=0.5cm,
+    framextopmargin=3pt,
+    framexbottommargin=3pt,
+    framexleftmargin=0.4cm,
+    framesep=0pt,
+    rulesep=.4pt,
+    backgroundcolor=\color{gray97},
+    rulesepcolor=\color{black},
+    %
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\bfseries,
+    stringstyle=\ttfamily,
+    showstringspaces = false,
+    commentstyle=\color{gray45},
+    %
+    numbers=left,
+    numbersep=15pt,
+    numberstyle=\tiny,
+    numberfirstline = false,
+    breaklines=true,
+    xleftmargin=\parindent
+}
+
+\captionsetup[lstlisting]{font=small, labelsep=period}
+% fijamos el estilo a utilizar
+\lstset{style=estilo}
+\renewcommand{\lstlistingname}{\uppercase{Código}}
+
+
+%BIBLIOGRAFÍA - PUEDES ELEGIR ENTRE ESTILO IEEE O APA. POR DEFECTO ESTÁ CONFIGURADO IEEE. SI DESEAS USAR APA, COMENTA LAS LÍNEA DE IEEE Y DESCOMENTA LAS DE APA. Si haces cambios en la configuración de la bibliografía y no obtienes los resultados esperados, es recomendable limpiar los archivos auxiliares y volver a compilar en este orden: COMPILAR-BIBLIOGRAFIA-COMPILAR
+
+% Tienes más información sobre cómo generar bibliografía y CONFIGURAR TU EDITOR DE TEXTO para compilar con biber en http://tex.stackexchange.com/questions/154751/biblatex-with-biber-configuring-my-editor-to-avoid-undefined-citations , https://www.overleaf.com/learn/latex/Bibliography_management_in_LaTeX y en http://www.ctan.org/tex-archive/macros/latex/exptl/biblatex-contrib
+% También te recomendamos consultar la guía temática de la Biblioteca sobre citas bibliográficas: http://uc3m.libguides.com/guias_tematicas/citas_bibliograficas/inicio
+
+% CONFIGURACIÓN PARA LA BIBLIOGRAFÍA IEEE
+\usepackage[backend=biber, style=ieee, isbn=false,sortcites, maxbibnames=5, minbibnames=1]{biblatex} % Configuración para el estilo de citas de IEEE, recomendado para el área de ingeniería. "maxbibnames" indica que a partir de 5 autores trunque la lista en el primero (minbibnames) y añada "et al." tal y como se utiliza en el estilo IEEE.
+
+%CONFIGURACIÓN PARA LA BIBLIOGRAFÍA APA
+%\usepackage[style=apa, backend=biber, natbib=true, hyperref=true, uniquelist=false, sortcites]{biblatex}
+%\DeclareLanguageMapping{spanish}{spanish-apa}
+
+% Añadimos las siguientes indicaciones para mejorar la adaptación de los estilos en español
+\DefineBibliographyStrings{spanish}{%
+    andothers = {et\addabbrvspace al\adddot}
+}
+\DefineBibliographyStrings{spanish}{
+    url = {\adddot\space[En línea]\adddot\space Disponible en:}
+}
+\DefineBibliographyStrings{spanish}{
+    urlseen = {Acceso:}
+}
+\DefineBibliographyStrings{spanish}{
+    pages = {pp\adddot},
+    page = {p.\adddot}
+}
+
+\addbibresource{references.bib} % llama al archivo bibliografia.bib en el que debería estar la bibliografía utilizada
+
+
+%-------------
+%    DOCUMENTO
+%-------------
+
+\begin{document}
+\pagenumbering{roman} % Se utilizan cifras romanas en la numeración de las páginas previas al cuerpo del trabajo
+
+%----------
+%    PORTADA
+%----------
+\title{Práctica 3}
+\author{Álvaro Guerrero Espinosa (100472294)\\
+        César López Mantecón (100472092)\\
+        Paula Subías Serrano (100472119)\\
+        Irene Subías Serrano (100472108)\\}
+
+\makeatletter
+\begin{titlepage}
+    \begin{sffamily}
+    \color{azulUC3M}
+    \begin{center}
+        \begin{figure}[H] %incluimos el logotipo de la Universidad
+            \makebox[\textwidth][c]{\includegraphics[width=16cm]{Portada_Logo.png}}
+        \end{figure}
+        \vspace{2.5cm}
+        \begin{Large}
+            Grado en Ingeniería Informática\\
+            \@date\\
+            \vspace{2cm}
+            \textsl{Inteligencia Artificial en las Organizaciones}\\
+            \bigskip
+        \end{Large}
+        {\Huge ``\@title''}\\
+        \vspace*{0.5cm}
+        \rule{10.5cm}{0.1mm}\\
+        \vspace*{0.9cm}
+        {\LARGE\@author}
+        \vspace*{1cm}
+    \end{center}
+    \vfill
+    \color{black}
+    % si nuestro trabajo se va a publicar con una licencia Creative Commons, incluir estas líneas. Es la opción recomendada.
+    \includegraphics[width=4.2cm]{creativecommons.png}\\ %incluimos el logotipo de creativecommons
+    Esta obra se encuentra sujeta a la licencia Creative Commons \textbf{Reconocimiento - No Comercial - Sin Obra Derivada}
+    \end{sffamily}
+\end{titlepage}
+\makeatother
+
+\newpage %página en blanco o de cortesía
+\thispagestyle{empty}
+\mbox{}
+
+%----------
+%    ÍNDICES
+%----------
+
+%--
+% Índice general
+%-
+\tableofcontents
+\thispagestyle{fancy}
+
+\newpage % página en blanco o de cortesía
+\thispagestyle{empty}
+\mbox{}
+
+%--
+% Índice de figuras. Si no se incluyen, comenta las líneas siguientes
+%-
+ \listoffigures
+ \thispagestyle{fancy}
+
+ \newpage % página en blanco o de cortesía
+ \thispagestyle{empty}
+ \mbox{}
+
+%--
+% Índice de tablas. Si no se incluyen, comenta las líneas siguientes
+%-
+\listoftables
+ \thispagestyle{fancy}
+
+ \newpage % página en blanco o de cortesía
+ \thispagestyle{empty}
+ \mbox{}
+
+
+%----------
+%    TRABAJO
+%----------
+\clearpage
+\pagenumbering{arabic} % numeración con números arábigos para el resto de la publicación
+
+    \chapter{Introducción y objetivo}
+    \label{chap:intro}
+
+        En este documento se recoge el desarrollo de la práctica 3 de la
+        asignatura \textit{Inteligencia Artificial en las Organizaciones}. El
+        objetivo de este proyecto es crear un sistema de puntuación de inmuebles 
+        basado en el perfil de un estudiante. Para ello se empleará un sistema
+        de lógica borrosa.
+
+        La creación de las reglas del sistema se centrarán en el perfil de un
+        estudiante que busca un piso para vivir en solitario durante sus
+        estudios. Se ha elegido este perfil por ser del que se tiene más
+        información acerca de sus preferencias y tendencias de compra, ya que
+        forma parte del colectivo de los investigadores.
+
+        La vivienda en las grandes ciudades españolas presenta un gran problema
+        a colectivos vulnerables, entre ellos los
+        estudiantes~\cite{viviendas-precio-inaccesible}. Esto, en combinación
+        con la escasa educación financiera de los estudiantes
+        españoles~\cite{PISA-2022}, hace de un sistema de recomendación
+        centrado en este perfil un elemento útil para facilitar a los
+        estudiantes la evaluación de un activo inmobiliario para su alquiler
+        durante sus años de estudio.
+
+        Adicionalmente, el uso de lógica borrosa presenta claras ventajas dada
+        la naturaleza del problema:
+        \begin{itemize} \item \textbf{Gestión de incertidumbre y ambigüedad}: a
+        través de las funciones de pertenencia para cada etiqueta los sistemas
+        basados en reglas borrosas son capaces de manejar datos ambigüos o
+        incompletos. Esta es una característica fundamental para el sistema que
+        se pretende construir.
+
+            \item \textbf{Tolerancia a rangos y datos imprecisos}: dado que las
+            variables están fuertemente ligadas a la opinión subjetiva de los
+            usuarios, el uso de lógica borrosa permite que el sistema trabaje
+            con valores como ``caro'' o ``lejos'' y rangos de valores que
+            permiten representar la imprecisión inherente a valores subjetivos.
+
+            \item \textbf{Flexibilidad}: las reglas de un sistema basado en
+            reglas borrosas permiten ofrecer recomendaciones más realistas y
+            ajustadas al usuario que un sistema que solo aplica umbrales
+            rígidos.
+
+            \item \textbf{Combinación de múltiples criterios}: un sistema
+            basado en lógica borrosa puede utilizar varios criterios (precio,
+            tamaño, número de habitaciones...) a través del concepto de
+            \textit{afinidad} de forma que las recomendaciones sean más
+            realistas e informadas.
+
+        \end{itemize}
+
+        Con todo lo anterior es evidente que un modelo con las características
+        descritas presenta una gran utilidad para el colectivo de estudiantes.
+        Además, el uso de logica borrosa presenta claras ventajas para el
+        desarrollo de este sistema.
+
+    \chapter{Desarrollo del sistema}
+    \label{chap:desarrollo}
+
+        En este capítulo se describe el proceso de creación del sistema,
+        incluyendo la elección de atributos de entrada, sus rangos y funciones
+        de pertenencia, las etiquetas de la variable de salida y la definición
+        de reglas difusas. 
+        
+        Todos los pasos de este proceso han venido guiados por el perfil
+        elegido del estudiante, caracterizado por un bajo poder adquisitivo y
+        la búsqueda de un piso relativamente pequeño, cerca de paradas de
+        transporte público y preferiblemente amueblado en el que poder vivir en
+        solitario hasta la finalización de sus estudios. Con estas
+        características se han elegido un total de 7 atributos de entrada así
+        como 16 reglas, que pueden representar de manera precisa las
+        preferencias de este estudiante. Aunque se tratará como caso principal
+        un estudiante que busque un piso en solitario, también se contempla un
+        segundo caso en el que prefiera compartir piso. Esto se traduce en
+        algunas reglas adicionales dentro del sistema. 
+        
+        Para el desarrollo se va
+        a utilizar el operador \textit{Fuzzy Logic Toolbox}~\cite{fuzzy-docs}
+        de MATLAB para crear un sistema de Mamdani Type1 FIS. Esta herramienta
+        permite la selección de variables de entrada y salida así como la
+        definición de reglas difusas de manera sencilla y visual.
+
+    \section{Variables de entrada}
+
+        Las variables de entrada seleccionadas para el sistema son una
+        combinación de las variables propuestas en el enunciado y otras nuevas
+        que permiten representar elementos importantes en las preferencias del
+        perfil seleccionado. Para definir sus rangos se ha realizado una
+        búsqueda a través de \href{https://www.idealista.com/}{Idealista.com}
+        con el fin de determinar los valores máximos y mínimos que alcanzan. En
+        algunos casos ha sido necesario tomar un rango más amplio para que la
+        función de pertenencia de los conjuntos cubriese el caso del valor 0.
+
+        Los conjuntos borrosos y sus funciones de pertenencia han sido
+        definidos según las características de cada uno, teniendo en cuenta el
+        rango así como los valores medios de cada variable. Aún así, se ha
+        asegurado de que en todos los casos el mínimo número de etiquetas borrosas del
+        atributo sea 3, con excepción de las variables \textit{booleanas}.
+
+        A continuación se describen las variables de entrada utilizadas finalmente, junto con las funciones de pertenencia de sus etiquetas. 
+
+        \subsection{Precio}
+        Esta variable representa el precio de alquiler del inmueble en euros por metro cuadrado (€$/m^2$).
+        Tiene un rango de 7 a 50 y se han utilizado 3 etiquetas para representar este valor: ``barato'', ``medio'' y ``caro''.
+        La definición de sus funciones de pertenencia se ha realizado teniendo en cuenta el poder adquisitivo del perfil
+         y el rango de valores encontrado durante el estudio inicial de los datos.
+
+        \begin{table}[h]
+            \center
+            \begin{tabular}{@{}ccc@{}}
+                \toprule
+                \textbf{Etiqueta} & \textbf{Tipo de función} & \textbf{Parámetros} \\
+                \midrule
+                Barato & Trapezoide & [7 7 15 30]   \\
+                Medio  & Triangular & [15 28.5 40]  \\
+                Caro   & Trapezoide & [25 40 50 50] \\
+                \bottomrule
+            \end{tabular}
+            \caption{Etiquetas de la variable de entrada ``Precio''}
+        \end{table}
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}
+                \begin{axis}[
+                    width=0.90\linewidth,
+                    height=8.5cm,
+                    title={Definición de la variable ``Precio''},
+                    xlabel={Variable de entrada},
+                    ylabel={Grado de pertenencia},
+                    xmin=7, xmax=50,
+                    ymin=0, ymax=1.19,
+                ]
+                    \addplot[color=blue, mark=none] coordinates {(7,1)(15,1)(30,0)(50,0)} node[above, pos=0.1, yshift=5] {Barato};
+                    \addplot[color=red, mark=none] coordinates {(7,0)(15,0)(28.5,1)(40,0)(50,0)} node[above, pos=0.5, yshift=5] {Medio};
+                    \addplot[color=OliveGreen, mark=none] coordinates {(7,0)(25,0)(40,1)(50,1)} node[above, pos=0.9, yshift=5] {Caro};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{Definición de la variable de entrada ``Precio''}
+        \end{figure}
+
+        Se utilizan funciones trapezoidales para el primer y último conjunto ya que se considera que hasta y a partir de 
+        cierto precio se debería clasificar todo como barato o caro, respectivamente. Esto permite seguridad en 
+        estas secciones de una \textit{fuzzificación} correcta. La etiqueta medio, sin embargo, se considera que no tiene
+        un rango de valores en los que debería ser fija, por lo que se utiliza una función triangular para permitir que 
+        siempre se considere en cierta medida. 
+
+        \subsection{Tamaño}
+        Esta variable representa el tamaño en metros cuadrados ($m^2$) del inmueble.
+        Tiene un rango de 18 a 555 metros y se han utilizado 3 etiquetas para representar este valor: ``pequeño'', ``medio'' y ``grande''.
+        La definición de sus funciones de pertenencia se ha realizado teniendo en cuenta el tamaño que necesitaría el perfil para vivir solo,
+         así como el rango de valores encontrado durante el estudio inicial de los datos.
+
+        \begin{table}[h]
+            \center
+            \begin{tabular}{@{}ccc@{}}
+                \toprule
+                \textbf{Etiqueta} & \textbf{Tipo de función} & \textbf{Parámetros} \\
+                \midrule
+                Pequeño & Trapezoide & [15 15 20 40]     \\
+                Medio   & Triangular & [20 30 60 120]    \\
+                Grande  & Trapezoide & [100 200 555 555] \\
+                \bottomrule
+            \end{tabular}
+            \caption{Etiquetas de la variable de entrada ``Tamaño''}
+        \end{table}
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}
+                \begin{axis}[
+                    width=0.90\linewidth,
+                    height=8.5cm,
+                    title={Definición de la variable ``Tamaño''},
+                    xlabel={Variable de entrada},
+                    ylabel={Grado de pertenencia},
+                    xmin=18, xmax=555,
+                    ymin=0, ymax=1.19,
+                ]
+                    \addplot[color=blue, mark=none] coordinates {(18,1)(20,1)(40,0)(555,0)} node[above right, pos=0.0, yshift=2.5] {Pequeño};
+                    \addplot[color=red, mark=none] coordinates {(18,0)(20,0)(30,1)(60,1)(120,0)(555,0)} node[above right, pos=0.115] {Medio};
+                    \addplot[color=OliveGreen, mark=none] coordinates {(18,0)(100,0)(200,1)(555,1)} node[above, pos=0.9, yshift=5] {Grande};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{Definición de la variable de entrada ``Tamaño''}
+        \end{figure}
+
+        El tipo de función de pertenencia sigue la misma lógica que en la variable anterior. 
+
+        \subsection{Número de habitaciones}
+        Esta variable representa el número total de habitaciones de cualquier tipo en la vivienda.
+        Tiene un rango de 0 a 5 dividido en 3 etiquetas: ``pocas'', ``medio'' y ``muchas''.
+        La definición de sus funciones de pertenencia se ha realizado teniendo en cuenta las necesidades del perfil para vivir solo
+         y el rango de valores encontrado durante el estudio inicial de los datos. El tipo de funciones sigue la misma lógica
+         que en los atributos anteriores.
+
+        \begin{table}[h]
+            \center
+            \begin{tabular}{@{}ccc@{}}
+                \toprule
+                \textbf{Etiqueta} & \textbf{Tipo de función} & \textbf{Parámetros} \\
+                \midrule
+                Pocas  & Trapezoide & [0 0 1 3] \\
+                Medio  & Triangular & [2 3 5]   \\
+                Muchas & Trapezoide & [3 4 5 5] \\
+                \bottomrule
+            \end{tabular}
+            \caption{Etiquetas de la variable de entrada ``Número de habitaciones''}
+        \end{table}
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}
+                \begin{axis}[
+                    width=0.90\linewidth,
+                    height=8.5cm,
+                    title={Definición de la variable ``Número de habitaciones''},
+                    xlabel={Variable de entrada},
+                    ylabel={Grado de pertenencia},
+                    xmin=0, xmax=5,
+                    ymin=0, ymax=1.19,
+                ]
+                    \addplot[color=blue, mark=none] coordinates {(0,1)(1,1)(3,0)(5,0)} node[above, pos=0.1, yshift=5] {Pocas};
+                    \addplot[color=red, mark=none] coordinates {(0,0)(2,0)(3,1)(5,0)} node[above, pos=0.6, yshift=5] {Medio};
+                    \addplot[color=OliveGreen, mark=none] coordinates {(0,0)(3,0)(4,1)(5,1)} node[above, pos=0.9, yshift=5] {Muchas};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{Definición de la variable de entrada ``Número de habitaciones''}
+        \end{figure}
+
+        \subsection{Altura}
+        Esta variable representa el piso en el que se encuentra el inmueble.
+        Tiene un rango de -1 a 22, y se han utilizado 3 etiquetas para representar este valor: ``alto'', ``medio'' y ``bajo''.
+        La definición de sus funciones de pertenencia se ha realizado teniendo en cuenta que ``bajo'' representa una cantidad que se puede subir por escaleras diariamente sin necesidad de ascensor,
+        ``medio'' representa una cantidad que, aunque se podría subir por escaleras, un ascensor aportaría mucho valor, y ``alto'' representa una cantidad que necesita un ascensor.
+
+        \begin{table}[h]
+            \center
+            \begin{tabular}{@{}ccc@{}}
+                \toprule
+                \textbf{Etiqueta} & \textbf{Tipo de función} & \textbf{Parámetros} \\
+                \midrule
+                Alto  & Trapezoide & [7 10 22 22] \\
+                Medio & Triangular & [2 5 10]     \\
+                Bajos & Trapezoide & [-2 0 2 4]   \\
+                \bottomrule
+            \end{tabular}
+            \caption{Etiquetas de la variable de entrada ``Altura''}
+        \end{table}
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}
+                \begin{axis}[
+                    width=0.90\linewidth,
+                    height=8.5cm,
+                    title={Definición de la variable ``Altura''},
+                    xlabel={Variable de entrada},
+                    ylabel={Grado de pertenencia},
+                    xmin=-1, xmax=22,
+                    ymin=0, ymax=1.19,
+                ]
+                    \addplot[color=blue, mark=none] coordinates {(-2,0)(0,1)(2,1)(4,0)(22,0)} node[above, pos=0.125, yshift=3] {Bajo};
+                    \addplot[color=red, mark=none] coordinates {(-1,0)(2,0)(5,1)(10,0)(22,0)} node[above, pos=0.275, yshift=13] {Medio};
+                    \addplot[color=OliveGreen, mark=none] coordinates {(-1,0)(7,0)(10,1)(22,1)} node[above, pos=0.9, yshift=5] {Alto};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{Definición de la variable de entrada ``Altura''}
+        \end{figure}
+
+        \subsection{Amueblado}
+        Esta variable representa un valor \textit{booleano} que indica si el inmueble está amueblado.
+        Tiene un rango de 0 a 1 y, ya que es una variable booleana, se han utilizado 2 etiquetas para representar este valor: ``SI'' y ``NO''.
+        Además, como no es un concepto impreciso, se ha decidido utilizar funciones de pertenencia \textit{singleton} para estas etiquetas.
+
+        \begin{table}[h]
+            \center
+            \begin{tabular}{@{}ccc@{}}
+                \toprule
+                \textbf{Etiqueta} & \textbf{Tipo de función} & \textbf{Parámetros} \\
+                \midrule
+                SI & Trapezoide & [1 1 1 1] \\
+                NO & Trapezoide & [0 0 0 0] \\
+                \bottomrule
+            \end{tabular}
+            \caption{Etiquetas de la variable de entrada ``Amueblado''}
+        \end{table}
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}
+                \begin{axis}[
+                    width=0.90\linewidth,
+                    height=8.5cm,
+                    title={Definición de la variable ``Amueblado''},
+                    xlabel={Variable de entrada},
+                    ylabel={Grado de pertenencia},
+                    xmin=0, xmax=1,
+                    ymin=0, ymax=1.19,
+                ]
+                    \addplot[color=blue, mark=none] coordinates {(0,0)(1,0)(1,1)} node[above left, pos=1] {SI};
+                    \addplot[color=red, mark=none] coordinates {(0,1)(0,0)(1,0)} node[above right, pos=0] {NO};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{Definición de la variable de entrada ``Amueblado''}
+        \end{figure}
+
+        \subsection{Ascensor}
+        Esta variable representa un valor \textit{booleano} que se corresponde con la presencia de un ascensor en el complejo al que pertenece la vivienda. 
+        Tiene un rango de 0 a 1 y, ya que es una variable booleana, se han utilizado 2 etiquetas para representar este valor: ``SI'' y ``NO''.
+        Una vez más, como no es un concepto impreciso, se ha decidido utilizar funciones de pertenencia \textit{singleton} para las etiquetas.
+
+        \begin{table}[h]
+            \center
+            \begin{tabular}{@{}ccc@{}}
+                \toprule
+                \textbf{Etiqueta} & \textbf{Tipo de función} & \textbf{Parámetros} \\
+                \midrule
+                SI & Trapezoide & [1 1 1 1] \\
+                NO & Trapezoide & [0 0 0 0] \\
+                \bottomrule
+            \end{tabular}
+            \caption{Etiquetas de la variable de entrada ``Ascensor''}
+        \end{table}
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}
+                \begin{axis}[
+                    width=0.90\linewidth,
+                    height=8.5cm,
+                    title={Definición de la variable ``Ascensor''},
+                    xlabel={Variable de entrada},
+                    ylabel={Grado de pertenencia},
+                    xmin=0, xmax=1,
+                    ymin=0, ymax=1.19,
+                ]
+                    \addplot[color=blue, mark=none] coordinates {(0,0)(1,0)(1,1)} node[above left, pos=1] {SI};
+                    \addplot[color=red, mark=none] coordinates {(0,1)(0,0)(1,0)} node[above right, pos=0] {NO};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{Definición de la variable de entrada ``Ascensor''}
+        \end{figure}
+
+        \subsection{Tiempo a transporte público}
+        Esta variable representa la distancia medida en minutos de la vivienda a la parada de transporte público más cercana.
+        Tiene un rango de 1 a 30 y se han utilizado 3 etiquetas para representar este valor: ``cerca'', ``medio'' y ``lejos''.
+        La definición de sus funciones de pertenencia se ha realizado teniendo en cuenta que el perfil necesita viajar 
+        diariamente sin tener vehículo propio, así como el rango de valores encontrado durante el estudio inicial de los datos.
+
+        \begin{table}[h]
+            \center
+            \begin{tabular}{@{}ccc@{}}
+                \toprule
+                \textbf{Etiqueta} & \textbf{Tipo de función} & \textbf{Parámetros} \\
+                \midrule
+                Cerca & Triangular & [0 1 25.17]  \\
+                Medio & Triangular & [1 15.5 30]  \\
+                Lejos & Triangular & [5.83 30 50] \\
+                \bottomrule
+            \end{tabular}
+            \caption{Etiquetas de la variable de entrada ``Tiempo a transporte público''}
+        \end{table}
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}
+                \begin{axis}[
+                    width=0.90\linewidth,
+                    height=8.5cm,
+                    title={Definición de la variable ``Tiempo a transporte público''},
+                    xlabel={Variable de entrada},
+                    ylabel={Grado de pertenencia},
+                    xmin=1, xmax=30,
+                    ymin=0, ymax=1.19,
+                ]
+                    \addplot[color=blue, mark=none] coordinates {(1,1)(25.17,0)(30,0)} node[above right, pos=0, yshift=5] {Cerca};
+                    \addplot[color=red, mark=none] coordinates {(1,0)(15.5,1)(30,0)} node[above, pos=0.5, yshift=5] {Medio};
+                    \addplot[color=OliveGreen, mark=none] coordinates {(1,0)(5.83,0)(30,1)} node[above left, pos=1, yshift=5] {Lejos};
+                \end{axis}
+            \end{tikzpicture}
+            \caption{Definición de la variable de entrada ``Tiempo a transporte público''}
+        \end{figure}
+
+        En este caso se han utilizado funciones triangulares para todos los conjuntos, ya que se considera que la distancia
+         depende completamente de la definición de cada persona. Así, se busca en todo momento permitir probabilidad de 
+        pertenencia a varias funciones. 
+
+    \section{Variable de salida}
+    En este apartado se va a describir como se ha definido la variable objetivo
+    ``Recomendacion''. Esta variable contiene cinco etiquetas borrosas: ``Nada
+    recomendable'', ``Poco recomendable'', ``Medianamente recomendable'',
+    ``Recomendable'' y ``Muy recomendable''. Estas representan los niveles de
+    recomendación del piso y serán las que se usarán en las reglas difusas. Aun
+    así la salida que se le otorgará al usuario será un número entre 0 y 1 que
+    indica el grado de recomendación, siendo 1 lo más recomendado y 0 lo menos.
+    Esto se debe a que aunque el sistema funciona con etiquetas borrosas, el
+    resultado pasa por un proceso de desborrisificacion antes de ser otorgado al
+    usuario. Las 5 funciones de pertenencia tienen forma trapezoidal ya que se
+    considera que cada una de ellas tiene un rango en el que se asegura que
+    son la etiqueta más representativa y por lo tanto cuentan con un grado de pertenencia 1.
+    Tienen una distribución equitativa a lo largo de la variable ya que
+    se ha decidido que cada una de las etiquetas deben cubrir un rango igual al
+    resto.
+
+    \begin{table}[h]
+        \center
+        \begin{tabular}{@{}ccc@{}}
+            \toprule
+            \textbf{Etiqueta} & \textbf{Tipo de función} & \textbf{Parámetros} \\
+            \midrule
+            Nada recomendable         & Trapezoide & [0 0 0.02083 0.1875] \\
+            Poco recomendable         & Trapezoide & [0.0625 0.2292 0.2708 0.4375] \\
+            Medianamente recomendable & Trapezoide & [0.3125 0.4792 0.5208 0.6875] \\
+            Recomendable              & Trapezoide & [0.5625 0.7292 0.7708 0.9375] \\
+            Muy recomendable          & Trapezoide & [0.8125 0.9792 1 1]   \\
+            \bottomrule
+        \end{tabular}
+        \caption{Etiquetas de la variable de salida ``Recomendación''}
+    \end{table}
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+                width=0.90\linewidth,
+                height=9.0cm,
+                title={Definición de la variable ``Recomendación''},
+                xlabel={Variable de salida},
+                ylabel={Grado de pertenencia},
+                xmin=0, xmax=1,
+                ymin=0, ymax=1.25,
+            ]
+                \addplot[color=blue, mark=none] coordinates {(0,1)(0.02083,1)(0.1875,0)(1,0)} node[above right, pos=0, yshift=5] {Nada recomendable};
+                \addplot[color=red, mark=none] coordinates {(0,0)(0.0625,0)(0.2292,1)(0.2708,1)(0.4375,0)(1,0)} node[below, pos=0.4075, yshift=-98] {\footnotesize Poco recomendable};
+                \addplot[color=OliveGreen, mark=none] coordinates {(0,0)(0.3125,0)(0.4792,1)(0.5208,1)(0.6875,0)(1,0)} node[above, pos=0.5, yshift=22.5] {Medianamente recomendable};
+                \addplot[color=darkgray, mark=none] coordinates {(0,0)(0.5625,0)(0.7292,1)(0.7708,1)(0.9375,0)(1,0)} node[below, pos=0.5925, yshift=-98] {Recomendable};
+                \addplot[color=Orange, mark=none] coordinates {(0,0)(0.8125,0)(0.9792,1)(1,1)} node[above left, pos=1, yshift=3] {Muy recomendable};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Definición de la variable de salida ``Recomendación''}
+    \end{figure}
+
+    \section{Definición de reglas difusas}
+
+    En este apartado se describen las reglas establecidas para el sistema, que
+    han sido definidas a partir del perfil seleccionado. Cabe recalcar que
+    aunque se comenzó con 17 reglas, estas han sido modificadas y reducidas a
+    16 tras varias ejecuciones para poder conseguir un modelo preciso. Estos
+    cambios sobretodo incluyen modificaciones de las etiquetas de salida
+    debido a que el primer modelo tendía en exceso a dar resultados intermedios,
+    incluso para ejemplos extremos de viviendas.
+
+    \subsection{Reglas para precio y tamaño}
+    Estas son reglas con peso máximo que buscan clasificar las viviendas según su precio y tamaño.
+
+    \begin{itemize}
+        \item \texttt{IF Precio IS barato AND Tamaño IS pequeño THEN Recomendación IS\\Muy recomendable}
+        \item \texttt{IF Precio IS barato AND Tamaño IS medio THEN Recomendación IS\\Recomendable}
+        \item \texttt{IF Tamaño IS grande THEN Recomendación IS Poco recomendado}
+        \item \texttt{IF Precio IS caro THEN Recomendación IS Poco recomendado}
+    \end{itemize}
+
+    Beneficiarán a aquellas viviendas con un menor precio y tamaño, siendo 
+    esta decisión justificada por el poco poder asquisitivo y la búsqueda de un piso para vivir solo
+    del perfil del estudiante. Además, se considera que estos dos atributos son los que más peso 
+    pueden tener sobre la decisión final de elegir el inmueble, lo cual explica el gran peso de 
+    estas reglas.
+
+    \subsection{Reglas relacionadas con el estado de amueblación de la vivienda}
+    Estas son reglas con peso máximo que buscan eliminar viviendas no amuebladas a no 
+    ser que estas cuenten con muy buen precio. Se considera que el estudiante 
+    promedio no puede permitirse amueblar para uno o dos años de alquiler.
+
+    \begin{itemize}
+        \item \texttt{IF Precio IS caro AND Amueblado IS NO THEN Recomendación IS No\\recomendado}
+        \item \texttt{IF Precio IS barato AND Amueblado IS SI THEN Recomendación IS\\Muy recomendable}
+        \item \texttt{IF Precio IS barato AND Amueblado IS NO THEN Recomendación IS\\Medianamente recomendable}
+        \item \texttt{IF Tamaño IS NOT pequeño AND Amueblado IS NO THEN Recomendación\\IS No recomendado}
+    \end{itemize}
+
+    La amueblación tiene relación directa con el precio final de vivir en el lugar elegido, 
+    además del coste de tiempo extra que conlleva. Por lo tanto, estas reglas contemplan casos en 
+    los que la vivienda no esté amueblada en relación con su precio así como su tamaño. Cabe recalcar
+    que la última regla se añadió posteriormente para cubrir esta última relación, considerandose que el 
+    tamaño aumenta de manera exponencial el coste de necesitar amueblar la vivienda. La única excepción
+    son los pisos baratos no amueblados, ya que un estudiante podría plantearse una vivienda no amueblada 
+    si el precio adicional que esto conlleva se ve balanceado por el bajo precio del alquiler. Esta regla, 
+    al ser una excepción, cuenta con un peso ligeramente menor al resto. 
+
+    \subsection{Reglas para el caso de compartir piso}
+    Estas reglas buscan reflejar la opción de compartir piso, pero con un peso mucho menor ya que esto 
+    es el perfil secundario considerado. 
+
+    \begin{itemize}
+        \item \texttt{IF Tamaño IS pequeño AND n\_habitaciones IS muchas THEN\\Recomendación IS Poco recomendado}
+        \item \texttt{IF Tamaño IS medio AND n\_habitaciones IS medio THEN\\Recomendación IS Recomendable}
+        \item \texttt{IF Tamaño IS grande AND n\_habitaciones IS muchas THEN\\Recomendación IS Medianamente recomendable}
+    \end{itemize}
+
+    La primera regla en particular cuenta con recomendación negativa, razonando que si una vivienda es pequeña 
+    y tiene muchas habitaciones estas serán prácticamente inhabitables. Así, solo se consideran de manera 
+    positiva aquellos inmuebles de tamaño grande o mediano con un número mayor de habitaciones.
+
+    \subsection{Regla sobre la altura y la presencia de ascensor en el complejo}
+    Caso eliminativo con peso máximo de un piso muy alto si este no tiene ascensor. 
+
+    \begin{itemize}
+        \item \texttt{IF Altura IS alto AND Ascensor IS NO THEN Recomendación IS No\\recomendado}
+    \end{itemize}
+
+    La altura empieza a considerarse ``alta'' si la vivienda se encuentra a partir del piso sexto, 
+    lo que sin ascensor conlleva un esfuerzo físico diario que se considera excesivo para cualquier 
+    persona promedio.
+
+    \subsection{Reglas relacionadas con la distancia al transporte público desde la vivienda}
+    Son reglas en relación con el transporte público.
+
+    \begin{itemize}
+        \item \texttt{IF Cercanía\_tp IS cerca THEN Recomendación IS Muy recomendable}
+        \item \texttt{IF Cercanía\_tp IS lejos THEN Recomendación IS Poco recomendado}
+        \item \texttt{IF Cercanía\_tp IS medio THEN Recomendación IS Medianamente\\recomendable}
+    \end{itemize}
+    
+    Aunque tienen un peso algo menor al de otras
+    reglas, se considera que aquellos inmuebles cercanos al transporte público deberían ser mucho 
+    más recomendados que los que se encuentran excesivamente lejos. Esta regla viene justificada
+    por la importancia del transporte público para el día a día de un estudiante, que suele no contar 
+    con un medio de transporte propio.
+
+    \subsection{Regla para identificar el caso de un estudio}
+    Se trata de una regla que combina tres atributos distintos y permite que un piso de precio más 
+    alto en muy buenas condiciones de posicionamiento y tamaño pueda ser más recomendado.
+
+    \begin{itemize}
+        \item \texttt{IF Precio IS medio AND Tamaño IS pequeño AND Cercanía\_tp IS cerca THEN Recomendación IS Recomendable}
+    \end{itemize}
+
+    Esta regla busca identificar los pisos que son estudios, siendo estos una muy buena opción 
+    para estudiantes aún con un precio por metro cuadrado más alto de lo habitual. 
+
+    \chapter{Listado de propiedades}
+    \label{chap:propiedades}
+    En este apartado se describen las propiedades utilizadas para validar el
+    modelo desarrollado. Para cada una se indican los atributos relevantes para
+    la entrada del modelo, un enlace a su anuncio en
+    \href{https://www.idealista.com}{Idealista}, y el nivel de recomendación
+    dado por el modelo.
+
+    \begin{table}[h]
+        \center
+        \begin{tabular}{|c|cccc|}
+            \hline
+            \textbf{Característica} & \href{https://www.idealista.com/inmueble/106565852/}{Propiedad 1} & \href{https://www.idealista.com/inmueble/103969285/}{Propiedad 2} & \href{https://www.idealista.com/inmueble/104278344/}{Propiedad 3} & \href{https://www.idealista.com/inmueble/106224752/}{Propiedad 4} \\
+            \hline
+            \hline
+            \textbf{Precio (€$/m^2$)}                  & 13.51 & 50    & 12.17 & 16.84 \\
+            \textbf{Tamaño ($m^2$)}                    & 111   & 18    & 76    & 95    \\
+            \textbf{Nº habitaciones}                   & 3     & 1     & 1     & 4     \\
+            \textbf{Altura}                            & 2º    & 3º    & 4º    & 2º    \\
+            \textbf{Amueblada\footnotemark[1]}         & 1     & 1     & 1     & 1     \\
+            \textbf{Con ascensor\footnotemark[1]}      & 1     & 1     & 1     & 1     \\
+            \textbf{Tiempo a transporte público (min)} & 5     & 10    & 3     & 1     \\
+            \textbf{Nivel de recomendación}            & 0.709 & 0.414 & 0.789 & 0.83  \\
+            \hline
+        \end{tabular}
+        \caption{Listado de propiedades evaluadas - 1}
+    \end{table}
+    \footnotetext[1]{Para los atributos booleanos se ha utilizado un valor de 1 para representar el valor ``verdadero'' y un valor de 0 para el valor ``falso''}
+    \begin{table}[h]
+        \center
+        \begin{tabular}{|c|ccc|}
+            \hline
+            \textbf{Característica} & \href{https://www.idealista.com/inmueble/106137531/}{Propiedad 5} & \href{https://www.idealista.com/inmueble/106355273/}{Propiedad 6} & \href{https://www.idealista.com/inmueble/106107441/}{Propiedad 7} \\
+            \hline
+            \hline
+            \textbf{Precio (€$/m^2$)}                  & 15    & 14.47 & 10.54 \\
+            \textbf{Tamaño ($m^2$)}                    & 160   & 76    & 140   \\
+            \textbf{Nº habitaciones}                   & 4     & 2     & 4     \\
+            \textbf{Altura}                            & 0º    & 1º    & 1º    \\
+            \textbf{Amueblada\footnotemark[1]}         & 1     & 0     & 1     \\
+            \textbf{Con ascensor\footnotemark[1]}      & 1     & 1     & 1     \\
+            \textbf{Tiempo a transporte público (min)} & 4     & 13    & 8     \\
+            \textbf{Nivel de recomendación}            & 0.528 & 0.503 & 0.565 \\
+            \hline
+        \end{tabular}
+        \caption{Listado de propiedades evaluadas - 2}
+    \end{table}
+    \begin{table}[H]
+        \center
+        \begin{tabular}{|c|ccc|}
+            \hline
+            \textbf{Característica} & \href{https://www.idealista.com/inmueble/102581910/}{Propiedad 8} & \href{https://www.idealista.com/inmueble/96374938/}{Propiedad 9} & \href{https://www.idealista.com/inmueble/105316199/}{Propiedad 10} \\
+            \hline
+            \hline
+            \textbf{Precio (€$/m^2$)}                  & 33.87 & 16.67 & 11.05 \\
+            \textbf{Tamaño ($m^2$)}                    & 62    & 90    & 380   \\
+            \textbf{Nº habitaciones}                   & 1     & 2     & 5     \\
+            \textbf{Altura}                            & 2º    & 8º    & 0º    \\
+            \textbf{Amueblada\footnotemark[1]}         & 1     & 0     & 0     \\
+            \textbf{Con ascensor\footnotemark[1]}      & 1     & 1     & 0     \\
+            \textbf{Tiempo a transporte público (min)} & 2     & 9     & 11    \\
+            \textbf{Nivel de recomendación}            & 0.496 & 0.503 & 0.370 \\
+            \hline
+        \end{tabular}
+        \caption{Listado de propiedades evaluadas - 3}
+    \end{table}
+
+    \chapter{Análisis de resultados}
+    \label{chap:resultados}
+
+    En este capítulo se describirán los resultados obtenidos durante la
+    ejecución del sistema para las 10 propiedades especificadas en el capítulo
+    anterior. Adicionalmente, se analizarán dichos resultados con el fin de
+    determinar la efectividad del sistema.
+
+    Para facilitar la legibilidad del documento se resumen todas las reglas en la siguiente tabla:
+
+    \begin{table}[H]
+    \begin{tabular}{@{}ccc@{}}
+        \toprule
+        \textbf{regla} & \textbf{Condición} & \textbf{Recomendación}\\
+        \midrule
+        1  & \texttt{Precio=barato}$\land$\texttt{Tamaño=Pequeño}            & \texttt{Muy recomendable}\\
+        2  & \texttt{Precio=barato}$\land$\texttt{Tamaño=Medio}              & \texttt{Recomendable}\\
+        3  & \texttt{Tamaño=grande}                                        & \texttt{Poco recomendable}\\
+        4  & \texttt{Precio=caro}                                          & \texttt{No Recomendado}\\
+        5  & \texttt{Precio=caro}$\land$\texttt{Amueblado=NO}                & \texttt{No Recomendado}\\
+        6  & \texttt{Precio=barato} $\land$ \texttt{Amueblado=SI}              & \texttt{Muy recomendable}\\
+        7  & \texttt{Precio=barato} $\land$ \texttt{Amueblado=NO}              & \texttt{Med. recomendable}\\
+        8  & \texttt{Tamaño=pequeño} $\land$ \texttt{n\_habitaciones=muchas}   & \texttt{Poco recomendable}\\
+        9  & \texttt{Tamaño=medio} $\land$ \texttt{n\_habitaciones=medio}      & \texttt{Recomendable}\\
+        10 & \texttt{Tamaño=grande} $\land$ \texttt{n\_habitaciones=muchas}    & \texttt{Med. Recomendable}\\
+        11 & \texttt{Altura=alto} $\land$ \texttt{ascensor=NO}                 & \texttt{Recomendable}\\
+        12 & \texttt{Cercanía\_tp=cerca}                                   & \texttt{Muy recomendable}\\
+        13 & \texttt{Cercanía\_tp=lejos}                                   & \texttt{No recomendado}\\
+        14 & \texttt{Cercanía\_tp=medio}                                   & \texttt{Med. recomendable}\\
+        15 & \texttt{Precio=medio} $\land$ \texttt{Tamaño=pequeño} $\land$ \texttt{Cercanía\_tp=cerca}      & \texttt{Recomendable}\\
+        16 & \texttt{Tamaño!=pequeño} $\land$ \texttt{Amueblado=NO}           & \texttt{No Recomendado}\\
+
+        \bottomrule
+    \end{tabular}
+    \caption{Resumen de reglas numeradas}
+    \end{table}
+
+    \section{Propiedad 1}
+    
+    Esta propiedad ha obtenido un puntaje de recomendación de $0.709$. Las reglas activadas han sido las siguientes: 
+    \begin{itemize}
+        \item Regla 2
+        \item Regla 3
+        \item Regla 6
+        \item Regla 12
+        \item Regla 14
+    \end{itemize}
+    Su alta puntuación se debe principalmente a la influencia de la regla 6,
+    aunque también contribuyen positivamente las reglas 12 y 14 (cercanía al
+    transporte público). El centroide se desplaza ligeramente a la izquierda
+    debido a la influencia de las reglas 2 y 3. Se deduce entonces que la
+    recomendación no es superior debido al tamaño del piso.
+
+    A continuación se adjunta el resultado de la ejecución:
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+                width=0.90\linewidth,
+                height=9.0cm,
+                title={Salida del modelo para la propiedad 1},
+                xlabel={Variable de salida},
+                ylabel={Grado de pertenencia},
+                xmin=0, xmax=1,
+                ymin=0, ymax=1.19,
+            ]
+                \addplot[color=blue, mark=none] file {data/1.dat};
+                \addplot[color=red, mark=none] coordinates {(0.709,0)(0.709,1.2)} node[right, yshift=-20] {Salida};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Salida del modelo para la propiedad 1}
+    \end{figure}
+
+    \section{Propiedad 2}
+    
+    Esta propiedad ha obtenido un puntaje de recomendación de $0.414$. Las reglas activadas han sido las siguientes: 
+    \begin{itemize}
+        \item Regla 4
+        \item Regla 12
+        \item Regla 13
+        \item Regla 14
+    \end{itemize}
+    Su baja puntuación se debe principalmente a la influencia de la regla 4
+    que penaliza el alto precio de la vivienda. Adicionalmente, se han activado
+    las reglas 12, 13 y 14, relacionadas con la cercanía al transporte público.
+    Estas reglas desplazan ligeramente el centroide a la derecha, logrando una
+    puntuación algo mayor. Sin embargo, estas últimas reglas cuentan con un
+    peso menor que la primera, lo que hace del resultado
+    principalmente una consecuencia de la regla 4.
+
+    A continuación se adjunta el resultado de la ejecución:
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+                width=0.90\linewidth,
+                height=9.0cm,
+                title={Salida del modelo para la propiedad 2},
+                xlabel={Variable de salida},
+                ylabel={Grado de pertenencia},
+                xmin=0, xmax=1,
+                ymin=0, ymax=1.19,
+            ]
+                \addplot[color=blue, mark=none] file {data/2.dat};
+                \addplot[color=red, mark=none] coordinates {(0.414,0)(0.414,1.2)} node[right, yshift=-20] {Salida};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Salida del modelo para la propiedad 2}
+    \end{figure}
+
+    \section{Propiedad 3}
+    Esta propiedad ha obtenido un puntaje de recomendación de $0.789$. Las reglas activadas para esta propiedad han sido las siguientes: 
+    \begin{itemize}
+        \item Regla 2
+        \item Regla 6
+        \item Regla 12
+        \item Regla 14
+    \end{itemize}
+
+    Su puntuación es considerablemente alta debido principalmente a las reglas
+    6 y 12. Comparándola con la primera propiedad, es destacable que este
+    inmueble no activa la regla 4. Esto hace que su puntuación sea mayor al
+    tratarse de un piso de tamaño medio.
+
+    A continuación se adjunta el resultado de la ejecución:
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+                width=0.90\linewidth,
+                height=9.0cm,
+                title={Salida del modelo para la propiedad 3},
+                xlabel={Variable de salida},
+                ylabel={Grado de pertenencia},
+                xmin=0, xmax=1,
+                ymin=0, ymax=1.19,
+            ]
+                \addplot[color=blue, mark=none] file {data/3.dat};
+                \addplot[color=red, mark=none] coordinates {(0.789,0)(0.789,1.2)} node[right, yshift=-20] {Salida};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Salida del modelo para la propiedad 3}
+    \end{figure}
+
+    \section{Propiedad 4}
+    Esta propiedad ha obtenido un puntaje de recomendación de $0.830$. Las reglas activadas para esta propiedad han sido las siguientes: 
+    \begin{itemize}
+        \item Regla 2
+        \item Regla 6
+        \item Regla 12
+    \end{itemize}
+    
+    Este es el inmueble con puntuación más alta. Esto se debe a que activa
+    exclusivamente reglas cuyo consecuente es \texttt{Recomendado=Muy
+    Recomendable} o \texttt{Recomendable}. Si se observan detenidamente sus
+    características se aprecia que se trata de una vivienda relativamente
+    pequeña, barata y amueblada; características fundamentales que son buscadas
+    por los estudiantes.
+
+    A continuación se adjunta el resultado de la ejecución:
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+                width=0.90\linewidth,
+                height=9.0cm,
+                title={Salida del modelo para la propiedad 4},
+                xlabel={Variable de salida},
+                ylabel={Grado de pertenencia},
+                xmin=0, xmax=1,
+                ymin=0, ymax=1.19,
+            ]
+                \addplot[color=blue, mark=none] file {data/4.dat};
+                \addplot[color=red, mark=none] coordinates {(0.83,0)(0.83,1.2)} node[right, yshift=-20] {Salida};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Salida del modelo para la propiedad 4}
+    \end{figure}
+
+    \section{Propiedad 5}
+    Esta propiedad ha obtenido un puntaje de recomendación de $0.528$. Las reglas activadas para esta propiedad han sido las siguientes:
+    \begin{itemize}
+        \item Regla 3
+        \item Regla 6
+        \item Regla 10
+        \item Regla 12
+        \item Regla 14
+    \end{itemize}
+
+    Este inmueble tiene una puntuación intermedia ya que activa reglas de
+    gran peso tanto positivas (reglas 6 y 12) como negativas (reglas 3 y 14).
+    Se aprecia que el tamaño perjudica en gran medida al inmueble, mientras que
+    su cercanía al transporte público, su precio y el hecho de que sea
+    amueblado lo beneficia.
+
+    A continuación se adjunta el resultado de la ejecución:
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+                width=0.90\linewidth,
+                height=9.0cm,
+                title={Salida del modelo para la propiedad 5},
+                xlabel={Variable de salida},
+                ylabel={Grado de pertenencia},
+                xmin=0, xmax=1,
+                ymin=0, ymax=1.19,
+            ]
+                \addplot[color=blue, mark=none] file {data/5.dat};
+                \addplot[color=red, mark=none] coordinates {(0.528,0)(0.528,1.2)} node[right, yshift=-20] {Salida};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Salida del modelo para la propiedad 5}
+    \end{figure}
+     
+    \section{Propiedad 6}
+    Esta propiedad ha obtenido un puntaje de recomendación de $0.503$. Las
+    reglas activadas han sido las siguientes: 
+    \begin{itemize}
+        \item Regla 2
+        \item Regla 7
+        \item Regla 12
+        \item Regla 13
+        \item Regla 14
+        \item Regla 16
+    \end{itemize}
+
+    Al igual que en la propiedad anterior, se obtiene una puntuación intermedia.
+    Esto se debe principalmente al estado de amueblación de la vivienda, que la
+    castiga severamente al no estar amueblada (regla 16). Adicionalmente, su
+    precio, cercanía al transporte público y su tamaño compensan positivamente
+    la puntuación.
+
+    A continuación se adjunta el resultado de la ejecución:
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+                width=0.90\linewidth,
+                height=9.0cm,
+                title={Salida del modelo para la propiedad 6},
+                xlabel={Variable de salida},
+                ylabel={Grado de pertenencia},
+                xmin=0, xmax=1,
+                ymin=0, ymax=1.19,
+            ]
+                \addplot[color=blue, mark=none] file {data/6.dat};
+                \addplot[color=red, mark=none] coordinates {(0.503,0)(0.503,1.2)} node[right, yshift=-20] {Salida};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Salida del modelo para la propiedad 6}
+    \end{figure}
+
+    \section{Propiedad 7}
+    Esta propiedad ha obtenido un puntaje de recomendación de $0.565$. Las
+    reglas activadas han sido las siguiente:
+    \begin{itemize}
+        \item Regla 3
+        \item Regla 6
+        \item Regla 10
+        \item Regla 12
+        \item Regla 13
+        \item Regla 14
+    \end{itemize}
+
+    Este inmueble ha recibido una puntuación intermedia. Su tamaño es castigado
+    por la regla 3 mientras que su estado de amueblación y precio suben su
+    puntuación. Adicionalmente la cercanía al transporte público concentra el
+    centroide en la parte más central.
+
+    A continuación se adjunta el resultado de la ejecución:
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+                width=0.90\linewidth,
+                height=9.0cm,
+                title={Salida del modelo para la propiedad 7},
+                xlabel={Variable de salida},
+                ylabel={Grado de pertenencia},
+                xmin=0, xmax=1,
+                ymin=0, ymax=1.19,
+            ]
+                \addplot[color=blue, mark=none] file {data/7.dat};
+                \addplot[color=red, mark=none] coordinates {(0.565,0)(0.565,1.2)} node[right, yshift=-20] {Salida};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Salida del modelo para la propiedad 7}
+    \end{figure}
+
+    \section{Propiedad 8}
+    Esta propiedad ha obtenido un puntaje de recomendación de $0.496$. Las
+    reglas activadas para esta propiedad han sido las siguiente:
+    \begin{itemize}
+        \item Regla 4
+        \item Regla 12
+        \item Regla 14
+    \end{itemize}
+
+    Se trata de un inmueble con una puntuación media-baja. La regla 4 influye
+    negativamente sobre la puntuación debido al alto precio de la vivienda.
+    Esta influencia es ligeramente compensada por la cercanía al transporte
+    público (regla 12). La regla 14 apenas tiene influencia sobre el resultado.
+
+    A continuación se adjunta el resultado de la ejecución:
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+                width=0.90\linewidth,
+                height=9.0cm,
+                title={Salida del modelo para la propiedad 8},
+                xlabel={Variable de salida},
+                ylabel={Grado de pertenencia},
+                xmin=0, xmax=1,
+                ymin=0, ymax=1.19,
+            ]
+                \addplot[color=blue, mark=none] file {data/8.dat};
+                \addplot[color=red, mark=none] coordinates {(0.496,0)(0.496,1.2)} node[right, yshift=-20] {Salida};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Salida del modelo para la propiedad 8}
+    \end{figure}
+
+    \section{Propiedad 9}
+    Esta propiedad ha obtenido un puntaje de recomendación de $0.503$. Las
+    reglas activadas para esta propiedad han sido las siguiente:
+    \begin{itemize}
+        \item Regla 
+        \item Regla 12
+        \item Regla 14
+    \end{itemize}
+    
+    De nuevo, se tata de un inmueble con una puntuación intermedia debido
+    principalmente al estado de amueblación de la vivienda. Su tamaño, precio y
+    cercanía al transporte público influyen positivamente en la valoración de
+    la vivienda. No obstante, su estado no amueblado castiga la puntuación.
+
+    A continuación se adjunta el resultado de la ejecución:
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+                width=0.90\linewidth,
+                height=9.0cm,
+                title={Salida del modelo para la propiedad 9},
+                xlabel={Variable de salida},
+                ylabel={Grado de pertenencia},
+                xmin=0, xmax=1,
+                ymin=0, ymax=1.19,
+            ]
+                \addplot[color=blue, mark=none] file {data/9.dat};
+                \addplot[color=red, mark=none] coordinates {(0.503,0)(0.503,1.2)} node[right, yshift=-20] {Salida};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Salida del modelo para la propiedad 9}
+    \end{figure}
+
+    \section{Propiedad 10}
+    Esta propiedad ha obtenido un puntaje de recomendación de $0.370$. Las
+    reglas activadas para esta propiedad han sido las siguiente:
+    \begin{itemize}
+        \item Regla 3
+        \item Regla 7
+        \item Regla 10
+        \item Regla 12
+        \item Regla 13
+        \item Regla 14
+        \item Regla 16
+    \end{itemize}
+
+    Se trata del inmueble con la puntuación más baja. Esto se debe a su gran
+    tamaño, su estado de amueblación y su distancia algo superior al transporte
+    público que el resto de pisos. El resultado se ha visto influenciado
+    principalmente por las reglas 3, 7 y 16.
+
+    A continuación se adjunta el resultado de la ejecución:
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+                width=0.90\linewidth,
+                height=9.0cm,
+                title={Salida del modelo para la propiedad 10},
+                xlabel={Variable de salida},
+                ylabel={Grado de pertenencia},
+                xmin=0, xmax=1,
+                ymin=0, ymax=1.19,
+            ]
+                \addplot[color=blue, mark=none] file {data/10.dat};
+                \addplot[color=red, mark=none] coordinates {(0.37,0)(0.37,1.2)} node[right, yshift=-20] {Salida};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Salida del modelo para la propiedad 10}
+    \end{figure}
+
+    \chapter{Conclusiones y mejoras}
+    \label{chap:conclusion}
+
+    El modelo obtenido presenta un comportamiento que coincide con los
+    resultados esperados. Se observa durante las ejecuciones que castiga
+    adecuadamente el tamaño, alto precio e inmuebles no amueblados.
+    Adicionalmente, la puntuación baja a medida que los inmuebles se alejan más
+    del transporte público. Las viviendas que cumplen las tres condiciones más
+    buscadas por el perfil de estudiante (precio barato, tamaño pequeño y
+    cercanía al transporte público) cuentan con la puntuación más alta; siendo
+    el mayor ejemplo de esto la propiedad 3. Adicionalmente se aprecian una
+    gran cantidad de viviendas que caen en puntuaciones intermedias,
+    generalmente debido a la combinación de características muy positivas y muy
+    negativas.
+
+    Con todo lo anterior, destaca el problema de las puntuaciones intermedias
+    cuyo centroide no es representativo. El sistema puede dar una idea
+    equivocada sobre pisos en este rango de puntuación, pareciendo más
+    recomendables de lo que realmente son. Para solucionarlo se sugiere
+    penalizar en mayor medida las opciones negativas a través de un mayor peso
+    en las reglas cuyo consecuente sea \texttt{No recomendado} o \texttt{Poco
+    recomendable}. De esta forma, el sistema daría una mayor importancia a las
+    características negativas, resultando en una recomendación más
+    conservadora. En consecuencia, las puntuaciones resultantes serán más
+    extremas, facilitando la interpretación de resultados por parte de un
+    usuario no informado.
+
+    %----------
+    %    BIBLIOGRAFÍA
+    %----------
+
+    %\nocite{*} % Si quieres que aparezcan en la bibliografía todos los documentos que la componen (también los que no estén citados en el texto) descomenta está lína
+
+    \clearpage
+
+    \phantomsection
+    \addcontentsline{toc}{chapter}{Bibliografía}
+    \label{chap:bibliography}
+    \setquotestyle[english]{british} % Cambiamos el tipo de cita porque en el estilo IEEE se usan las comillas inglesas.
+    \printbibliography
+
+    %----------
+    %    ANEXOS
+    %----------
+
+    % Si tu trabajo incluye anexos, puedes descomentar las siguientes líneas
+    %\chapter* {Anexo x}
+    %\pagenumbering{gobble} % Las páginas de los anexos no se numeran
+
+\end{document}

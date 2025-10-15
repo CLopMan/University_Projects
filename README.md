@@ -29,6 +29,6 @@ Some of this projects have their own repository. You can find the link to them i
 | [SSIIUU-final](https://github.com/CLopMan/University_Projects/tree/main/SSIIUU-final) | JS, HTML5, CSS | Web application for gamifying the purchasing process | 2023-24 |
 | [ciberseguridad-practicas](https://github.com/CLopMan/University_Projects/tree/main/ciberseguridad-practicas) | Python, Bash, C, Ghidra, Jadx, gdb, LaTEX | Exercises to retrieve flags in diferent contexts related to cibersecurity | 2024-25 |
 | [ArquitecturaDatos](https://github.com/CLopMan/University_Projects/tree/main/ArquitecturaDatos) | Python with Pandas and Pyspark, Bash, MongoDB, Cassandra (CQL), LaTEX | Design and migration of different databases | 2024-25 |
-| [Artificial Inteligence in Organizations](https://github.com/CLopMan/IAO-pr-cticas) | Altair AI Studio, Python, Matlab toolbox, LaTEX | Classification and regression projects with different technologies |
+| [Artificial Inteligence in Organizations](https://github.com/CLopMan/University_Projects/tree/main/IAO-pr-cticas) | Altair AI Studio, Python, Matlab toolbox, LaTEX | Classification and regression projects with different technologies |
 
 

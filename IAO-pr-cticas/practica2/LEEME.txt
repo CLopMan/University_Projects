@@ -1,0 +1,45 @@
+Contenido de los ficheros:
+-eda_practica2.rmp: proceso que obtiene las estadísticas para realizar el EDA
+-practica2_base.rmp: proceso de entrenamiento y testing del modelo sin texto.
+-practica2_1.rmp: proceso de entrenamiento del modelo de la parte 1.
+-practica2_2.rmp: proceso de entrenamiento del modelo de la parte 2.
+-practica2_extra.rmp: proceso de entrenamiento del modelo de la parte extra.
+-practica2_1test.rmp: proceso de testing del modelo de la parte 1.
+-practica2_2test.rmp: proceso de testing del modelo de la parte 2.
+-base_modelo.rmmodel: modelo final de prediccion sin texto.
+-parte_1_modelo.rmmodel: modelo final elegido para el testing de la parte 1.
+-parte_2_modelo.rmmodel: modelo final elegido para el testing de la parte 2.
+-parte_1_words.rmwordlist: wordlist para el testing de la parte 1.
+-parte_2_words.rmwordlist: wordlist para el testing de la parte 2.
+-Airline_review_train.csv: datos proporcionada por el profesor para entrenar.
+-Airline_review_test.csv: datos proporcionada por el profesor para testing.
+-preprocesado.py: script de python para preprocesar datos.
+
+Instrucciones de uso de los procesos:
+
+-eda_practica2.rmp: previo a la ejecución asegurarse que el csv leido por "Read CSV" sea Airline_review_train.csv.
+
+-practica2_base.rmp: previo a la ejecución asegurarse que el csv leido por "Read CSV" sea Airline_review_train.csv, el leido por 
+"Read CSV (2)" sea Airline_review_test.csv y que el script leido por "Execute Python" y "Execute Python (2)" sea preprocesado.py. 
+El modelo está conectado a un "store", comprobar que el fichero de guardado sea correcto.
+
+-practica2_1.rmp: previo a la ejecución asegurarse que el csv leido por "Read CSV" sea Airline_review_train.csv y que el script leido 
+por "Execute Python" sea preprocesado.py. El modelo está conectado a un "store", comprobar que el fichero de guardado sea correcto.
+El "Process Document from Data" del modelo final está conectado a un "store" para guardar la wordlist, comprobar que el fichero de 
+guardado sea correcto.
+
+-practica2_2.rmp: previo a la ejecución asegurarse que el csv leido por "Read CSV" sea Airline_review_train.csv y que el script leido 
+por "Execute Python" sea preprocesado.py. El modelo está conectado a un "store", comprobar que el fichero de guardado sea correcto.
+El "Process Document from Data" del modelo final está conectado a un "store(2)" para guardar la wordlist, comprobar que el fichero de 
+guardado sea correcto.
+
+-practica2_extra.rmp: previo a la ejecución asegurarse que el csv leido por "Read CSV" sea Airline_review_train.csv y que el script 
+leido por "Execute Python" sea preprocesado.py. 
+
+-practica2_1test.rmp: previo a la ejecución asegurarse que el csv leido por "Read CSV" sea Airline_review_test.csv y que el script 
+leido por "Execute Python" sea preprocesado.py. Asegurarse que "Retrieve"(el conectado a Apply Model) esté recuperando 
+parte_1_modelo.rmmodel y que "Retrieve(2)" (el conectado a "Process Document from Data) esté recuperando parte_1_words.rmwordlist.
+
+-practica2_2test.rmp: previo a la ejecución asegurarse que el csv leido por "Read CSV" sea Airline_review_test.csv y que el script 
+leido por "Execute Python" sea preprocesado.py. Asegurarse que "Retrieve"(el conectado a Apply Model) esté recuperando 
+parte_2_modelo.rmmodel y que "Retrieve(2)" (el conectado a "Process Document from Data) esté recuperando parte_2_words.rmwordlist.

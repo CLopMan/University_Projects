@@ -1,0 +1,109 @@
+Piso 1: https://www.idealista.com/inmueble/106565852/
+  Precio/m²: 13.51€/m²
+  Tamaño: 111m²
+  Número de habitaciones: 3
+  Altura: 2
+  Amueblado: si
+  Ascensor: si
+  Transporte: 5 min
+  Entradas: [13.51 111 3 2 1 1 5]
+  Salida: 0.709
+
+Piso 2: https://www.idealista.com/inmueble/103969285/
+  Precio/m²: 50€/m²
+  Tamaño: 18m²
+  Número de habitaciones: 1
+  Altura: 3
+  Amueblado: si
+  Ascensor: si
+  Transporte: 10 min
+  Entradas: [50 18 1 3 1 1 10]
+  Salida 0.414
+
+Piso 3: https://www.idealista.com/inmueble/104278344/
+  Precio/m²: 12.17€/m²
+  Tamaño: 76m²
+  Número de habitaciones: 1
+  Altura: 4
+  Amueblado: si
+  Ascensor: si
+  Transporte: 3 min
+  Entradas: [12.71 76 1 4 1 1 3]
+  Salida 0.789
+
+Piso 4: https://www.idealista.com/inmueble/106224752/
+  Precio/m²: 16.84€/m²
+  Tamaño: 95m²
+  Número de habitaciones: 4
+  Altura: 2
+  Amueblado: si
+  Ascensor: si
+  Transporte: 1 min
+  Entradas: [16.84 95 4 2 1 1 1]
+  Salida 0.83
+
+Piso 5: https://www.idealista.com/inmueble/106137531/
+  Precio/m²: 15€/m²
+  Tamaño: 160m²
+  Número de habitaciones: 4
+  Altura: 0
+  Amueblado: si
+  Ascensor: si
+  Transporte: 4 min
+  Entradas: [15 160 4 0 1 1 4]
+  Salida: 0.528
+
+Piso 6: https://www.idealista.com/inmueble/106355273/
+  Precio/m²: 14.47€/m²
+  Tamaño: 76m²
+  Número de habitaciones: 2
+  Altura: 4
+  Amueblado: no
+  Ascensor: si
+  Transporte: 13 min
+  Entradas: [14.47 76 2 4 0 1 13]
+  Salida: 0.503
+
+Piso 7: https://www.idealista.com/inmueble/106107441/
+  Precio/m²: 10.54€/m²
+  Tamaño: 140m²
+  Número de habitaciones: 4
+  Altura: 1
+  Amueblado: si
+  Ascensor: si
+  Transporte: 8 min
+  Entradas: [10.54 140 4 1 1 1 8]
+  Salida: 0.565
+
+Piso 8: https://www.idealista.com/inmueble/102581910/
+  Precio/m²: 33.87€/m²
+  Tamaño: 62m²
+  Número de habitaciones: 1
+  Altura: 2
+  Amueblado: si
+  Ascensor: si
+  Transporte: 2 min
+  Entradas: [33.87 62 1 2 1 1 2]
+  Salida: 0.496
+
+Piso 9: https://www.idealista.com/inmueble/96374938/
+  Precio/m²: 16.67€/m²
+  Tamaño: 90m²
+  Número de habitaciones: 2
+  Altura: 8
+  Amueblado: no
+  Ascensor: si
+  Transporte: 9 min
+  Entradas: [16.67 90 2 8 0 1 9]
+  Salida: 0.503
+
+Piso 10: https://www.idealista.com/inmueble/105316199/
+  Precio/m²: 11.05€/m²
+  Tamaño: 380m²
+  Número de habitaciones: 5
+  Altura: 0
+  Amueblado: no
+  Ascensor: no
+  Transporte: 11 min
+  Entradas: [11.05 380 5 0 0 0 11]
+  Salida: 0.37

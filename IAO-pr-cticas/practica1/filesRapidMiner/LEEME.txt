@@ -1,0 +1,33 @@
+Contenido de los ficheros:
+-practica1.rmp: proceso de entrenamiento del modelo de la parte 1.
+-practica1_2.rmp: proceso de entrenamiento del modelo de la parte 2.
+-modelo_huber.rmmodel: modelo final elegido para las predicciones de la parte 1.
+-modelo_quadratic.rmmodel: modelo final elegido para las predicciones de la parte 2.
+-predicciones_parte1.rmp: proceso que realiza las predicciones de la parte 1.
+-predicciones_parte2.rmp: proceso que realiza las predicciones de la parte 2.
+-iao.py: script de python modificado a partir del que se proporcionaba para elegir solo los 10 embalses usados.
+-iao_bao.py: script de python modificado para elegir solo el embalse bao.
+-BD-Embalses.csv: base de datos proporcionada por el profesor.
+-datos_bao.csv: datos filtrados para contener solo el embalse bao.
+-datos_bao_procesado.csv: datos procesados para contener solo el embalse bao y formato para las predicciones de la primera parte.
+-datos_bao_procesado2.csv: datos procesados para contener solo el embalse bao y formato para las predicciones de la segunda parte.
+
+Instrucciones de uso de los procesos:
+
+-practica1.rmp: previo a la ejecución asegurarse que el csv leido por "Read CSV" sea BD-Embalses.csv y que el script leido 
+por "Execute Python" sea iao.py. El modelo final está conectado a un "store" comprobar que el fichero de guardado sea correcto.
+
+-practica1_2.rmp: previo a la ejecución asegurarse que el csv leido por "Read CSV" sea datos_bao.csv y que el script leido 
+por "Execute Python" sea iao_bao.py. El modelo final es el llamado "size 52,8capas,quadratic", en caso de querer guardarlo conectar
+la salida "mod" a un "store".
+
+-predicciones_parte1.rmp: previo a la ejecución asegurarse que el csv leido por "Read CSV" sea datos_bao_procesado.csv y que el modelo 
+indicado en "Retrieve" sea "modelo_huber.rmmodel". Actualmente el csv contiene las 2 primeras predicciones por lo que predecirá la tercera
+semana. En caso de querer predecir semanas anteriores borrar las filas necesarias y el último dato de la fila de la semana anterior a la predicha.
+Para añadir filas es necesario calcular los valores correspodndientes a la nueva semana.
+
+predicciones_parte2.rmp: previo a la ejecución asegurarse que el csv leido por "Read CSV" sea datos_bao_procesado2.csv y que el modelo 
+indicado en "Retrieve" sea "modelo_quadratic.rmmodel". Actualmente el csv contiene las 2 primeras predicciones por lo que predecirá la tercera
+semana. Para hacer nuevas predicciones asegurarse de que el dato "AGUA_ACTUAL" de la semana a predecir está vacío. Por como funciona el filtrado
+de datos en el proceso, para añadir nuevas semanas solo es necesario que el atributo "FECHA" de la fila a predecir sea el correcto y que "AGUA_ACTUAL"
+esté vacío, ya que el resto de atributos se filtran antes de la predicción.

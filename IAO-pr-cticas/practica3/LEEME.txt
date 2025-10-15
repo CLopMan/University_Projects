@@ -1,0 +1,11 @@
+Ficheros:
+- datos.txt: fichero con los datos utilizados para la evaluación del modelo.
+  Contiene los datos de entrada para cada piso evaluado y el resultado obtenido.
+  Para facilitar su uso, cada piso contiene una línea "Entradas:" con los valores
+  de las variables de entrada en el formato utilzado por Matlab
+- modelo.fis: fichero con el modelo de lógica borrosa realizado
+
+Para ejecutar el modelo, es necesario subir el modelo al workspace de Matlab y
+cargarlo con `modelo = readfis("modelo.fis")`. Una vez realizado esto, se puede
+ejecutar el modelo con `evalfis(modelo, <entradas>)`, donde `<entradas>` es el
+array en la línea "Entradas:" de la propiedad a evaluar en el fichero de datos

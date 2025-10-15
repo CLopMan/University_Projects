@@ -1,0 +1,690 @@
+%----------
+%   IMPORTANTE
+%----------
+
+% Si nunca has utilizado LaTeX es conveniente que aprendas una serie de conceptos básicos antes de utilizar esta plantilla. Te aconsejamos que leas previamente algún tutorial (puedes encontar muchos en Internet).
+
+% Esta plantilla está basada en las recomendaciones de la guía "Trabajo fin de Grado: Escribir el TFG", que encontrarás en http://uc3m.libguides.com/TFG/escribir
+% contiene recomendaciones de la Biblioteca basadas principalmente en estilos APA e IEEE, pero debes seguir siempre las orientaciones de tu Tutor de TFG y la normativa de TFG para tu titulación.
+
+% Encontrarás un ejemplo de TFG realizado con esta misma plantilla en la carpeta "_ejemplo_TFG_2019". Consúltalo porque contiene ejemplos útiles para incorporar tablas, figuras, listados de código, bibliografía, etc.
+
+
+%----------
+%    CONFIGURACIÓN DEL DOCUMENTO
+%----------
+
+% Definimos las características del documento y añadimos una serie de paquetes (\usepackage{package}) que agregan funcionalidades a LaTeX.
+
+\documentclass[12pt]{report} %fuente a 12pt
+
+% MÁRGENES: 2,5 cm sup. e inf.; 3 cm izdo. y dcho.
+\usepackage[
+a4paper,
+vmargin=2.5cm,
+hmargin=3cm
+]{geometry}
+
+% INTERLINEADO: Estrecho (6 ptos./interlineado 1,15) o Moderado (6 ptos./interlineado 1,5)
+\renewcommand{\baselinestretch}{1.15}
+\parskip=6pt
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% DEFINICIÓN DE COLORES para portada y listados de código
+\usepackage[table]{xcolor}
+\definecolor{azulUC3M}{RGB}{0,0,102}
+\definecolor{gray97}{gray}{.97}
+\definecolor{gray75}{gray}{.75}
+\definecolor{gray45}{gray}{.45}
+
+\usepackage{tikz}
+% Soporte para GENERAR PDF/A --es importante de cara a su inclusión en e-Archivo porque es el formato óptimo de preservación y a la generación de metadatos, tal y como se describe en http://uc3m.libguides.com/ld.php?content_id=31389625. En la carpeta incluímos el archivo plantilla_tfg_2017.xmpdata en el que puedes incluir los metadatos que se incorporarán al archivo PDF cuando lo compiles. Ese archivo debe llamarse igual que tu archivo .tex. Puedes ver un ejemplo en esta misma carpeta.
+\usepackage[a-1b]{pdfx}
+
+% ENLACES
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,
+    linkcolor=black, % enlaces a partes del documento (p.e. índice) en color negro
+    citecolor=black,
+    urlcolor=blue} % enlaces a recursos fuera del documento en azul
+
+% EXPRESIONES MATEMATICAS
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+
+\usepackage{txfonts}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage[spanish, es-tabla]{babel}
+\usepackage[babel, spanish=spanish]{csquotes}
+\AtBeginEnvironment{quote}{\small}
+
+% diseño de PIE DE PÁGINA
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\rfoot{\thepage}
+\fancypagestyle{plain}{\pagestyle{fancy}}
+
+% DISEÑO DE LOS TÍTULOS de las partes del trabajo (capítulos y epígrafes o subcapítulos)
+\usepackage{titlesec}
+\usepackage{titletoc}
+\titleformat{\chapter}[block]
+{\large\bfseries\filcenter}
+{\thechapter.}
+{5pt}
+{\MakeUppercase}
+{}
+\titlespacing{\chapter}{0pt}{0pt}{*3}
+\titlecontents{chapter}
+[0pt]
+{}
+{\contentsmargin{0pt}\thecontentslabel.\enspace\uppercase}
+{\contentsmargin{0pt}\uppercase}
+{\titlerule*[.7pc]{.}\contentspage}
+
+\titleformat{\section}
+{\bfseries}
+{\thesection.}
+{5pt}
+{}
+\titlecontents{section}
+[5pt]
+{}
+{\contentsmargin{0pt}\thecontentslabel.\enspace}
+{\contentsmargin{0pt}}
+{\titlerule*[.7pc]{.}\contentspage}
+
+\titleformat{\subsection}
+{\normalsize\bfseries}
+{\thesubsection.}
+{5pt}
+{}
+\titlecontents{subsection}
+[10pt]
+{}
+{\contentsmargin{0pt}
+    \thecontentslabel.\enspace}
+{\contentsmargin{0pt}}
+{\titlerule*[.7pc]{.}\contentspage}
+
+
+% DISEÑO DE TABLAS. Puedes elegir entre el estilo para ingeniería o para ciencias sociales y humanidades. Por defecto, está activado el estilo de ingeniería. Si deseas utilizar el otro, comenta las líneas del diseño de ingeniería y descomenta las del diseño de ciencias sociales y humanidades
+\usepackage{multirow} % permite combinar celdas
+\usepackage{caption} % para personalizar el título de tablas y figuras
+\usepackage{floatrow} % utilizamos este paquete y sus macros \ttabbox y \ffigbox para alinear los nombres de tablas y figuras de acuerdo con el estilo definido. Para su uso ver archivo de ejemplo
+\usepackage{array} % con este paquete podemos definir en la siguiente línea un nuevo tipo de columna para tablas: ancho personalizado y contenido centrado
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+\DeclareCaptionFormat{upper}{#1#2\uppercase{#3}\par}
+
+% Diseño de tabla para ingeniería
+\captionsetup[table]{
+    format=upper,
+    name=TABLA,
+    justification=centering,
+    labelsep=period,
+    width=.75\linewidth,
+    labelfont=small,
+    font=small,
+}
+
+%Diseño de tabla para ciencias sociales y humanidades
+%\captionsetup[table]{
+%    justification=raggedright,
+%    labelsep=period,
+%    labelfont=small,
+%    singlelinecheck=false,
+%    font={small,bf}
+%}
+
+
+% DISEÑO DE FIGURAS. Puedes elegir entre el estilo para ingeniería o para ciencias sociales y humanidades. Por defecto, está activado el estilo de ingeniería. Si deseas utilizar el otro, comenta las líneas del diseño de ingeniería y descomenta las del diseño de ciencias sociales y humanidades
+\usepackage{graphicx}
+\graphicspath{{imagenes/}} %ruta a la carpeta de imágenes
+
+% Diseño de figuras para ingeniería
+\captionsetup[figure]{
+    format=hang,
+    name=Fig.,
+    singlelinecheck=off,
+    labelsep=period,
+    labelfont=small,
+    font=small
+}
+
+% Diseño de figuras para ciencias sociales y humanidades
+%\captionsetup[figure]{
+%    format=hang,
+%    name=Figura,
+%    singlelinecheck=off,
+%    labelsep=period,
+%    labelfont=small,
+%    font=small
+%}
+
+
+% NOTAS A PIE DE PÁGINA
+\usepackage{chngcntr} %para numeración contínua de las notas al pie
+\counterwithout{footnote}{chapter}
+
+% LISTADOS DE CÓDIGO
+% soporte y estilo para listados de código. Más información en https://es.wikibooks.org/wiki/Manual_de_LaTeX/Listados_de_código/Listados_con_listings
+\usepackage{listings}
+
+% definimos un estilo de listings
+\lstdefinestyle{estilo}{ frame=Ltb,
+    framerule=0pt,
+    aboveskip=0.5cm,
+    framextopmargin=3pt,
+    framexbottommargin=3pt,
+    framexleftmargin=0.4cm,
+    framesep=0pt,
+    rulesep=.4pt,
+    backgroundcolor=\color{gray97},
+    rulesepcolor=\color{black},
+    %
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\bfseries,
+    stringstyle=\ttfamily,
+    showstringspaces = false,
+    commentstyle=\color{gray45},
+    %
+    numbers=left,
+    numbersep=15pt,
+    numberstyle=\tiny,
+    numberfirstline = false,
+    breaklines=true,
+    xleftmargin=\parindent
+}
+
+\captionsetup[lstlisting]{font=small, labelsep=period}
+% fijamos el estilo a utilizar
+\lstset{style=estilo}
+\renewcommand{\lstlistingname}{\uppercase{Código}}
+
+
+%BIBLIOGRAFÍA - PUEDES ELEGIR ENTRE ESTILO IEEE O APA. POR DEFECTO ESTÁ CONFIGURADO IEEE. SI DESEAS USAR APA, COMENTA LAS LÍNEA DE IEEE Y DESCOMENTA LAS DE APA. Si haces cambios en la configuración de la bibliografía y no obtienes los resultados esperados, es recomendable limpiar los archivos auxiliares y volver a compilar en este orden: COMPILAR-BIBLIOGRAFIA-COMPILAR
+
+% Tienes más información sobre cómo generar bibliografía y CONFIGURAR TU EDITOR DE TEXTO para compilar con biber en http://tex.stackexchange.com/questions/154751/biblatex-with-biber-configuring-my-editor-to-avoid-undefined-citations , https://www.overleaf.com/learn/latex/Bibliography_management_in_LaTeX y en http://www.ctan.org/tex-archive/macros/latex/exptl/biblatex-contrib
+% También te recomendamos consultar la guía temática de la Biblioteca sobre citas bibliográficas: http://uc3m.libguides.com/guias_tematicas/citas_bibliograficas/inicio
+
+% CONFIGURACIÓN PARA LA BIBLIOGRAFÍA IEEE
+\usepackage[backend=biber, style=ieee, isbn=false,sortcites, maxbibnames=5, minbibnames=1]{biblatex} % Configuración para el estilo de citas de IEEE, recomendado para el área de ingeniería. "maxbibnames" indica que a partir de 5 autores trunque la lista en el primero (minbibnames) y añada "et al." tal y como se utiliza en el estilo IEEE.
+
+%CONFIGURACIÓN PARA LA BIBLIOGRAFÍA APA
+%\usepackage[style=apa, backend=biber, natbib=true, hyperref=true, uniquelist=false, sortcites]{biblatex}
+%\DeclareLanguageMapping{spanish}{spanish-apa}
+
+% Añadimos las siguientes indicaciones para mejorar la adaptación de los estilos en español
+\DefineBibliographyStrings{spanish}{%
+    andothers = {et\addabbrvspace al\adddot}
+}
+\DefineBibliographyStrings{spanish}{
+    url = {\adddot\space[En línea]\adddot\space Disponible en:}
+}
+\DefineBibliographyStrings{spanish}{
+    urlseen = {Acceso:}
+}
+\DefineBibliographyStrings{spanish}{
+    pages = {pp\adddot},
+    page = {p.\adddot}
+}
+
+\addbibresource{bibliografia/bibliografia.bib} % llama al archivo bibliografia.bib en el que debería estar la bibliografía utilizada
+
+
+%-------------
+%    DOCUMENTO
+%-------------
+
+\begin{document}
+\pagenumbering{roman} % Se utilizan cifras romanas en la numeración de las páginas previas al cuerpo del trabajo
+
+%----------
+%    PORTADA
+%----------
+\title{Práctica 1}
+\author{Álvaro Guerrero Espinosa (100472294)\\
+        César López Mantecón (100472092)\\
+        Paula Subías Serrano (100472119)\\
+        Irene Subías Serrano (100472108)\\}
+
+\makeatletter
+\begin{titlepage}
+    \begin{sffamily}
+    \color{azulUC3M}
+    \begin{center}
+        \begin{figure}[H] %incluimos el logotipo de la Universidad
+            \makebox[\textwidth][c]{\includegraphics[width=16cm]{Portada_Logo.png}}
+        \end{figure}
+        \vspace{2.5cm}
+        \begin{Large}
+            Grado en Ingeniería Informática\\
+            \@date\\
+            \vspace{2cm}
+            \textsl{Inteligencia Artificial en las Organizaciones}\\
+            \bigskip
+        \end{Large}
+        {\Huge ``\@title''}\\
+        \vspace*{0.5cm}
+        \rule{10.5cm}{0.1mm}\\
+        \vspace*{0.9cm}
+        {\LARGE\@author}
+        \vspace*{1cm}
+    \end{center}
+    \vfill
+    \color{black}
+    % si nuestro trabajo se va a publicar con una licencia Creative Commons, incluir estas líneas. Es la opción recomendada.
+    \includegraphics[width=4.2cm]{imagenes/creativecommons.png}\\ %incluimos el logotipo de creativecommons
+    Esta obra se encuentra sujeta a la licencia Creative Commons \textbf{Reconocimiento - No Comercial - Sin Obra Derivada}
+    \end{sffamily}
+\end{titlepage}
+\makeatother
+
+\newpage %página en blanco o de cortesía
+\thispagestyle{empty}
+\mbox{}
+
+%----------
+%    ÍNDICES
+%----------
+
+%--
+% Índice general
+%-
+\tableofcontents
+\thispagestyle{fancy}
+
+\newpage % página en blanco o de cortesía
+\thispagestyle{empty}
+\mbox{}
+
+%--
+% Índice de figuras. Si no se incluyen, comenta las líneas siguientes
+%-
+ \listoffigures
+ \thispagestyle{fancy}
+
+ \newpage % página en blanco o de cortesía
+ \thispagestyle{empty}
+ \mbox{}
+
+%--
+% Índice de tablas. Si no se incluyen, comenta las líneas siguientes
+%-
+\listoftables
+ \thispagestyle{fancy}
+
+ \newpage % página en blanco o de cortesía
+ \thispagestyle{empty}
+ \mbox{}
+
+
+%----------
+%    TRABAJO
+%----------
+\clearpage
+\pagenumbering{arabic} % numeración con múmeros arábigos para el resto de la publicación
+
+\chapter{Introducción}
+\label{chap:intro}
+
+En este documento se recoge el desarrollo de la primera práctica de \textit{Inteligencia Artificial en las Organizaciones}. En esta práctica obtendremos dos modelos de \textit{redes neuronales} para la predicción del nivel de agua en un embalse de la cuenca del Miño-Sil. Para ello, seguiremos dos aproximaciones: en la primera obtendremos un modelo entrenando mediante una validación cruzada aleatoria, en la segunda usaremos una validación cruzada basada en series temporales. Todo el estudio se llevará a cabo en la herramienta \href{https://altair.com/altair-ai-studio}{Altair AI Studio}. El uso de redes neuronales para este problema presenta claras ventajas gracias a las características de esta clase de modelos:
+\begin{itemize}
+    \item \textbf{Buenos resultados en regresión:} los modelos basados en RNA han demostrado ser muy eficaces a la hora de obtener predicciones.
+    \item \textbf{No linealidad:} el nivel de agua en los embalses sigue un comportamiento no lineal. Los modelos basados en RNA son capaces de operar con este tipo de datos, obteniendo buenos resultados.
+    \item \textbf{Robustez:} el conjunto de datos presenta una gran variabilidad, dado que depende de multitud de factores. Las RNA son capaces de operar y realizar predicciones a partir de datos con ruido o incompletos.
+\end{itemize}
+
+La gestión de los embalses ha adquirido mucha importancia en los últimos años, en especial de la mano con la Agenda 2030. Los embalses cuentan con multitud de usos relacionados con las necesidades básicas de la población: abastecimiento de agua potable, riego agrícola, producción de energía renovable, preservación del medio ambiente, uso como cortafuegos y gestión de riesgo de inundaciones. Para llevar a cabo estas funciones es necesaria una administración cuidadosa y eficaz de los mismos~\cite{endesa-beneficiosembalses}.
+
+Además, la producción de energía limpia es uno de los principales problemas que atañe a la población en la actualidad. Los embalses, junto con otras fuentes de energía renovable, presentan un gran potencial para la producción eléctrica. En España, según un informe del Ministerio de Industria, Energía y Turismo de 2015~\cite{la-energia-en-espanna}, la energía hidráulica supone casi un 2\% de la energía total consumida en el país. Esto implica que es la tercera fuente energética renovable más utilizada en España. 
+
+Con esto, hemos hecho un breve repaso sobre la importancia de una correcta gestión de los embalses en España debido a la multitud de funciones básicas que cubren. Un sistema capaz de predecir los niveles de agua en los embalses podría ser de gran utilidad de cara a la anticipación frente a épocas de sequía u otras calamidades. También, el uso de redes de neuronas artificiales presenta claras ventajas para tratar de atajar este problema.
+
+\chapter{Descripción de los datos}
+\label{chap:datos}
+
+    Los datos usados se componen del agua total y actual en cada semana de 10
+    embalses cercanos entre sí de la cuenca del Miño-Sil a lo largo de aproximadamente
+    35 años. También se tiene el nombre de cada embalse y si se usan para producción
+    eléctrica. A partir de estos datos se han obtenido otros derivados:
+    cambio semanal del agua actual, tasa de cambio (porcentual), y promedio móvil
+    del agua actual en las últimas 4 semanas. Además, se eliminaron los
+    atributos de producción eléctrica y nombre de la cuenca, ya que son constantes
+    y por lo tanto no deberían influir en la precisión del modelo obtenido.
+    Eliminar estos atributos permite obtener modelos más simples y
+    rápidos. El valor objetivo a predecir es el \textbf{agua en la
+    siguiente semana}, atributo que se ha añadido al set de datos.
+
+    En la parte 1 se tratarán los datos como una serie no temporal para regresión.
+    Cabe destacar que, como los datos realmente representan una serie temporal,
+    tratarlos como una serie no temporal para hacer regresión puede introducir
+    algunos problemas de \textit{data leak}.
+
+    En la parte 2 se tratarán los datos como una serie temporal. Debido a esto
+    se asumirá que el agua actual durante las últimas semanas es suficiente para
+    predecir el agua actual en semanas futuras. 
+
+\chapter{Proceso de entrenamiento}
+\label{chap:train}
+    Con el fin de hacer un experimento reproducible se ha utilizado la opción de usar un único hilo con semilla local en el entrenamiento de la red neuronal. La semilla empleada ha sido 1992.
+
+    Antes de continuar, destacamos que al tratar de replicar el experimento en un equipo distinto no hemos logrado obtener exactamente los mismos resultados. Si bien es cierto que el comportamiento general de los modelos ha sido el mismo, los valores obtenidos varían.
+	\section{Parte 1}
+
+        Para el entrenamiento de distintos modelos trabajaremos con variaciones sobre 3 parámetros de la red neuronal (número de capas ocultas, \textit{loss function} y \textit{learning rate}). Además, tendremos dos grupos de modelos: la mitad filtrará el dato \textit{Agua\_total}, generalmente constante para un embalse; y la otra mitad utilizará todos los atributos. Esto resulta en 16 modelos distintos. También incluiremos un modelo extra con los valores por defecto como modelo de control.
+
+        De esta forma, estamos empleando un \textit{grid-search} con los siguientes valores:
+        \begin{itemize}
+            \item Filtrado de datos: \{\textit{all}, \textit{exclude agua total}\}.
+            \item Número de capas: $\{2, 8\}$.
+            \item \textit{loss function}: \{\textit{absolute}, \textit{Huber}\}.
+            \item \textit{learning rate}: $\{0.01, \textit{adaptative}\}$.
+        \end{itemize}
+
+ Al concluir el entrenamiento hemos obtenido los siguientes resultados:
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{ |c|l|c| }
+    \hline
+    Modelo & Parámetros & RMSE\\
+    \hline
+    \hline
+    0 & (\textit{default})  & 3.933\\
+    1 & (\textit{all, adaptative, 2, absolute}))  & 4.220\\
+    2 & (\textit{all, adaptative, 2, Huber}))  & 3.928\\
+    3 & (\textit{all, adaptative, 8, absolute})  & 4.609\\
+    4 & (\textit{all, adaptative, 8, Huber})  & 4.115\\
+    5 & (\textit{all, 0.01, 2, absolute})  & 4.351\\
+    6 & (\textit{all, 0.01, 2, Huber})  & 3.931\\
+    7 & (\textit{all, 0.01, 8, absolute})  & 4.491\\
+    8 & (\textit{all, 0.01, 8, Huber})  & 4.011\\
+    9 & (\textit{exclude agua total, adaptative, 8, absolute})  & 4.657\\
+    10 & (\textit{exclude agua total, adaptative, 8, Huber})  & 4.236\\
+    11 & (\textit{exclude agua total, adaptative, 2, absolute})  & 4.145\\
+    12 & (\textit{exclude agua total, adaptative, 2, Huber})  & 3.981\\
+    13 & (\textit{exclude agua total, 0.01, 8, absolute})  & 4.542\\
+    14 & (\textit{exclude agua total, 0.01, 8, Huber})  & 4.108\\
+    15 & (\textit{exclude agua total, 0.01, 2, absolute})  & 4.574\\
+    16 & (\textit{exclude agua total, 0.01, 2, Huber})  & 3.970\\
+    \hline
+\end{tabular}
+\caption{Errores de los diferentes modelos - parte 1}
+\end{center}
+\end{table}
+
+    Al realizar un test de significancia estadística (Anova) obtenemos el siguiente resultado:
+
+$$\texttt{Anova Test:}~(f=1.455,~\text{prob}=0.124,~\alpha=0.050)$$
+
+Con nuestros datos y haciendo uso de una tabla para la distribución de $f$~\cite{f-distro} podemos ver que el valor crítico de $f$ se encuentra en el rango $(1.5705, 1.6664)$. El valor de $f$ obtenido es inferior a este rango, y el $p$-value obtenido es mayor que $\alpha$. Teniendo en cuenta todo lo anterior podemos concluir que \textbf{no existe evidencia suficiente para afirmar que los modelos obtenidos sean distintos}~\cite{anova-RM}.
+
+    Si observamos la comparación por pares proporcionada por el \textit{t-test}, destaca el modelo 9 por ser el que presenta diferencias más significativas con el resto de modelos. A continuación se muestra la matriz resultante de la ejecución del test:
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{t-test.jpeg}
+    \caption {\small Matriz de resultados \textit{t-test} - parte 1}
+\end{figure}
+
+    El modelo 9 cuenta con un RMSE anormalmente alto de $4,657\pm 0.686$. También podemos observar que existen 2 clases de modelos donde el principal componente diferenciador es la \textit{loss function}: la función \textit{Huber} presenta, en general, un error más bajo que los modelos con la función \textit{absolute} con los mismos parámetros. Esto se puede comprobar a través de los siguientes gráficos:
+
+\begin{figure}[H]
+    \includegraphics[width=0.45\linewidth]{RMSE-models.png}
+    \includegraphics[width=0.45\linewidth]{error-lossfunction.png}
+    \caption{\small Error de cada modelo y error medio según \textit{loss function}}
+\end{figure}
+
+    Con toda esta información concluimos que el mejor modelo y con el que haremos la predicción es el modelo 2, debido a que se trata de un modelo considerablemente sencillo (menor número de capas y valores por defecto) y con el menor error.
+
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{|c|c|}
+    \hline
+    RMSE & $3.928\pm0.787$\\ 
+    \hline
+    Correlación & $0.998\pm 0.001$\\
+    \hline
+    Absolute Error & $1.863\pm0.126$\\
+    \hline
+    Relative Error & $8.85\%\pm 0.83\%$\\
+    \hline
+    Normalized Absolute error & $0.043\pm0.03$\\
+    \hline
+    Squared Error & $15.987\pm 6.767$\\ 
+    \hline
+    Root Relative squared error & $0.069 \pm 0.013$\\
+    \hline
+\end{tabular}
+\caption{Errores del modelo 2}
+\end{center}
+\end{table}
+	
+    \section{Parte 2}
+    Al igual que en la parte anterior, trabajaremos con variaciones sobre 2 parámetros para generar distintos modelos. Además, trabajaremos con distintos tamaños de ventana para el \textit{Windowing} con el fin de comparar el impacto de distinto número de \textit{lags} sobre la eficacia del modelo.
+    
+    Los valores con los que trabajaremos en cada parámetro son los siguientes:
+    \begin{itemize}
+        \item \textit{Windowing:} \{4, 26, 52, 208\}
+        \item Número de capas: \{2, 8\}
+        \item \textit{loss function}: \{\textit{absolute, quadratic}\}
+    \end{itemize}
+
+    Las posibles combinaciones de estos valores resultan en 16 modelos. No se ha podido usar la función \textit{Huber}, pese a sus buenos resultados en la parte anterior, debido al excesivo tiempo de entrenamiento de los modelos. A continuación se muestran los resultados de la fase de entrenamiento:
+
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{ |c|l|c| }
+    \hline
+    Modelo & Parámetros & RMSE\\
+    \hline
+    \hline
+    0 & (\textit{default})              & 10.249\\
+    1 & (\textit{4, 2     quadratic})   & 9.581\\
+    2 & (\textit{26, 2,   quadratic})   & 10.305\\
+    3 & (\textit{52, 2,   quadratic})   & 9.199\\
+    4 & (\textit{208, 2,  quadratic})   & 9.097\\
+    5 & (\textit{4, 8,    quadratic})   & 9.170\\
+    6 & (\textit{26, 8,   quadratic})   & 9.223\\
+    7 & (\textit{52, 8,   quadratic})   & 8.789\\
+    8 & (\textit{208, 8,  quadratic})   & 9.248\\
+    9 & (\textit{4, 2,     absolute})   & 9.574\\
+    10 & (\textit{26, 2,   absolute})   & 10.462\\
+    11 & (\textit{52, 2,   absolute})   & 9.813\\
+    12 & (\textit{208, 2,  absolute})   & 9.330\\
+    13 & (\textit{4, 8,    absolute})   & 9.139\\
+    14 & (\textit{26, 8,   absolute})   & 11.127\\
+    15 & (\textit{52, 8,   absolute})   & 10.686\\
+    16 & (\textit{208, 8,  absolute})   & 10.884\\
+    \hline
+\end{tabular}
+\caption{Errores de los diferentes modelos - parte 2}
+\end{center}
+\end{table}
+
+Destaca, aunque no quede registrada en la tabla, que la tolerancia de la medida no nos permiten depositar mucha confiaza en estos datos ya que todas son del orden del 90\% del valor medido. No obstante, con el fin de continuar con el estudio, usaremos las medidas obtenidas.
+
+Siguiendo la misma metodología que en la parte anterior, si observamos los resultados del test \textit{Anova} podemos afirmar que existen diferencias significativas en los modelos. Además, teniendo en cuenta el valor  de $p$-value podemos concluir que los \textbf{modelos obtenidos son distintos}.
+
+$$\texttt{Anova test:} (f = 11.523,~prob = 0.000,~\alpha=0.050)$$
+
+Esto lo podemos corroborar al observar la matriz resultante del \textit{t-test}. Se aprecian varios pares de modelos que resultan distintos, con unos valores $p$ muy cercanos a 0.
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{t-testp2.jpeg}
+    \caption {\small Matriz de resultados \textit{t-test} - parte 2}
+\end{figure}
+
+Para poder analizar mejor los modelos, utilizaremos un diagrama de barras que muestre el RMSE de cada uno. Gracias a la representación de cada valor junto con su tolerancia, podemos apreciar la mala calidad de la medición que aporta Altair AI Studio antes mencionada:
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{RMSE-modelsp2.png}
+    \caption {\small Errores de los modelos - parte 2}
+\end{figure}
+
+Visualmente parece apreciarse un mejor comportamiento de los modelos que emplean 4 o 52 semanas en el \textit{Windowing}. Al extraer el error medio agrupado por los valores de este parámetro podemos comprobar que esta hipótesis es \textbf{falsa}. No existen diferencias significativas entre los modelos con 4, 52 o 208 \textit{lags}. Si que se aprecia un rendimiento peor en el caso de 26 \textit{lags}.
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{RMSE-windowing.png}
+    \caption {\small Errores agrupados por windowing}
+\end{figure}
+
+Con toda esta información y al no apreciar un mejor criterio de decisión, concluimos que el modelo que se usará para la predición será el modelo 7 por tener el menor error. A continuación se muestra una tabla con toda la información relativa a este modelo:
+
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{|c|c|}
+    \hline
+    RMSE                        & $8.489\pm 7.457$\\ 
+    \hline
+    Correlación                 & $0.000\pm 0.000$\\
+    \hline
+    Absolute Error              & $8.789\pm7.455$\\
+    \hline
+    Squared Error               & $132.809\pm 228.819$\\ 
+    \hline
+\end{tabular}
+\caption{Errores del modelo 7}
+\end{center}
+\end{table}
+
+No se han podido extraer más medidas por errores con el software de Altair. Destaca la baja correlación obtenida, en contraste con el buen resultado de las predicciones. Esto podría indicar que las predicciones podrían ser fruto de la casualidad. Para descartar esta hipótesis hemos decidido repetir el experimento con otra semilla distinta, obteniendo de nuevo una correlación de 0 y un buen comportamiento en las predicciones. Es por esto que concluimos que la baja correlación se debe a un error del software de Altair Ai Studio.
+
+\chapter{Visualización de resultados}
+\label{chap:result-visualizing}
+
+Para la predicción de los datos se ha seleccionado el embalse \textbf{Bao}. Este embalse cuenta con variación significativa en el nivel de agua y apenas cuenta con datos faltantes. Es por esto que lo consideramos un buen candidato sobre el que realizar predicciones.
+
+\section{Parte 1}
+Para realizar la predicción ha sido necesario filtrar los datos eliminados para el entrenamiento del modelo (i.e. \textit{Ámbito\_Nombre} y \textit{Electrico\_flag}) y aislar los datos del embalse seleccionado para obtener los datos de la última semana.
+
+Para predecir los datos de una semana son necesarios los datos de la semana anterior. Es por esto que cada vez que se realize una predicción se reinsertarán los resultados obtenidos para poder obtener la siguiente. Además, ha sido necesario introducir algunos datos manualmente como el promedio móvil de las últimas 4 semanas o la tasa de cambio.
+
+A continuación se muestran en forma de gráfico las predicciones para 3 semanas junto con los datos inmediatamente anteriores:
+
+\begin{figure}[H]
+    \includegraphics[width=0.85\linewidth]{predict-1-bao.png}\\
+    \caption{\small Valores anteriores y  predichos por el modelo - parte 1}
+\end{figure}
+En el gráfico se muestran 4 semanas previas a la predicción, siendo la semana 0 la primera predicha por nuestro modelo.
+
+Se puede observar que los datos tienen un fuerte cambio de tendencia, pasando de descender a oscilar entorno a un valor constante. Nuestro modelo mantiene esa segunda tendencia durante las 3 semanas predichas. Mas adelante, compararemos los resultados obtenidos con los valores reales.
+
+\section{Parte 2}
+
+Siguiendo la misma metodología que para la parte 1, hemos realizado las transformaciones necesarias sobre los datos para el correcto funcionamiento del modelo. Esto incluye filtrado de datos y \textit{windowing}. Además, ha sido necesario reinsertar los nuevos datos predichos para poder predecir la semana próxima.
+
+Con esto, hemos predicho el valor del nivel de agua en los embalses para 3 semanas. A continuación se muestra un gráfico de las 4 semanas previas a la predicción y las 3 semanas predichas:
+
+\begin{figure}[H]
+    \includegraphics[width=0.85\linewidth]{predict-2-bao.png}\\
+    \caption{\small Valores anteriores y  predichos por el modelo - parte 2}
+\end{figure}
+
+En este gráfico se aprecia un cambio de tendencia de los datos, de descendente a ascendente. Se tratan de predicciones muy distintas a las logradas en la primera parte. Más adelante se examirán y compararán con los valores reales.
+
+\chapter{Comparación de resultados}
+\label{chap:result-comparing}
+En este capítulo compararemos los resultados obtenidos en cada una de las partes. También evaluaremos el resultado de la predicción comparándolo con el valor real del nivel de agua en el embalse.
+
+Para facilitar la comprensión se incluyen algunos detalles con respecto a los datos expuestos:
+\begin{itemize}
+    \item Hablaremos de semanas 0, 1 y 2 como la primera, siguiente y última semana sobre las que obtendremos una \textit{predicción}.
+    \item Hablaremos de las semanas -1, -2... como las semanas previas o la anterior a la previa, respectivamente.
+    \item El nivel de agua, así como las medidas del error que compartan sus unidades, siempre estará medido en \textit{hectómetros cúbicos} ($hm^3$).
+\end{itemize}
+
+\section{Entrenamiento}
+
+Durante el entrenamiento destaca la inmensa diferencia entre los errores del primer y segundo modelo. Mientras que los modelos de la parte 1 tienen un error promedio de $4.22$, los modelos de la parte 2 cuentan con un error medio de $8.76$~\footnote{Cálculos realizados para el RMSE}. Dada la naturaleza temporal de los datos, esto puede deberse a la existencia de \textit{data leaks} durante el entrenamiento de la primera parte. De nuevo, es importante recordar que las medidas del error durante la parte dos son poco fiables debido a la gran tolerancia que presentan.
+
+\section{Predicción}
+
+Los valores predichos por el primer y segundo modelo son muy diferentes. Mientras que el primero mantiene una tendencia más o menos constante el segundo predice un aumento en el nivel de agua del embalse seleccionado. Colocando los resultados en una gráfica, junto con el nivel de agua real medido en esas fechas, podemos comprobar que el segundo modelo obtiene un resultado mucho mejor que el primero:
+
+\begin{figure}[H]
+    \includegraphics[width=0.85\linewidth]{predict-12-real.png}\\
+    \caption{\small Valores predichos vs valores reales}
+\end{figure}
+
+Se aprecia que el modelo de la segunda parte es capaz de predecir el aumento en el nivel de agua del embalse, mientras que el modelo de la primera parte erra por completo la predicción.
+
+Haciendo uso de los datos en las siguientes dos tablas podemos observar que el primer modelo se aleja un promedio del 16.48\% del valor real, siendo las predicciones más cercanas en el tiempo a los datos mejores que las más alejadas. En cambio, el segundo modelo realiza una predicción con un error del 6.09\%, manteniéndose esta medida más o menos constante para las 3 semanas.
+
+\begin{table}[H]
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+    Datos & Semana 0 ($hm^3$) & Semana 1 ($hm^3$)& Semana 2($hm^3$)\\
+    \hline
+    \hline
+    Modelo parte 1 & 163.198 & 162.527 & 160.471\\
+    Modelo parte 2 & 165.374 & 186.258 & 197.378\\
+    Valores reales & 181     & 197     & 206    \\
+    \hline
+    \end{tabular}
+    \caption {Predicciones de los modelos y valores reales}
+\end{table}
+
+\begin{table}[H]
+\begin{tabular}{|c|c|c|c|c|}
+    \hline
+    Error & Semana 0 & Semana 1 & Semana 2 & Promedio\\
+    \hline
+    \hline
+    Error parte 1  &  17.802 &  34.473 &  45.529 & 32.601\\
+    Error relativo parte 1   & 9.84\% & 17.5\% & 22.10\% & 16.48\%\\
+    Error parte 2  &  15.626 &  10.742 &   8.662 & 11.663\\
+    Error relativo parte 2   & 8.63\% & 5.45\% & 4.19\% & 6.09\%\\ 
+    \hline
+    \end{tabular}
+    \caption {Error de las predicciones}
+\end{table}
+
+\section{Conclusiones sobre los resultados}
+
+Tras haber analizado los datos de las predicciones de ambos modelos podemos afirmar con rotundidad que la aproximación basada en series temporales muestra un mejor rendimiento. El modelo obtenido en la parte 2 ha sido capaz de realizar una predicción acertada del nivel de agua para el embalse seleccionado con un error mucho menor que el modelo obtenido en la primera parte. Esto se puede observar mejor en el siguiente gráfico:
+
+\begin{figure}[H]
+    \includegraphics[width=0.85\linewidth]{err-abs-week.png}\\
+    \caption{\small Error absoluto por semana de cada modelo}
+\end{figure}
+
+Tal y como se especuló al principio del proyecto, el tratamiento de los datos como una serie temporal supone un mejor rendimiento debido a la asuencia de \textit{data leaks} y la naturaleza de los datos.
+
+\chapter{Conclusión}
+\label{chap:conclusion}
+
+Esta práctica nos ha introducido al uso de herramientas especializadas en el trabajo con modelos de inteligencia artificial. Hemos encontrado el uso de estas herramientas útil debido al alto grado de abstracción que presenta, permitiendo que usuarios no experimentados en el mundo de la programación puedan aprovechar las ventajas de los algoritmos de \textit{Machine Learning}. No obstante, los errores observados durante el desarrollo nos hacen pensar que su aplicación debería ser en proyectos de poca criticidad o con fines puramente didácticos.
+
+Cabe destacar que la aplicación de estas herramientas a un problema presente en la actualidad motiva la obtención de buenos resultados y nos acerca cada vez más a aplicaciones reales de los conocimientos adquiridos durante nuestra carrera académica. El uso de la inteligencia artificial para la obtención de modelos a partir de grandes cantidades de datos presenta muchas aplicaciones en el mundo moderno, demostrando el potencial de esta herramienta en un gran abanico de ámbitos.
+
+%----------
+%    BIBLIOGRAFÍA
+%----------
+
+%\nocite{*} % Si quieres que aparezcan en la bibliografía todos los documentos que la componen (también los que no estén citados en el texto) descomenta está lína
+
+\clearpage
+
+\phantomsection
+\addcontentsline{toc}{chapter}{Bibliografía}
+\label{chap:bibliography}
+\setquotestyle[english]{british} % Cambiamos el tipo de cita porque en el estilo IEEE se usan las comillas inglesas.
+\printbibliography
+
+
+
+%----------
+%    ANEXOS
+%----------
+
+% Si tu trabajo incluye anexos, puedes descomentar las siguientes líneas
+%\chapter* {Anexo x}
+%\pagenumbering{gobble} % Las páginas de los anexos no se numeran
+
+
+
+\end{document}

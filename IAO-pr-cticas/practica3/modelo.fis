@@ -1,0 +1,94 @@
+[System]
+Name='practica3'
+Type='mamdani'
+Version=2.0
+NumInputs=7
+NumOutputs=1
+NumRules=16
+AndMethod='min'
+OrMethod='max'
+ImpMethod='min'
+AggMethod='max'
+DefuzzMethod='centroid'
+
+[Input1]
+Name='Precio'
+Range=[7 50]
+NumMFs=3
+MF1='barato':'trapmf',[7 7 15 30]
+MF2='caro':'trapmf',[25 40 50 50]
+MF3='medio':'trimf',[15 28.5 40]
+
+[Input2]
+Name='Tamaño'
+Range=[18 555]
+NumMFs=3
+MF1='pequeño':'trapmf',[15 15 20 40]
+MF2='medio':'trapmf',[20 30 60 120]
+MF3='grande':'trapmf',[100 200 555 555]
+
+[Input3]
+Name='n habitaciones'
+Range=[0 5]
+NumMFs=3
+MF1='pocas':'trapmf',[0 0 1 3]
+MF2='medio':'trimf',[2 3 5]
+MF3='muchas':'trapmf',[3 4 5 5]
+
+[Input4]
+Name='Altura'
+Range=[-1 22]
+NumMFs=3
+MF1='alto':'trapmf',[7 10 22 22]
+MF2='medio':'trimf',[2 5 10]
+MF3='bajos':'trapmf',[-2 0 2 4]
+
+[Input5]
+Name='Amueblado'
+Range=[0 1]
+NumMFs=2
+MF1='SI':'trapmf',[1 1 1 1]
+MF2='NO':'trapmf',[0 0 0 0]
+
+[Input6]
+Name='ascensor'
+Range=[0 1]
+NumMFs=2
+MF1='SI':'trapmf',[1 1 1 1]
+MF2='NO':'trapmf',[0 0 0 0]
+
+[Input7]
+Name='Cercanía tp'
+Range=[1 30]
+NumMFs=3
+MF1='cerca':'trimf',[-23.1666666666667 1 25.1666666666667]
+MF2='lejos':'trimf',[5.83333333333333 30 54.1666666666667]
+MF3='medio':'trimf',[1 15.5 30]
+
+[Output1]
+Name='Recomendación'
+Range=[0 1]
+NumMFs=5
+MF1='No recomendado':'trapmf',[-0.1875 -0.02083 0.02083 0.1875]
+MF2='Poco recomendado':'trapmf',[0.0625 0.2292 0.2708 0.4375]
+MF3='Medianamente recomendable':'trapmf',[0.3125 0.4792 0.5208 0.6875]
+MF4='Recomendable':'trapmf',[0.5625 0.7292 0.7708 0.9375]
+MF5='Muy recomendable':'trapmf',[0.8125 0.9792 1.021 1.187]
+
+[Rules]
+1 1 0 0 0 0 0, 5 (1) : 1
+1 2 0 0 0 0 0, 4 (1) : 1
+0 3 0 0 0 0 0, 2 (1) : 1
+2 0 0 0 0 0 0, 1 (1) : 1
+2 0 0 0 2 0 0, 1 (1) : 1
+1 0 0 0 1 0 0, 5 (1) : 1
+1 0 0 0 2 0 0, 3 (0.6) : 1
+0 1 3 0 0 0 0, 2 (0.3) : 1
+0 2 2 0 0 0 0, 4 (0.3) : 1
+0 3 3 0 0 0 0, 3 (0.3) : 1
+0 0 0 1 0 2 0, 1 (1) : 1
+0 0 0 0 0 0 1, 5 (0.6) : 1
+0 0 0 0 0 0 2, 2 (0.6) : 1
+0 0 0 0 0 0 3, 3 (0.6) : 1
+3 1 0 0 0 0 1, 4 (1) : 1
+0 -1 0 0 2 0 0, 1 (1) : 1
